@@ -14,8 +14,8 @@ class RefactorPatternParsingTest extends TestCase
             "if (!'<variable>' && '<boolean>') { return response()->'<name>'(['message' => __('<string>')], '<number>'); }" => ['replace' => 'Foo::bar("<1>", "<2>", "<3>"(), "<4>");'],
             'foo(false, true, null);' => ['replace' => 'bar("hi");'],
         ];
-        $startFile = file_get_contents(__DIR__.'/../stubs/SimplePostController.stub');
-        $resultFile = file_get_contents(__DIR__.'/../stubs/ResultSimplePostController.stub');
+        $startFile = file_get_contents(__DIR__.'/stubs/SimplePostController.stub');
+        $resultFile = file_get_contents(__DIR__.'/stubs/ResultSimplePostController.stub');
         [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
 
         $this->assertEquals($resultFile, $newVersion);
@@ -25,8 +25,8 @@ class RefactorPatternParsingTest extends TestCase
     /** @test */
     public function can_parse_patterns()
     {
-        $patterns = require __DIR__.'/../stubs/refactor_patterns.php';
-        $sampleFileTokens = token_get_all(file_get_contents(__DIR__.'/../stubs/SimplePostController.stub'));
+        $patterns = require __DIR__.'/stubs/refactor_patterns.php';
+        $sampleFileTokens = token_get_all(file_get_contents(__DIR__.'/stubs/SimplePostController.stub'));
 
         $matches = PatternParser::search($patterns, $sampleFileTokens);
 
@@ -73,5 +73,30 @@ class RefactorPatternParsingTest extends TestCase
 
         $end = $matches[1][1][0]['end'];
         $this->assertEquals($sampleFileTokens[$end], ';');
+    }
+
+    /** @test */
+    public function capturing_predicate()
+    {
+        $patterns = [
+            "'<var>' = '<var>';" => [
+                'replace' => '',
+                'predicate' => function ($matches) {
+                    return $matches[0][1] === $matches[1][1];
+                }
+            ],
+        ];
+        $startFile = '<?php
+$var = 0;
+$var = $var;
+$user = $var;';
+        $resultFile = '<?php
+$var = 0;
+
+$user = $var;';
+        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
+
+        $this->assertEquals($resultFile, $newVersion);
+        $this->assertEquals([3, 1], $replacedAt);
     }
 }

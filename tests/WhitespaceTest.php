@@ -15,9 +15,9 @@ class WhitespaceTest extends BaseTestClass
 
             "use Illuminate\Http\Request;'<white_space>'" => ['replace' => ''],
         ];
-        $startFile = file_get_contents(__DIR__.'/../stubs/SimplePostController.stub');
+        $startFile = file_get_contents(__DIR__.'/stubs/SimplePostController.stub');
 
-        $resultFile = file_get_contents(__DIR__.'/../stubs/EolSimplePostControllerResult.stub');
+        $resultFile = file_get_contents(__DIR__.'/stubs/EolSimplePostControllerResult.stub');
         [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
 
         $this->assertEquals($resultFile, $newVersion);
@@ -30,8 +30,8 @@ class WhitespaceTest extends BaseTestClass
         $patterns = [
             ")'<white_space>'{" => ['replace' => '){'],
         ];
-        $startFile = file_get_contents(__DIR__.'/../stubs/SimplePostController.stub');
-        $resultFile = file_get_contents(__DIR__.'/../stubs/NoWhiteSpaceSimplePostController.stub');
+        $startFile = file_get_contents(__DIR__.'/stubs/SimplePostController.stub');
+        $resultFile = file_get_contents(__DIR__.'/stubs/NoWhiteSpaceSimplePostController.stub');
         [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
 
         $this->assertEquals($resultFile, $newVersion);
@@ -44,9 +44,9 @@ class WhitespaceTest extends BaseTestClass
         $patterns = [
             "response('<white_space>?')'<white_space>?'->json" => ['replace' => 'response()"<2>"->mson'],
         ];
-        $startFile = file_get_contents(__DIR__.'/../stubs/SimplePostController.stub');
+        $startFile = file_get_contents(__DIR__.'/stubs/SimplePostController.stub');
 
-        $resultFile = file_get_contents(__DIR__.'/../stubs/OptionalWhiteSpaceSimplePostController.stub');
+        $resultFile = file_get_contents(__DIR__.'/stubs/OptionalWhiteSpaceSimplePostController.stub');
         [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
 
         $this->assertEquals($resultFile, $newVersion);

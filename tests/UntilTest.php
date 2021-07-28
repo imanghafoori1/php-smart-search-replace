@@ -14,8 +14,8 @@ class UntilTest extends BaseTestClass
             'return response()"<until>";' => ['replace' => 'response()"<1>"->throwResponse();'],
         ];
 
-        $startFile = file_get_contents(__DIR__.'/../stubs/SimplePostController.stub');
-        $resultFile = file_get_contents(__DIR__.'/../stubs/SimplePostController2.stub');
+        $startFile = file_get_contents(__DIR__.'/stubs/SimplePostController.stub');
+        $resultFile = file_get_contents(__DIR__.'/stubs/SimplePostController2.stub');
         [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
 
         $this->assertEquals($resultFile, $newVersion);
