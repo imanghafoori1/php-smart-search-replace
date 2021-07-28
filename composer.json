@@ -1,0 +1,41 @@
+{
+    "name": "imanghafoori/php-search-replace",
+    "description": "Smart search replace functionality for php source code",
+    "keywords": [
+        "php-search-replace"
+    ],
+    "homepage": "https://github.com/imanghafoori1/php-smart-search-replace",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Iman",
+            "email": "imanghafoori1@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php" : "^7.1.3|8.0.*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Imanghafoori\\SearchReplace\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Imanghafoori\\SearchReplace\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
