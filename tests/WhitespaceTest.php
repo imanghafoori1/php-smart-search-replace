@@ -11,9 +11,15 @@ class WhitespaceTest extends BaseTestClass
     public function white_space()
     {
         $patterns = [
-            "use App\Club;'<white_space>'use App\Events\MemberCommentedClubPost;" => ['replace' => "use App\Club; use App\Events\MemberCommentedClubPost;"],
+            "use App\Club;'<white_space>'use App\Events\MemberCommentedClubPost;" =>
+                [
+                    'replace' => "use App\Club; use App\Events\MemberCommentedClubPost;",
+                ],
 
-            "use Illuminate\Http\Request;'<white_space>'" => ['replace' => ''],
+            "use Illuminate\Http\Request;'<white_space>'" =>
+                [
+                    'replace' => ''
+                ],
         ];
         $startFile = file_get_contents(__DIR__.'/stubs/SimplePostController.stub');
 

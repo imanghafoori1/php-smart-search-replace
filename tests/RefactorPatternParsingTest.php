@@ -3,10 +3,31 @@
 namespace Imanghafoori\SearchReplace\Tests;
 
 use Imanghafoori\SearchReplace\PatternParser;
+use Imanghafoori\SearchReplace\TokenCompare;
 use PHPUnit\Framework\TestCase;
 
 class RefactorPatternParsingTest extends TestCase
 {
+    /** @test */
+    public function refiners()
+    {
+        $patterns = [
+            "]" => [
+                'replace' => ',]',
+                'refiners' => [
+                    ',,]' => ['replace' => ',]'],
+                ],
+            ]
+        ];
+
+        $startFile = '<?php [1,2,3]; [1,2,3,];';
+
+        $resultFile = '<?php [1,2,3,]; [1,2,3,];';
+        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
+
+        $this->assertEquals($resultFile, $newVersion);
+    }
+
     /** @test */
     public function capturing_place_holders()
     {
@@ -42,7 +63,10 @@ class RefactorPatternParsingTest extends TestCase
         $patterns = require __DIR__.'/stubs/refactor_patterns.php';
         $sampleFileTokens = token_get_all(file_get_contents(__DIR__.'/stubs/SimplePostController.stub'));
 
-        $matches = PatternParser::search($patterns, $sampleFileTokens);
+        $patterns = PatternParser::parsePatterns($patterns);
+        foreach ($patterns as $pIndex => $pattern) {
+            $matches[$pIndex] = TokenCompare::getMatch($pattern['search'], $sampleFileTokens, $pattern['predicate'], $pattern['mutator']);
+        }
 
         $this->assertEquals($matches[0][0]['values'],
             [
