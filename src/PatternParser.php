@@ -29,7 +29,7 @@ class PatternParser
         $tokens_to_search_for = [];
 
         foreach ($refactorPatterns as $pattern => $to) {
-            $tokens_to_search_for[] = ['search' => self::analyzeTokens($pattern)]+ $to + ['predicate' => null];
+            $tokens_to_search_for[] = ['search' => self::analyzeTokens($pattern)]+ $to + ['predicate' => null, 'mutator' => null];
         }
 
         return $tokens_to_search_for;
@@ -53,7 +53,7 @@ class PatternParser
         $matches = [];
 
         foreach ($patterns as $pIndex => $pattern) {
-            $matches = TokenCompare::getMatch($pattern['search'], $fileTokens, $matches, $pIndex, $pattern['predicate']);
+            $matches = TokenCompare::getMatch($pattern['search'], $fileTokens, $matches, $pIndex, $pattern['predicate'], $pattern['mutator']);
         }
 
         return $matches;

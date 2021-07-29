@@ -163,7 +163,7 @@ class TokenCompare
         return $pToken[1] === $token[1];
     }
 
-    public static function getMatch($search, $fileTokens, array $matches, $pIndex, $predicate = null)
+    public static function getMatch($search, $fileTokens, array $matches, $pIndex, $predicate, $mutator = null)
     {
         foreach ($search as $pToken) {
             $i = 0;
@@ -175,6 +175,7 @@ class TokenCompare
                     if ($isMatch) {
                         [$k, $matchedValues] = $isMatch;
                         if (!$predicate || $predicate($matchedValues)) {
+                            $mutator && $matchedValues = $mutator($matchedValues);
                             $matches[$pIndex][] = [['start' => $i, 'end' => $k], 'values' => $matchedValues];
                         }
                         $i = $k - 1; // fast-forward
