@@ -87,7 +87,7 @@ class PatternParser
             foreach ($p_match as $match) {
                 $newValue = $replacePatterns[$pi]['replace'];
                 foreach ($match['values'] as $number => $value) {
-                    $newValue = str_replace('"<'.($number + 1).'>"', $value[1], $newValue);
+                    $newValue = str_replace(['"<'.($number + 1).'>"', "'<".($number + 1).">'"], $value[1], $newValue);
                 }
                 [$sampleFileTokens, $lineNum] = self::replaceTokens($sampleFileTokens, $match[0]['start'], $match[0]['end'], $newValue);
                 $replacementLines[] = $lineNum;
