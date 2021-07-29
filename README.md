@@ -21,9 +21,8 @@ $user = 3;
 ```
 Then you can define a pattern like this:
 ```php
-$pattern = [';;' => ['replace' => ';']]
+$pattern = [';;' => ['replace' => ';']];
 ```
 This will catch all the 3 cases above since the neutral php whitespaces are ignored while searching.
 
-‍
 -------------------
