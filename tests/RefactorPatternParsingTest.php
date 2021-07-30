@@ -108,10 +108,10 @@ class RefactorPatternParsingTest extends TestCase
             ]
         );
 
-        $start = $matches[0][0][0]['start'];
+        $start = $matches[0][0]['start'];
         $this->assertEquals($sampleFileTokens[$start][1], 'if');
 
-        $end = $matches[0][0][0]['end'];
+        $end = $matches[0][0]['end'];
         $this->assertEquals($sampleFileTokens[$end], '}');
 
         $this->assertEquals($matches[0][1]['values'],
@@ -124,22 +124,22 @@ class RefactorPatternParsingTest extends TestCase
             ]
         );
 
-        $start = $matches[0][1][0]['start'];
+        $start = $matches[0][1]['start'];
         $this->assertEquals($sampleFileTokens[$start][1], 'if');
 
-        $end = $matches[0][1][0]['end'];
+        $end = $matches[0][1]['end'];
         $this->assertEquals($sampleFileTokens[$end], '}');
 
-        $start = $matches[1][0][0]['start'];
+        $start = $matches[1][0]['start'];
         $this->assertEquals($sampleFileTokens[$start][1], 'foo');
 
-        $end = $matches[1][0][0]['end'];
+        $end = $matches[1][0]['end'];
         $this->assertEquals($sampleFileTokens[$end], ';');
 
-        $start = $matches[1][1][0]['start'];
+        $start = $matches[1][1]['start'];
         $this->assertEquals($sampleFileTokens[$start][1], 'foo');
 
-        $end = $matches[1][1][0]['end'];
+        $end = $matches[1][1]['end'];
         $this->assertEquals($sampleFileTokens[$end], ';');
     }
 

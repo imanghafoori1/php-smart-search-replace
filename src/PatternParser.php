@@ -109,14 +109,14 @@ class PatternParser
         return $tokens;
     }
 
-    private static function applyPattern($p_match, $replace, $tokens, array $replacementLines): array
+    private static function applyPattern($patternMatch, $replace, $tokens, array $replacementLines): array
     {
-        foreach ($p_match as $match) {
+        foreach ($patternMatch as $match) {
             $newValue = $replace;
             foreach ($match['values'] as $number => $value) {
                 $newValue = str_replace(['"<'.($number + 1).'>"', "'<".($number + 1).">'"], $value[1], $newValue);
             }
-            [$tokens, $lineNum] = self::replaceTokens($tokens, $match[0]['start'], $match[0]['end'], $newValue);
+            [$tokens, $lineNum] = self::replaceTokens($tokens, $match['start'], $match['end'], $newValue);
             $replacementLines[] = $lineNum;
         }
 
