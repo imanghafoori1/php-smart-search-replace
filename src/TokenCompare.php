@@ -33,11 +33,12 @@ class TokenCompare
                 $line = 1;
                 $level = 0;
                 $startingToken = ($pattern[$j - 1]); // may use getPreviousToken()
-                if (in_array($startingToken, ['(', '[', '{'], true)) {
-                    $anti = self::getAnti($startingToken);
-                } else {
+                if (! in_array($startingToken, ['(', '[', '{'], true)) {
                     throw new \Exception('pattern invalid');
                 }
+
+                $anti = self::getAnti($startingToken);
+
                 if ($anti !== $pattern[$j + 1]) {
                     throw new \Exception('pattern invalid');
                 }
@@ -60,9 +61,19 @@ class TokenCompare
                 $startFrom = $k - 1;
                 $placeholderValues[] = [T_STRING, Stringify::fromTokens($untilTokens), $line];
             } elseif (self::isWhiteSpace($pToken)) {
-                $placeholderValues[] = self::process($tToken, T_WHITESPACE, $pToken[1], $startFrom);
+                $result = self::compareIt($tToken, T_WHITESPACE, $pToken[1], $startFrom);
+                if ($result === null) {
+                    return false;
+                }
+                $placeholderValues[] = $result;
+                unset($result);
             } elseif (self::isComment($pToken)) {
-                $placeholderValues[] = self::process($tToken, T_COMMENT, $pToken[1], $startFrom);
+                $result = self::compareIt($tToken, T_COMMENT, $pToken[1], $startFrom);
+                if ($result === null) {
+                    return false;
+                }
+                $placeholderValues[] = $result;
+                unset($result);
             } else {
                 $same = self::areTheSame($pToken, $tToken);
 
@@ -78,8 +89,10 @@ class TokenCompare
             [$pToken, $j] = self::getNextToken($pattern, $j);
 
             $pi = $startFrom;
-            if (self::isWhiteSpace($pToken) || self::isComment($pToken)) {
-                $tToken = $tokens[++$startFrom] ?? [null, null];
+            if (self::isWhiteSpace($pToken)) {
+                [$tToken, $startFrom] = self::getNextToken($tokens, $startFrom, T_WHITESPACE);
+            } elseif (self::isComment($pToken)) {
+                [$tToken, $startFrom] = self::getNextToken($tokens, $startFrom, T_COMMENT);
             } else {
                 [$tToken, $startFrom] = self::getNextToken($tokens, $startFrom);
             }
@@ -92,11 +105,21 @@ class TokenCompare
         return false;
     }
 
-    private static function getNextToken($tokens, $i)
+    private static function getNextToken($tokens, $i, $except = null)
     {
+        $values = [
+            T_WHITESPACE => T_WHITESPACE,
+            T_COMMENT => T_COMMENT,
+            ',' => ',',
+        ];
+
+        if ($except) {
+            unset($values[$except]);
+        }
+
         $i++;
         $token = $tokens[$i] ?? '_';
-        while (in_array($token[0], [T_WHITESPACE, T_COMMENT, ','], true)) {
+        while (in_array($token[0], $values, true)) {
             $i++;
             $token = $tokens[$i] ?? [null, null];
         }
@@ -178,7 +201,7 @@ class TokenCompare
                         $data = ['start' => $i, 'end' => $k, 'values' => $matchedValues];
                         if (!$predicate || $predicate($data, $tokens)) {
                             $mutator && $matchedValues = $mutator($matchedValues);
-                            $matches[] = [['start' => $i, 'end' => $k], 'values' => $matchedValues];
+                            $matches[] = ['start' => $i, 'end' => $k, 'values' => $matchedValues];
                         }
 
                         $k > $i && $i = $k - 1; // fast-forward
@@ -191,19 +214,16 @@ class TokenCompare
         return $matches;
     }
 
-    private static function process($tToken, int $type, $token, &$i)
+    private static function compareIt($tToken, int $type, $token, &$i)
     {
-        if ($tToken[0] !== $type) {
-            if (self::isOptional($token)) {
-                $i--;
-                $output = [T_WHITESPACE, ''];
-            } else {
-                $output = null;
-            }
-        } else {
-            $output = $tToken;
+        if ($tToken[0] === $type) {
+            return $tToken;
         }
 
-        return $output;
+        if (self::isOptional($token)) {
+            $i--;
+
+            return [T_WHITESPACE, ''];
+        }
     }
 }
