@@ -9,6 +9,36 @@ use PHPUnit\Framework\TestCase;
 class RefactorPatternParsingTest extends TestCase
 {
     /** @test */
+    public function match_comment()
+    {
+        $patterns = [
+           '["<comment>"]' => [
+                'replace' => '[]',
+            ]
+        ];
+
+        $startFile = '<?php [/**/]; [1,]; ["s"];';
+        $resultFile = '<?php []; [1,]; ["s"];';
+        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
+        $this->assertEquals($resultFile, $newVersion);
+    }
+
+    /** @test */
+    public function match_white_space()
+    {
+        $patterns = [
+           '["<white_space>"]' => [
+                'replace' => '[]',
+            ]
+        ];
+
+        $startFile = '<?php [/**/]; [1,]; ["s"]; [ ];';
+        $resultFile = '<?php [/**/]; [1,]; ["s"]; [];';
+        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
+        $this->assertEquals($resultFile, $newVersion);
+    }
+
+    /** @test */
     public function refiners()
     {
         $patterns = [
@@ -120,7 +150,7 @@ class RefactorPatternParsingTest extends TestCase
             "'<var>' = '<var>';" => [
                 'replace' => '',
                 'predicate' => function ($matches) {
-                    return $matches[0][1] === $matches[1][1];
+                    return $matches['values'][0][1] === $matches['values'][1][1];
                 }
             ],
         ];
