@@ -163,19 +163,20 @@ class TokenCompare
         return $pToken[1] === $token[1];
     }
 
-    public static function getMatch($search, $fileTokens, $predicate, $mutator = null)
+    public static function getMatch($search, $tokens, $predicate, $mutator = null)
     {
         $matches = [];
         foreach ($search as $pToken) {
             $i = 0;
-            $allCount = count($fileTokens);
+            $allCount = count($tokens);
             while ($i < $allCount) {
-                $token = $fileTokens[$i];
+                $token = $tokens[$i];
                 if (self::areTheSame($pToken, $token)) {
-                    $isMatch = self::compareTokens($search, $fileTokens, $i);
+                    $isMatch = self::compareTokens($search, $tokens, $i);
                     if ($isMatch) {
                         [$k, $matchedValues] = $isMatch;
-                        if (!$predicate || $predicate($matchedValues)) {
+                        $data = ['start' => $i, 'end' => $k, 'values' => $matchedValues];
+                        if (!$predicate || $predicate($data, $tokens)) {
                             $mutator && $matchedValues = $mutator($matchedValues);
                             $matches[] = [['start' => $i, 'end' => $k], 'values' => $matchedValues];
                         }
