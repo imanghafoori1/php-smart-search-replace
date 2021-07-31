@@ -64,20 +64,20 @@ class TokenCompare
 
                 $startFrom = $k - 1;
                 $placeholderValues[] = [T_STRING, Stringify::fromTokens($untilTokens), $line];
+            } elseif (self::is($pToken, '<any>')) {
+                $placeholderValues[] = $tToken;
             } elseif (self::is($pToken, '<white_space>')) {
                 $result = self::compareIt($tToken, T_WHITESPACE, $pToken[1], $startFrom);
                 if ($result === null) {
                     return false;
                 }
                 $placeholderValues[] = $result;
-                unset($result);
             } elseif (self::is($pToken, '<comment>')) {
                 $result = self::compareIt($tToken, T_COMMENT, $pToken[1], $startFrom);
                 if ($result === null) {
                     return false;
                 }
                 $placeholderValues[] = $result;
-                unset($result);
             } else {
                 $same = self::areTheSame($pToken, $tToken);
 
@@ -226,7 +226,7 @@ class TokenCompare
         }
     }
 
-    private static function forwardToNextToken($pToken, $tokens, $startFrom): array
+    private static function forwardToNextToken($pToken, $tokens, $startFrom)
     {
         if (self::is($pToken, '<white_space>')) {
             return self::getNextToken($tokens, $startFrom, T_WHITESPACE);

@@ -9,6 +9,24 @@ use PHPUnit\Framework\TestCase;
 class RefactorPatternParsingTest extends TestCase
 {
     /** @test */
+    public function any_keyword2()
+    {
+        $patterns = [
+            '["<any>""<white_space>?"]' => [
+                'replace' => '["<1>""<2>","<1>"]',
+                'predicate' => function ($matches) {
+                    return $matches['values'][0][0] === T_CONSTANT_ENCAPSED_STRING;
+                }
+            ]
+        ];
+
+        $startFile = '<?php [1 ]; ["s" ]; ["d"];';
+        $resultFile = '<?php [1 ]; ["s" ,"s"]; ["d","d"];';
+        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
+        $this->assertEquals($resultFile, $newVersion);
+    }
+
+    /** @test */
     public function match_comment()
     {
         $patterns = [
