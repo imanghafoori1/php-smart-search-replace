@@ -56,7 +56,11 @@ class PatternParser
         foreach ($patterns as $pIndex => $pattern) {
             $matches[$pIndex] = TokenCompare::getMatch($pattern['search'], $tokens, $pattern['predicate'], $pattern['mutator']);
             [$tokens, $replacementLines] = self::applyPattern($matches[$pIndex], $pattern['replace'], $tokens, $replacementLines);
-            $pattern['refiners'] && [$tokens,] = self::search($pattern['refiners'], token_get_all(Stringify::fromTokens($tokens)));
+            if ($pattern['refiners']) {
+                foreach ($pattern['refiners'] as $key => $refiner) {
+                    [$tokens,] = self::search([$key => $refiner], token_get_all(Stringify::fromTokens($tokens)));
+                }
+            }
 
         }
 

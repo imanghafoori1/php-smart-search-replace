@@ -46,13 +46,14 @@ class RefactorPatternParsingTest extends TestCase
                 'replace' => ',]',
                 'refiners' => [
                     ',,]' => ['replace' => ',]'],
+                    '[,]' => ['replace' => '[]'],
                 ],
             ]
         ];
 
-        $startFile = '<?php [1,2,3]; [1,2,3,];';
+        $startFile = '<?php [1,2,3]; [1,2,3,]; [ ];';
 
-        $resultFile = '<?php [1,2,3,]; [1,2,3,];';
+        $resultFile = '<?php [1,2,3,]; [1,2,3,]; [];';
         [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
 
         $this->assertEquals($resultFile, $newVersion);
