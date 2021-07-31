@@ -30,7 +30,7 @@ class PatternParser
 
         $i = 0;
         foreach ($refactorPatterns as $pattern => $to) {
-            $tokens_to_search_for[$i] = ['search' => self::analyzeTokens($pattern)] + $to + ['predicate' => null, 'mutator' => null, 'refiners' => []];
+            $tokens_to_search_for[$i] = ['search' => self::analyzeTokens($pattern)] + $to + ['predicate' => null, 'mutator' => null, 'post_replace' => []];
             $i++;
         }
 
@@ -56,9 +56,9 @@ class PatternParser
         foreach ($patterns as $pIndex => $pattern) {
             $matches[$pIndex] = TokenCompare::getMatch($pattern['search'], $tokens, $pattern['predicate'], $pattern['mutator']);
             [$tokens, $replacementLines] = self::applyPattern($matches[$pIndex], $pattern['replace'], $tokens, $replacementLines);
-            if ($pattern['refiners']) {
-                foreach ($pattern['refiners'] as $key => $refiner) {
-                    [$tokens,] = self::search([$key => $refiner], token_get_all(Stringify::fromTokens($tokens)));
+            if ($pattern['post_replace']) {
+                foreach ($pattern['post_replace'] as $key => $postReplace) {
+                    [$tokens,] = self::search([$key => $postReplace], token_get_all(Stringify::fromTokens($tokens)));
                 }
             }
 

@@ -2,11 +2,15 @@
 
 namespace Imanghafoori\SearchReplace;
 
-use Illuminate\Support\Str;
-
 class TokenCompare
 {
     private static $placeHolders = [T_CONSTANT_ENCAPSED_STRING, T_VARIABLE, T_LNUMBER, T_STRING];
+
+    private static $ignored = [
+        T_WHITESPACE => T_WHITESPACE,
+        T_COMMENT => T_COMMENT,
+        ',' => ',',
+    ];
 
     private static function compareTokens($pattern, $tokens, $startFrom)
     {
@@ -60,14 +64,14 @@ class TokenCompare
 
                 $startFrom = $k - 1;
                 $placeholderValues[] = [T_STRING, Stringify::fromTokens($untilTokens), $line];
-            } elseif (self::isWhiteSpace($pToken)) {
+            } elseif (self::is($pToken, '<white_space>')) {
                 $result = self::compareIt($tToken, T_WHITESPACE, $pToken[1], $startFrom);
                 if ($result === null) {
                     return false;
                 }
                 $placeholderValues[] = $result;
                 unset($result);
-            } elseif (self::isComment($pToken)) {
+            } elseif (self::is($pToken, '<comment>')) {
                 $result = self::compareIt($tToken, T_COMMENT, $pToken[1], $startFrom);
                 if ($result === null) {
                     return false;
@@ -89,13 +93,7 @@ class TokenCompare
             [$pToken, $j] = self::getNextToken($pattern, $j);
 
             $pi = $startFrom;
-            if (self::isWhiteSpace($pToken)) {
-                [$tToken, $startFrom] = self::getNextToken($tokens, $startFrom, T_WHITESPACE);
-            } elseif (self::isComment($pToken)) {
-                [$tToken, $startFrom] = self::getNextToken($tokens, $startFrom, T_COMMENT);
-            } else {
-                [$tToken, $startFrom] = self::getNextToken($tokens, $startFrom);
-            }
+            [$tToken, $startFrom] = self::forwardToNextToken($pToken, $tokens, $startFrom);
         }
 
         if ($pCount === $j) {
@@ -105,26 +103,27 @@ class TokenCompare
         return false;
     }
 
-    private static function getNextToken($tokens, $i, $except = null)
+    private static function getNextToken($tokens, $i, $notIgnored = null)
     {
-        $values = [
-            T_WHITESPACE => T_WHITESPACE,
-            T_COMMENT => T_COMMENT,
-            ',' => ',',
-        ];
+        $ignored = self::$ignored;
 
-        if ($except) {
-            unset($values[$except]);
+        if ($notIgnored) {
+            unset($ignored[$notIgnored]);
         }
 
         $i++;
         $token = $tokens[$i] ?? '_';
-        while (in_array($token[0], $values, true)) {
+        while (in_array($token[0], $ignored, true)) {
             $i++;
             $token = $tokens[$i] ?? [null, null];
         }
 
         return [$token, $i];
+    }
+
+    private static function is($token, $keyword)
+    {
+        return $token[0] === T_CONSTANT_ENCAPSED_STRING && trim($token[1], '\'\"?') === $keyword;
     }
 
     private static function isWildcard($token)
@@ -137,21 +136,21 @@ class TokenCompare
         return $token[0] === T_CONSTANT_ENCAPSED_STRING && trim($token[1], '\'\"') === '<until_match>';
     }
 
-    private static function isWhiteSpace($token)
-    {
-        return $token[0] === T_CONSTANT_ENCAPSED_STRING && trim($token[1], '\'\"?') === '<white_space>';
-    }
-
-    private static function isComment($token)
-    {
-        return $token[0] === T_CONSTANT_ENCAPSED_STRING && trim($token[1], '\'\"?') === '<comment>';
-    }
-
     private static function isOptional($token)
     {
-        return Str::endsWith(trim($token, '\'\"'), '?');
+        return self::endsWith(trim($token, '\'\"'), '?');
     }
 
+    public static function endsWith($haystack, $needles)
+    {
+        foreach ((array) $needles as $needle) {
+            if (substr($haystack, -strlen($needle)) === (string) $needle) {
+                return true;
+            }
+        }
+
+        return false;
+    }
     private static function getAnti(string $startingToken)
     {
         return [
@@ -224,6 +223,17 @@ class TokenCompare
             $i--;
 
             return [T_WHITESPACE, ''];
+        }
+    }
+
+    private static function forwardToNextToken($pToken, $tokens, $startFrom): array
+    {
+        if (self::is($pToken, '<white_space>')) {
+            return self::getNextToken($tokens, $startFrom, T_WHITESPACE);
+        } elseif (self::is($pToken, '<comment>')) {
+            return self::getNextToken($tokens, $startFrom, T_COMMENT);
+        } else {
+            return self::getNextToken($tokens, $startFrom);
         }
     }
 }
