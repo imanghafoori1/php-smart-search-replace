@@ -23,7 +23,7 @@ class TokenCompare
         $pToken = $pattern[$j];
 
         while ($startFrom < $tCount && $j < $pCount) {
-            if (self::isWildcard($pToken)) {
+            if (self::is($pToken, '<until>')) {
                 $untilTokens = [];
                 $line = 1;
                 for ($k = $pi + 1; $tokens[$k] !== $pattern[$j + 1]; $k++) {
@@ -32,7 +32,7 @@ class TokenCompare
                 }
                 $startFrom = $k - 1;
                 $placeholderValues[] = [T_STRING, Stringify::fromTokens($untilTokens), $line];
-            } elseif (self::isUntilMatch($pToken)) {
+            } elseif (self::is($pToken, '<until_match>')) {
                 $untilTokens = [];
                 $line = 1;
                 $level = 0;
@@ -126,16 +126,6 @@ class TokenCompare
         return $token[0] === T_CONSTANT_ENCAPSED_STRING && trim($token[1], '\'\"?') === $keyword;
     }
 
-    private static function isWildcard($token)
-    {
-        return $token[0] === T_CONSTANT_ENCAPSED_STRING && trim($token[1], '\'\"') === '<until>';
-    }
-
-    private static function isUntilMatch($token)
-    {
-        return $token[0] === T_CONSTANT_ENCAPSED_STRING && trim($token[1], '\'\"') === '<until_match>';
-    }
-
     private static function isOptional($token)
     {
         return self::endsWith(trim($token, '\'\"'), '?');
@@ -193,19 +183,25 @@ class TokenCompare
             $allCount = count($tokens);
             while ($i < $allCount) {
                 $token = $tokens[$i];
-                if (self::areTheSame($pToken, $token)) {
-                    $isMatch = self::compareTokens($search, $tokens, $i);
-                    if ($isMatch) {
-                        [$k, $matchedValues] = $isMatch;
-                        $data = ['start' => $i, 'end' => $k, 'values' => $matchedValues];
-                        if (!$predicate || $predicate($data, $tokens)) {
-                            $mutator && $matchedValues = $mutator($matchedValues);
-                            $matches[] = ['start' => $i, 'end' => $k, 'values' => $matchedValues];
-                        }
-
-                        $k > $i && $i = $k - 1; // fast-forward
-                    }
+                if (! self::areTheSame($pToken, $token)) {
+                    $i++;
+                    continue;
                 }
+
+                $isMatch = self::compareTokens($search, $tokens, $i);
+                if (! $isMatch) {
+                    $i++;
+                    continue;
+                }
+
+                [$k, $matchedValues] = $isMatch;
+                $data = ['start' => $i, 'end' => $k, 'values' => $matchedValues];
+                if (! $predicate || $predicate($data, $tokens)) {
+                    $mutator && $matchedValues = $mutator($matchedValues);
+                    $matches[] = ['start' => $i, 'end' => $k, 'values' => $matchedValues];
+                }
+
+                $k > $i && $i = $k - 1; // fast-forward
                 $i++;
             }
         }
