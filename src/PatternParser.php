@@ -39,7 +39,7 @@ class PatternParser
 
     public static function search($patterns, $tokens)
     {
-        return self::findMatches((self::parsePatterns($patterns)), $tokens);
+        return self::findMatches(self::parsePatterns($patterns), $tokens);
     }
 
     public static function searchReplace($patterns, $tokens)
