@@ -52,12 +52,9 @@ class TokenCompare
                         break;
                     }
 
-                    if ($startingToken === $tokens[$k]) {
-                        $level--;
-                    }
-                    if ($anti === $tokens[$k]) {
-                        $level++;
-                    }
+                    $tokens[$k] === $startingToken && $level--;
+                    $tokens[$k] === $anti && $level++;
+
                     ! $line && isset($tokens[$k][2]) && $line = $tokens[$k][2];
                     $untilTokens[] = $tokens[$k];
                 }
@@ -85,9 +82,7 @@ class TokenCompare
                     return false;
                 }
 
-                if ($same === 'placeholder') {
-                    $placeholderValues[] = $tToken;
-                }
+                $same === 'placeholder' && $placeholderValues[] = $tToken;
             }
 
             [$pToken, $j] = self::getNextToken($pattern, $j);
@@ -183,10 +178,10 @@ class TokenCompare
         return $pToken[1] === $token[1];
     }
 
-    public static function getMatches($search, $tokens, $predicate, $mutator = null)
+    public static function getMatches($patternTokens, $tokens, $predicate, $mutator = null)
     {
         $matches = [];
-        foreach ($search as $pToken) {
+        foreach ($patternTokens as $pToken) {
             $i = 0;
             $allCount = count($tokens);
             while ($i < $allCount) {
@@ -196,7 +191,7 @@ class TokenCompare
                     continue;
                 }
 
-                $isMatch = self::compareTokens($search, $tokens, $i);
+                $isMatch = self::compareTokens($patternTokens, $tokens, $i);
                 if (! $isMatch) {
                     $i++;
                     continue;
