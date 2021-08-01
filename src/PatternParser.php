@@ -54,14 +54,31 @@ class PatternParser
         $replacementLines = $matches = [];
 
         foreach ($patterns as $pIndex => $pattern) {
-            $matches[$pIndex] = TokenCompare::getMatch($pattern['search'], $tokens, $pattern['predicate'], $pattern['mutator']);
-            [$tokens, $replacementLines] = self::applyPattern($matches[$pIndex], $pattern['replace'], $tokens, $replacementLines);
+            $matches[$pIndex] = TokenCompare::getMatches($pattern['search'], $tokens, $pattern['predicate'], $pattern['mutator']);
+            [$tokens, $replacementLines] = self::applyAllMatches($matches[$pIndex], $pattern['replace'], $tokens, $replacementLines);
+
             if ($pattern['post_replace']) {
                 foreach ($pattern['post_replace'] as $key => $postReplace) {
                     [$tokens,] = self::search([$key => $postReplace], token_get_all(Stringify::fromTokens($tokens)));
                 }
             }
 
+        }
+
+        return [$tokens, $replacementLines];
+    }
+
+    public static function findPatternMatches($pattern, $tokens)
+    {
+        $replacementLines = [];
+
+        $result = TokenCompare::getMatches($pattern['search'], $tokens, $pattern['predicate'], $pattern['mutator']);
+        [$tokens, $replacementLines] = self::applyAllMatches($result, $pattern['replace'], $tokens, $replacementLines);
+
+        if ($pattern['post_replace']) {
+            foreach ($pattern['post_replace'] as $key => $postReplace) {
+                [$tokens,] = self::search([$key => $postReplace], token_get_all(Stringify::fromTokens($tokens)));
+            }
         }
 
         return [$tokens, $replacementLines];
@@ -92,7 +109,7 @@ class PatternParser
 
         $replacementLines = [];
         foreach ($matches as $pi => $patternMatch) {
-            [$tokens, $replacementLines] = self::applyPattern($patternMatch, $replacePatterns[$pi]['replace'], $tokens, $replacementLines);
+            [$tokens, $replacementLines] = self::applyAllMatches($patternMatch, $replacePatterns[$pi]['replace'], $tokens, $replacementLines);
         }
 
         return [$tokens, $replacementLines];
@@ -113,17 +130,24 @@ class PatternParser
         return $tokens;
     }
 
-    private static function applyPattern($patternMatch, $replace, $tokens, array $replacementLines): array
+    private static function applyAllMatches($patternMatch, $replace, $tokens, array $replacementLines)
     {
         foreach ($patternMatch as $match) {
-            $newValue = $replace;
-            foreach ($match['values'] as $number => $value) {
-                $newValue = str_replace(['"<'.($number + 1).'>"', "'<".($number + 1).">'"], $value[1], $newValue);
-            }
-            [$tokens, $lineNum] = self::replaceTokens($tokens, $match['start'], $match['end'], $newValue);
+            [$tokens, $lineNum] = self::applyMatch($replace, $match, $tokens);
             $replacementLines[] = $lineNum;
         }
 
         return [$tokens, $replacementLines];
+    }
+
+    public static function applyMatch($replace, $match, $tokens)
+    {
+        $newValue = $replace;
+        foreach ($match['values'] as $number => $value) {
+            $newValue = str_replace(['"<'.($number + 1).'>"', "'<".($number + 1).">'"], $value[1], $newValue);
+        }
+        [$tokens, $lineNum] = self::replaceTokens($tokens, $match['start'], $match['end'], $newValue);
+
+        return [$tokens, $lineNum];
     }
 }

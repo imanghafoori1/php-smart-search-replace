@@ -183,7 +183,7 @@ class TokenCompare
         return $pToken[1] === $token[1];
     }
 
-    public static function getMatch($search, $tokens, $predicate, $mutator = null)
+    public static function getMatches($search, $tokens, $predicate, $mutator = null)
     {
         $matches = [];
         foreach ($search as $pToken) {

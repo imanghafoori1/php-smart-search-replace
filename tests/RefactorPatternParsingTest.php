@@ -114,7 +114,7 @@ class RefactorPatternParsingTest extends TestCase
 
         $patterns = PatternParser::parsePatterns($patterns);
         foreach ($patterns as $pIndex => $pattern) {
-            $matches[$pIndex] = TokenCompare::getMatch($pattern['search'], $sampleFileTokens, $pattern['predicate'], $pattern['mutator']);
+            $matches[$pIndex] = TokenCompare::getMatches($pattern['search'], $sampleFileTokens, $pattern['predicate'], $pattern['mutator']);
         }
 
         $this->assertEquals($matches[0][0]['values'],
