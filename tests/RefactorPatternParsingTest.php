@@ -30,13 +30,13 @@ class RefactorPatternParsingTest extends TestCase
     public function match_comment()
     {
         $patterns = [
-           '["<comment>"]' => [
-                'replace' => '[]',
+           '"<comment>"]' => [
+                'replace' => ']',
             ]
         ];
 
-        $startFile = '<?php [/**/]; [1,]; ["s"];';
-        $resultFile = '<?php []; [1,]; ["s"];';
+        $startFile = '<?php [/**/]; [/**/ ]; [ /**/ ]; [1,]; ["s"];';
+        $resultFile = '<?php []; []; [ ]; [1,]; ["s"];';
         [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
         $this->assertEquals($resultFile, $newVersion);
     }

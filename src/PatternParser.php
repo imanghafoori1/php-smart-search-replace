@@ -39,7 +39,7 @@ class PatternParser
 
     public static function search($patterns, $tokens)
     {
-        return self::findMatches(self::parsePatterns($patterns), $tokens);
+        return self::findMultiplePatterns(self::parsePatterns($patterns), $tokens);
     }
 
     public static function searchReplace($patterns, $tokens)
@@ -49,7 +49,7 @@ class PatternParser
         return [Stringify::fromTokens($tokens), $replacementLines];
     }
 
-    public static function findMatches($patterns, $tokens)
+    public static function findMultiplePatterns($patterns, $tokens)
     {
         $replacementLines = $matches = [];
 
