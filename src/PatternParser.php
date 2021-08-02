@@ -90,18 +90,18 @@ class PatternParser
             return false;
         }
         $map = [
-            "'<string>'" => T_CONSTANT_ENCAPSED_STRING,
-            "'<str>'" => T_CONSTANT_ENCAPSED_STRING,
-            "'<variable>'" => T_VARIABLE,
-            "'<var>'" => T_VARIABLE,
-            "'<number>'" => T_LNUMBER,
-            "'<name>'" => T_STRING,
-            "'<boolean>'" => T_STRING,
-            "'<bool>'" => T_STRING,
-            "'<,>'" => ',',
+            "<string>" => T_CONSTANT_ENCAPSED_STRING,
+            "<str>" => T_CONSTANT_ENCAPSED_STRING,
+            "<variable>" => T_VARIABLE,
+            "<var>" => T_VARIABLE,
+            "<number>" => T_LNUMBER,
+            "<name>" => T_STRING,
+            "<boolean>" => T_STRING,
+            "<bool>" => T_STRING,
+            "<,>" => ',',
         ];
 
-        return $map[$token[1]] ?? false;
+        return $map[trim($token[1], '\'\"')] ?? false;
     }
 
     public static function applyPatterns($patterns, $matches, $tokens)
@@ -147,6 +147,7 @@ class PatternParser
         foreach ($match['values'] as $number => $value) {
             $newValue = str_replace(['"<'.($number + 1).'>"', "'<".($number + 1).">'"], $value[1] ?? $value[0], $newValue);
         }
+
         [$tokens, $lineNum] = self::replaceTokens($tokens, $match['start'], $match['end'], $newValue);
 
         return [$tokens, $lineNum];

@@ -96,10 +96,20 @@ class RefactorPatternParsingTest extends TestCase
     public function basic_capturing_place_holders()
     {
         $patterns = [
-            "'<var>' = 1;" => ['replace' => "2 ==='<1>';"],
+            "'<var>' = 1;" => ['replace' => "'<1>';"],
         ];
         $startFile = '<?php $var = 1;';
-        $resultFile = '<?php 2 ===$var;';
+        $resultFile = '<?php $var;';
+        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
+
+        $this->assertEquals($resultFile, $newVersion);
+        $this->assertEquals([1], $replacedAt);
+
+        $patterns = [
+            '"<var>" = 1;' => ['replace' => "'<1>';"],
+        ];
+        $startFile = '<?php $var = 1;';
+        $resultFile = '<?php $var;';
         [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
 
         $this->assertEquals($resultFile, $newVersion);
