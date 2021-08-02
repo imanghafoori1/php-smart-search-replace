@@ -118,6 +118,16 @@ class PatternParser
 
     public static function analyzeTokens($pattern)
     {
+        $nums = [
+            "'<1:", "'<2:", "'<3:", "'<4:", "'<5:", "'<6:", "'<7:", "'<8:", "'<9:", "'<10:",
+        ];
+        $pattern = str_replace($nums, "'<", $pattern);
+
+        $nums = [
+            '"<1:', '"<2:', '"<3:', '"<4:', '"<5:', '"<6:', '"<7:', '"<8:', '"<9:', '"<10:',
+        ];
+        $pattern = str_replace($nums, '"<', $pattern);
+
         $tokens = token_get_all('<?php '.$pattern);
         array_shift($tokens);
 
