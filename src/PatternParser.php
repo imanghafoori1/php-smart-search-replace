@@ -143,13 +143,20 @@ class PatternParser
 
     public static function applyMatch($replace, $match, $tokens)
     {
-        $newValue = $replace;
-        foreach ($match['values'] as $number => $value) {
-            $newValue = str_replace(['"<'.($number + 1).'>"', "'<".($number + 1).">'"], $value[1] ?? $value[0], $newValue);
-        }
+        $newValue = self::applyOnReplacements($replace, $match['values']);
 
         [$tokens, $lineNum] = self::replaceTokens($tokens, $match['start'], $match['end'], $newValue);
 
         return [$tokens, $lineNum];
+    }
+
+    public static function applyOnReplacements($replace, $values)
+    {
+        $newValue = $replace;
+        foreach ($values as $number => $value) {
+            $newValue = str_replace(['"<'.($number + 1).'>"', "'<".($number + 1).">'"], $value[1] ?? $value[0], $newValue);
+        }
+
+        return $newValue;
     }
 }
