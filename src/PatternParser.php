@@ -51,11 +51,11 @@ class PatternParser
 
     public static function findMultiplePatterns($patterns, $tokens)
     {
-        $replacementLines = $matches = [];
+        $replacementLines = [];
 
-        foreach ($patterns as $pIndex => $pattern) {
-            $matches[$pIndex] = TokenCompare::getMatches($pattern['search'], $tokens, $pattern['predicate'], $pattern['mutator']);
-            [$tokens, $replacementLines] = self::applyAllMatches($matches[$pIndex], $pattern['replace'], $tokens, $replacementLines);
+        foreach ($patterns as $pattern) {
+            $m = TokenCompare::getMatches($pattern['search'], $tokens, $pattern['predicate'], $pattern['mutator']);
+            [$tokens, $replacementLines] = self::applyAllMatches($m, $pattern['replace'], $tokens, $replacementLines);
 
             if ($pattern['post_replace']) {
                 foreach ($pattern['post_replace'] as $key => $postReplace) {
@@ -98,6 +98,7 @@ class PatternParser
             "'<name>'" => T_STRING,
             "'<boolean>'" => T_STRING,
             "'<bool>'" => T_STRING,
+            "'<,>'" => ',',
         ];
 
         return $map[$token[1]] ?? false;
@@ -115,7 +116,7 @@ class PatternParser
         return [$tokens, $replacementLines];
     }
 
-    private static function analyzeTokens($pattern)
+    public static function analyzeTokens($pattern)
     {
         $tokens = token_get_all('<?php '.$pattern);
         array_shift($tokens);
@@ -144,7 +145,7 @@ class PatternParser
     {
         $newValue = $replace;
         foreach ($match['values'] as $number => $value) {
-            $newValue = str_replace(['"<'.($number + 1).'>"', "'<".($number + 1).">'"], $value[1], $newValue);
+            $newValue = str_replace(['"<'.($number + 1).'>"', "'<".($number + 1).">'"], $value[1] ?? $value[0], $newValue);
         }
         [$tokens, $lineNum] = self::replaceTokens($tokens, $match['start'], $match['end'], $newValue);
 

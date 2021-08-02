@@ -20,7 +20,7 @@ class UntilTest extends BaseTestClass
 
         $this->assertEquals($resultFile, $newVersion);
 
-        $this->assertEquals([17, 24], $replacedAt);
+        $this->assertEquals([16, 23], $replacedAt);
     }
 
     /** @test */

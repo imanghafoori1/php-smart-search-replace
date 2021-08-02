@@ -13,9 +13,8 @@ class PostController extends Controller
     public function index(User $user, Club $club, Request $request)
     {
         if (! $user && true) {
-           //asdcasdc
             response()
-                ->json(["message" => __('hi')], 404)->throwResponse();
+                ->json(["message" => __('hi'),], 404)->throwResponse();
         }
     }
     public function index2(User $user, Club $club, Request $request)

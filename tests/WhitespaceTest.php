@@ -27,7 +27,7 @@ class WhitespaceTest extends BaseTestClass
         [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
 
         $this->assertEquals($resultFile, $newVersion);
-        $this->assertEquals([5, 1, 8], $replacedAt);
+        $this->assertEquals([5, 8], $replacedAt);
     }
 
     /** @test */
@@ -41,7 +41,7 @@ class WhitespaceTest extends BaseTestClass
         [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
 
         $this->assertEquals($resultFile, $newVersion);
-        $this->assertEquals([13, 15, 21], $replacedAt);
+        $this->assertEquals([13, 15, 20], $replacedAt);
     }
 
     /** @test */
@@ -56,7 +56,7 @@ class WhitespaceTest extends BaseTestClass
         [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
 
         $this->assertEquals($resultFile, $newVersion);
-        $this->assertEquals([17, 24], $replacedAt);
+        $this->assertEquals([16, 23], $replacedAt);
     }
 
     /** @test */
@@ -71,7 +71,7 @@ class WhitespaceTest extends BaseTestClass
         [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
 
         $this->assertEquals($resultFile, $newVersion);
-        $this->assertEquals([1, 1], $replacedAt);
+        $this->assertEquals([1], $replacedAt);
 
         $patterns = [
             ";'<white_space>?''<comment>?';" => ['replace' => ';"<2>"'],
@@ -82,6 +82,6 @@ class WhitespaceTest extends BaseTestClass
         [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
 
         $this->assertEquals($resultFile, $newVersion);
-        $this->assertEquals([1, 1], $replacedAt);
+        $this->assertEquals([1], $replacedAt);
     }
 }

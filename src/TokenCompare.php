@@ -4,12 +4,12 @@ namespace Imanghafoori\SearchReplace;
 
 class TokenCompare
 {
-    private static $placeHolders = [T_CONSTANT_ENCAPSED_STRING, T_VARIABLE, T_LNUMBER, T_STRING];
+    private static $placeHolders = [T_CONSTANT_ENCAPSED_STRING, T_VARIABLE, T_LNUMBER, T_STRING, ','];
 
     private static $ignored = [
         T_WHITESPACE => T_WHITESPACE,
         T_COMMENT => T_COMMENT,
-        ',' => ',',
+        //',' => ',',
     ];
 
     private static function compareTokens($pattern, $tokens, $startFrom)
@@ -147,6 +147,10 @@ class TokenCompare
 
     private static function areTheSame($pToken, $token)
     {
+        if (self::is($pToken, '<any>')) {
+            return true;
+        }
+
         if (self::is($pToken, '<white_space>')) {
             return $token[0] === T_WHITESPACE;
         }
@@ -159,7 +163,7 @@ class TokenCompare
             return false;
         }
 
-        if (in_array($pToken[0], self::$placeHolders, true) && $pToken[1] === null) {
+        if (in_array($pToken[0], self::$placeHolders, true) && !isset($pToken[1])) {
             return 'placeholder';
         }
 
@@ -178,35 +182,35 @@ class TokenCompare
         return $pToken[1] === $token[1];
     }
 
-    public static function getMatches($patternTokens, $tokens, $predicate, $mutator = null)
+    public static function getMatches($patternTokens, $tokens, $predicate = null, $mutator = null)
     {
         $matches = [];
-        foreach ($patternTokens as $pToken) {
-            $i = 0;
-            $allCount = count($tokens);
-            while ($i < $allCount) {
-                $token = $tokens[$i];
-                if (! self::areTheSame($pToken, $token)) {
-                    $i++;
-                    continue;
-                }
 
-                $isMatch = self::compareTokens($patternTokens, $tokens, $i);
-                if (! $isMatch) {
-                    $i++;
-                    continue;
-                }
-
-                [$k, $matchedValues] = $isMatch;
-                $data = ['start' => $i, 'end' => $k, 'values' => $matchedValues];
-                if (! $predicate || $predicate($data, $tokens)) {
-                    $mutator && $matchedValues = $mutator($matchedValues);
-                    $matches[] = ['start' => $i, 'end' => $k, 'values' => $matchedValues];
-                }
-
-                $k > $i && $i = $k - 1; // fast-forward
+        $pToken = $patternTokens[0];
+        $i = 0;
+        $allCount = count($tokens);
+        while ($i < $allCount) {
+            $token = $tokens[$i];
+            if (! self::areTheSame($pToken, $token)) {
                 $i++;
+                continue;
             }
+
+            $isMatch = self::compareTokens($patternTokens, $tokens, $i);
+            if (! $isMatch) {
+                $i++;
+                continue;
+            }
+
+            [$k, $matchedValues] = $isMatch;
+            $data = ['start' => $i, 'end' => $k, 'values' => $matchedValues];
+            if (! $predicate || $predicate($data, $tokens)) {
+                $mutator && $matchedValues = $mutator($matchedValues);
+                $matches[] = ['start' => $i, 'end' => $k, 'values' => $matchedValues];
+            }
+
+            $k > $i && $i = $k - 1; // fast-forward
+            $i++;
         }
 
         return $matches;

@@ -81,7 +81,7 @@ class RefactorPatternParsingTest extends TestCase
     public function capturing_place_holders()
     {
         $patterns = [
-            "if (!'<variable>' && '<boolean>') { return response()->'<name>'(['message' => __('<string>')], '<number>'); }" => ['replace' => 'Foo::bar("<1>", "<2>", "<3>"(), "<4>");'],
+            "if (!'<variable>' && '<boolean>') { return response()->'<name>'(['message' => __('<string>'),], '<number>'); }" => ['replace' => 'Foo::bar("<1>", "<2>", "<3>"(), "<4>");'],
             'foo(false, true, null);' => ['replace' => 'bar("hi");'],
         ];
         $startFile = file_get_contents(__DIR__.'/stubs/SimplePostController.stub');
@@ -89,7 +89,7 @@ class RefactorPatternParsingTest extends TestCase
         [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
 
         $this->assertEquals($resultFile, $newVersion);
-        $this->assertEquals([15, 23, 26, 27], $replacedAt);
+        $this->assertEquals([15, 22, 25, 26], $replacedAt);
     }
 
     /** @test */
@@ -121,9 +121,11 @@ class RefactorPatternParsingTest extends TestCase
             [
                 [T_VARIABLE, '$user', 15],
                 [T_STRING, 'true', 15],
-                [T_STRING, 'json', 18],
-                [T_CONSTANT_ENCAPSED_STRING, "'hi'", 18],
-                [T_LNUMBER, 404, 18],
+                [T_STRING, 'json', 17],
+                [T_CONSTANT_ENCAPSED_STRING, "'hi'", 17],
+                ',',
+                ',',
+                [T_LNUMBER, 404, 17],
             ]
         );
 
@@ -135,11 +137,13 @@ class RefactorPatternParsingTest extends TestCase
 
         $this->assertEquals($matches[0][1]['values'],
             [
-                [T_VARIABLE, '$club', 23],
-                [T_STRING, 'FALSE', 23],
-                [T_STRING, 'json', 24],
-                [T_CONSTANT_ENCAPSED_STRING, "'Hello'", 24],
-                [T_LNUMBER, 403, 24],
+                [T_VARIABLE, '$club', 22],
+                [T_STRING, 'FALSE', 22],
+                [T_STRING, 'json', 23],
+                [T_CONSTANT_ENCAPSED_STRING, "'Hello'", 23],
+                ',',
+                ',',
+                [T_LNUMBER, 403, 23],
             ]
         );
 
@@ -184,6 +188,6 @@ $user = $var;';
         [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
 
         $this->assertEquals($resultFile, $newVersion);
-        $this->assertEquals([3, 1], $replacedAt);
+        $this->assertEquals([3], $replacedAt);
     }
 }
