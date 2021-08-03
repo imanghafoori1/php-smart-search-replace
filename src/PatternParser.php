@@ -151,13 +151,19 @@ class PatternParser
         return [$tokens, $replacementLines];
     }
 
-    public static function applyMatch($replace, $match, $tokens)
+    public static function applyMatch($replace, $match, $tokens, $avoiding = [])
     {
         $newValue = self::applyOnReplacements($replace, $match['values']);
 
-        [$tokens, $lineNum] = self::replaceTokens($tokens, $match['start'], $match['end'], $newValue);
+        [$newTokens, $lineNum] = self::replaceTokens($tokens, $match['start'], $match['end'], $newValue);
 
-        return [$tokens, $lineNum];
+        $hasAny = TokenCompare::matchesAny($avoiding, token_get_all(Stringify::fromTokens($newTokens)));
+
+        if ($hasAny) {
+            return [$tokens, null];
+        }
+
+        return [$newTokens, $lineNum];
     }
 
     public static function applyOnReplacements($replace, $values)

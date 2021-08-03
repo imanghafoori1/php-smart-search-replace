@@ -239,4 +239,26 @@ class TokenCompare
             return self::getNextToken($tokens, $startFrom);
         }
     }
+
+    public static function matchesAny($avoidResultIn, $newTokens)
+    {
+        foreach ($avoidResultIn as $pattern) {
+            $_matchedValues = TokenCompare::getMatches(PatternParser::analyzeTokens($pattern), $newTokens);
+            if ($_matchedValues) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static function getPortion($start, $end, $tokens)
+    {
+        $output = '';
+        for ($i = $start - 1; $i < $end; $i++) {
+            $output .= $tokens[$i][1] ?? $tokens[$i][0];
+        }
+
+        return $output;
+    }
 }
