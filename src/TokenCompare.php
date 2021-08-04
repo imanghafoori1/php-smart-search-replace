@@ -182,12 +182,12 @@ class TokenCompare
         return $pToken[1] === $token[1];
     }
 
-    public static function getMatches($patternTokens, $tokens, $predicate = null, $mutator = null)
+    public static function getMatches($patternTokens, $tokens, $predicate = null, $mutator = null, $startFrom = 0)
     {
         $matches = [];
 
         $pToken = $patternTokens[0];
-        $i = 0;
+        $i = $startFrom;
         $allCount = count($tokens);
         while ($i < $allCount) {
             $token = $tokens[$i];
@@ -214,6 +214,38 @@ class TokenCompare
         }
 
         return $matches;
+    }
+
+    public static function getFirstMatch($patternTokens, $tokens, $predicate = null, $mutator = null)
+    {
+        $pToken = $patternTokens[0];
+        $i = 0;
+        $allCount = count($tokens);
+        while ($i < $allCount) {
+            $token = $tokens[$i];
+            if (! self::areTheSame($pToken, $token)) {
+                $i++;
+                continue;
+            }
+
+            $isMatch = self::compareTokens($patternTokens, $tokens, $i);
+            if (! $isMatch) {
+                $i++;
+                continue;
+            }
+
+            [$k, $matchedValues] = $isMatch;
+            $data = ['start' => $i, 'end' => $k, 'values' => $matchedValues];
+            if (! $predicate || $predicate($data, $tokens)) {
+                $mutator && $matchedValues = $mutator($matchedValues);
+                return ['start' => $i, 'end' => $k, 'values' => $matchedValues];
+            }
+
+            $k > $i && $i = $k - 1; // fast-forward
+            $i++;
+        }
+
+        return [];
     }
 
     private static function compareIt($tToken, int $type, $token, &$i)

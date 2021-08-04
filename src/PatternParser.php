@@ -21,6 +21,12 @@ class PatternParser
             }
         }
 
+        $j = 0;
+        while ($lineNumber === 0 && $j < 5) {
+            $j++;
+            $lineNumber = $tokens[$i++][2] ?? 0;
+        }
+
         return [$tokens, $lineNumber];
     }
 
@@ -143,11 +149,11 @@ class PatternParser
 
     public static function applyMatch($replace, $match, $tokens, $avoiding = [], $postReplaces = [])
     {
-        $newValue = self::applyOnReplacements($replace, $match['values']);
+        $newValue = self::applyWithPostReplacements($replace, $match['values'], $postReplaces);
 
         [$newTokens, $lineNum] = self::replaceTokens($tokens, $match['start'], $match['end'], $newValue);
 
-        [$newTokens, $wasPostReplaced] = PatternParser::applyPostReplaces($postReplaces, $newTokens);
+        $wasPostReplaced = false;
 
         $hasAny = TokenCompare::matchesAny($avoiding, token_get_all(Stringify::fromTokens($newTokens)));
 
@@ -178,5 +184,15 @@ class PatternParser
         }
 
         return [$tokens, $wasReplaced];
+    }
+
+    public static function applyWithPostReplacements($replace, $values, $postReplaces)
+    {
+        $newValue = self::applyOnReplacements($replace, $values);
+
+        [$newTokens,] = PatternParser::applyPostReplaces($postReplaces, token_get_all('<?php '.$newValue));
+        array_shift($newTokens);
+
+        return Stringify::fromTokens($newTokens);
     }
 }
