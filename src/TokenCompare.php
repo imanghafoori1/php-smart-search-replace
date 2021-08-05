@@ -186,7 +186,8 @@ class TokenCompare
     {
         $matches = [];
 
-        $pToken = $patternTokens[0];
+        $p = self::firstNonOptionalPlaceholder($patternTokens);
+        $pToken = $patternTokens[$p];
         $i = $startFrom;
         $allCount = count($tokens);
         while ($i < $allCount) {
@@ -196,17 +197,32 @@ class TokenCompare
                 continue;
             }
 
-            $isMatch = self::compareTokens($patternTokens, $tokens, $i);
+            $optionalPatternTokens = array_slice($patternTokens, 0, $p);
+            $optionalPatternMatchCount = 0;
+            if ($optionalPatternTokens) {
+                [$k1, $matchedValues1] = self::compareTokens($optionalPatternTokens, $tokens, $i - $p);
+                foreach ($matchedValues1 as $x) {
+                    if ($x !== [T_WHITESPACE, '']) {
+                        $optionalPatternMatchCount++;
+                    }
+                }
+            } else {
+                $matchedValues1 = [];
+            }
+
+            $restPatternTokens = array_slice($patternTokens, $p);
+            $isMatch = self::compareTokens($restPatternTokens, $tokens, $i);
             if (! $isMatch) {
                 $i++;
                 continue;
             }
 
             [$k, $matchedValues] = $isMatch;
-            $data = ['start' => $i, 'end' => $k, 'values' => $matchedValues];
+            $matchedValues = array_merge($matchedValues1, $matchedValues);
+            $data = ['start' => $i - $p, 'end' => $k, 'values' => $matchedValues];
             if (! $predicate || $predicate($data, $tokens)) {
                 $mutator && $matchedValues = $mutator($matchedValues);
-                $matches[] = ['start' => $i, 'end' => $k, 'values' => $matchedValues];
+                $matches[] = ['start' => $i - $optionalPatternMatchCount, 'end' => $k, 'values' => $matchedValues];
             }
 
             $k > $i && $i = $k - 1; // fast-forward
@@ -214,38 +230,6 @@ class TokenCompare
         }
 
         return $matches;
-    }
-
-    public static function getFirstMatch($patternTokens, $tokens, $predicate = null, $mutator = null)
-    {
-        $pToken = $patternTokens[0];
-        $i = 0;
-        $allCount = count($tokens);
-        while ($i < $allCount) {
-            $token = $tokens[$i];
-            if (! self::areTheSame($pToken, $token)) {
-                $i++;
-                continue;
-            }
-
-            $isMatch = self::compareTokens($patternTokens, $tokens, $i);
-            if (! $isMatch) {
-                $i++;
-                continue;
-            }
-
-            [$k, $matchedValues] = $isMatch;
-            $data = ['start' => $i, 'end' => $k, 'values' => $matchedValues];
-            if (! $predicate || $predicate($data, $tokens)) {
-                $mutator && $matchedValues = $mutator($matchedValues);
-                return ['start' => $i, 'end' => $k, 'values' => $matchedValues];
-            }
-
-            $k > $i && $i = $k - 1; // fast-forward
-            $i++;
-        }
-
-        return [];
     }
 
     private static function compareIt($tToken, int $type, $token, &$i)
@@ -292,5 +276,36 @@ class TokenCompare
         }
 
         return $output;
+    }
+
+    private static function firstNonOptionalPlaceholder($patternTokens)
+    {
+        foreach ($patternTokens as $i => $pt) {
+            if ($pt[0] !== T_CONSTANT_ENCAPSED_STRING) {
+                return $i;
+            }
+
+            $optionals = [
+                "<any>?",
+                "<white_space>?",
+                "<comment>?",
+                "<string>?",
+                "<str>?",
+                "<variable>?",
+                "<var>?",
+                "<number>?",
+                "<num>?",
+                "<name>?",
+                "<boolean>?",
+                "<bool>?",
+                "<,>?",
+            ];
+            $name = trim($pt[1], '"\'');
+            if (! in_array($name, $optionals, true)) {
+                return $i;
+            }
+        }
+
+        return $i;
     }
 }
