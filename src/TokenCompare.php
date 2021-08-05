@@ -97,6 +97,63 @@ class TokenCompare
 
         return false;
     }
+    private static function compareOptionalTokens($patternTokens, $tokens, $startFrom)
+    {
+        $pCount = count($patternTokens); // 2
+        $j = $pCount - 1;
+        $placeholderValues = [];
+
+        $tToken = $tokens[$startFrom];
+        $pToken = $patternTokens[$j];
+
+        while ($tToken && $j !== -1) {
+            if (self::is($pToken, '<any>')) {
+                $placeholderValues[] = $tToken;
+                $startFrom--;
+                $j--;
+            } elseif (self::is($pToken, '<bool>') || self::is($pToken, '<boolean>')) {
+                if ($tToken[0] === T_STRING && in_array(strtolower($tToken[1]), ['true', 'false'])) {
+                    $placeholderValues[] = $tToken;
+                    $startFrom--;
+                } else {
+                    $placeholderValues[] = [T_WHITESPACE, ''];
+                }
+                $j--;
+            } else {
+                $name = trim($pToken[1], '\'\"?');
+                $map = [
+                    "<white_space>" => T_WHITESPACE,
+                    "<comment>" => T_COMMENT,
+                    "<string>" => T_CONSTANT_ENCAPSED_STRING,
+                    "<str>" => T_CONSTANT_ENCAPSED_STRING,
+                    "<variable>" => T_VARIABLE,
+                    "<var>" => T_VARIABLE,
+                    "<number>" => T_LNUMBER,
+                    "<name>" => T_STRING,
+                    "<,>" => ',',
+                ];
+                $type = $map[$name];
+
+                if ($tToken[0] === $type) {
+
+                    $placeholderValues[] = $tToken;
+                    $startFrom--;
+                } else {
+                    $placeholderValues[] = [T_WHITESPACE, ''];
+                }
+                $j--;
+            }
+
+            //[$pToken, $j] = self::getNextToken($patternTokens, $j);
+            //$pi = $startFrom;
+            if (!isset($patternTokens[$j])) {
+                return array_reverse($placeholderValues);
+            }
+            $pToken = $patternTokens[$j];
+            $tToken = $tokens[$startFrom];
+            //[$tToken, $startFrom] = self::forwardToNextToken($pToken, $tokens, $startFrom);
+        }
+    }
 
     private static function getNextToken($tokens, $i, $notIgnored = null)
     {
@@ -200,7 +257,7 @@ class TokenCompare
             $optionalPatternTokens = array_slice($patternTokens, 0, $p);
             $optionalPatternMatchCount = 0;
             if ($optionalPatternTokens) {
-                [$k1, $matchedValues1] = self::compareTokens($optionalPatternTokens, $tokens, $i - $p);
+                $matchedValues1 = self::compareOptionalTokens($optionalPatternTokens, $tokens, $i - 1);
                 foreach ($matchedValues1 as $x) {
                     if ($x !== [T_WHITESPACE, '']) {
                         $optionalPatternMatchCount++;
@@ -300,7 +357,7 @@ class TokenCompare
                 "<bool>?",
                 "<,>?",
             ];
-            $name = trim($pt[1], '"\'');
+            $name = trim($pt[1], '\"\'');
             if (! in_array($name, $optionals, true)) {
                 return $i;
             }

@@ -96,7 +96,7 @@ class PatternParser
             "<,>" => ',',
         ];
 
-        return $map[trim($token[1], '\'\"?')] ?? false;
+        return $map[trim($token[1], '\'\"')] ?? false;
     }
 
     public static function applyPatterns($patterns, $matches, $tokens)

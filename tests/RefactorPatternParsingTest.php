@@ -42,6 +42,21 @@ class RefactorPatternParsingTest extends TestCase
     }
 
     /** @test */
+    public function match_optional_comment()
+    {
+        $patterns = [
+           '"<comment>?""<white_space>?"]' => [
+                'replace' => ']',
+            ]
+        ];
+
+        $startFile = '<?php [/**/]; [/**/ ]; ["s"];';
+        $resultFile = '<?php []; []; ["s"];';
+        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
+        $this->assertEquals($resultFile, $newVersion);
+    }
+
+    /** @test */
     public function match_white_space()
     {
         $patterns = [
