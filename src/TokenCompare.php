@@ -183,16 +183,11 @@ class TokenCompare
         return self::endsWith(trim($token, '\'\"'), '?');
     }
 
-    public static function endsWith($haystack, $needles)
+    public static function endsWith($haystack, $needle)
     {
-        foreach ((array) $needles as $needle) {
-            if (substr($haystack, -strlen($needle)) === (string) $needle) {
-                return true;
-            }
-        }
-
-        return false;
+        return substr($haystack, -strlen($needle)) === $needle;
     }
+
     private static function getAnti(string $startingToken)
     {
         return [
@@ -243,8 +238,8 @@ class TokenCompare
     {
         $matches = [];
 
-        $p = self::firstNonOptionalPlaceholder($patternTokens);
-        $pToken = $patternTokens[$p];
+        $pIndex = self::firstNonOptionalPlaceholder($patternTokens);
+        $pToken = $patternTokens[$pIndex];
         $i = $startFrom;
         $allCount = count($tokens);
         while ($i < $allCount) {
@@ -254,7 +249,7 @@ class TokenCompare
                 continue;
             }
 
-            $optionalPatternTokens = array_slice($patternTokens, 0, $p);
+            $optionalPatternTokens = array_slice($patternTokens, 0, $pIndex);
             $optionalPatternMatchCount = 0;
             if ($optionalPatternTokens) {
                 $matchedValues1 = self::compareOptionalTokens($optionalPatternTokens, $tokens, $i - 1);
@@ -267,7 +262,7 @@ class TokenCompare
                 $matchedValues1 = [];
             }
 
-            $restPatternTokens = array_slice($patternTokens, $p);
+            $restPatternTokens = array_slice($patternTokens, $pIndex);
             $isMatch = self::compareTokens($restPatternTokens, $tokens, $i);
             if (! $isMatch) {
                 $i++;
@@ -276,7 +271,7 @@ class TokenCompare
 
             [$k, $matchedValues] = $isMatch;
             $matchedValues = array_merge($matchedValues1, $matchedValues);
-            $data = ['start' => $i - $p, 'end' => $k, 'values' => $matchedValues];
+            $data = ['start' => $i - $pIndex, 'end' => $k, 'values' => $matchedValues];
             if (! $predicate || $predicate($data, $tokens)) {
                 $mutator && $matchedValues = $mutator($matchedValues);
                 $matches[] = ['start' => $i - $optionalPatternMatchCount, 'end' => $k, 'values' => $matchedValues];
@@ -325,6 +320,33 @@ class TokenCompare
         return false;
     }
 
+    public static function isOptionalPlaceholder($token)
+    {
+        if ($token[0] !== T_CONSTANT_ENCAPSED_STRING) {
+            return false;
+        }
+
+        $optionals = [
+            "<any>?",
+            "<white_space>?",
+            "<comment>?",
+            "<string>?",
+            "<str>?",
+            "<variable>?",
+            "<var>?",
+            "<number>?",
+            "<num>?",
+            "<name>?",
+            "<boolean>?",
+            "<bool>?",
+            "<,>?",
+        ];
+
+        $name = trim($token[1], '\"\'');
+
+        return in_array($name, $optionals, true);
+    }
+
     public static function getPortion($start, $end, $tokens)
     {
         $output = '';
@@ -337,28 +359,9 @@ class TokenCompare
 
     private static function firstNonOptionalPlaceholder($patternTokens)
     {
+        $i = 0;
         foreach ($patternTokens as $i => $pt) {
-            if ($pt[0] !== T_CONSTANT_ENCAPSED_STRING) {
-                return $i;
-            }
-
-            $optionals = [
-                "<any>?",
-                "<white_space>?",
-                "<comment>?",
-                "<string>?",
-                "<str>?",
-                "<variable>?",
-                "<var>?",
-                "<number>?",
-                "<num>?",
-                "<name>?",
-                "<boolean>?",
-                "<bool>?",
-                "<,>?",
-            ];
-            $name = trim($pt[1], '\"\'');
-            if (! in_array($name, $optionals, true)) {
+            if (! self::isOptionalPlaceholder($pt)) {
                 return $i;
             }
         }
