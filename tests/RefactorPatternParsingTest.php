@@ -57,42 +57,6 @@ class RefactorPatternParsingTest extends TestCase
     }
 
     /** @test */
-    public function match_white_space()
-    {
-        $patterns = [
-           '["<white_space>"]' => [
-                'replace' => '[]',
-            ]
-        ];
-
-        $startFile = '<?php [/**/]; [1,]; ["s"]; [ ];';
-        $resultFile = '<?php [/**/]; [1,]; ["s"]; [];';
-        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
-        $this->assertEquals($resultFile, $newVersion);
-    }
-
-    /** @test */
-    public function post_replace()
-    {
-        $patterns = [
-            "]" => [
-                'replace' => ',]',
-                'post_replace' => [
-                    ',,]' => ['replace' => ',]'],
-                    '[,]' => ['replace' => '[]'],
-                ],
-            ]
-        ];
-
-        $startFile = '<?php [1,2,3]; [1,2,3,]; [ ]; [/**/ ];';
-
-        $resultFile = '<?php [1,2,3,]; [1,2,3,]; []; [];';
-        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
-
-        $this->assertEquals($resultFile, $newVersion);
-    }
-
-    /** @test */
     public function capturing_place_holders()
     {
         $patterns = [

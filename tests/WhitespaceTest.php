@@ -8,6 +8,21 @@ use Imanghafoori\LaravelMicroscope\Tests\BaseTestClass;
 class WhitespaceTest extends BaseTestClass
 {
     /** @test */
+    public function match_white_space()
+    {
+        $patterns = [
+            '["<white_space>"]' => [
+                'replace' => '[]',
+            ]
+        ];
+
+        $startFile = '<?php [/**/];[/**/ ];[1,];["s" ];[ ];';
+        $resultFile = '<?php [/**/];[];[1,];["s" ];[];';
+        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
+        $this->assertEquals($resultFile, $newVersion);
+    }
+
+    /** @test */
     public function white_space()
     {
         $patterns = [
@@ -72,13 +87,62 @@ class WhitespaceTest extends BaseTestClass
 
         $this->assertEquals($resultFile, $newVersion);
         $this->assertEquals([1], $replacedAt);
+    }
 
+    /** @test */
+    public function optional_comment_placeholder_2()
+    {
         $patterns = [
-            ";'<white_space>?''<comment>?';" => ['replace' => ';"<2>"'],
+            ";'<white_space>?''<comment>?';" => ['replace' => ';"<1>""<2>""<1>";'],
         ];
-        $startFile = '<?php ; ;';
 
-        $resultFile = '<?php ;';
+        $startFile = '<?php ; ;';
+        $resultFile = '<?php ;  ;';
+        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
+
+        $this->assertEquals($resultFile, $newVersion);
+        $this->assertEquals([1], $replacedAt);
+    }
+
+    /** @test */
+    public function optional_comment_placeholder_3()
+    {
+        $patterns = [
+            ";'<white_space>?''<comment>?';" => ['replace' => ';"<1>""<2>""<1>";'],
+        ];
+
+        $startFile = '<?php ; /**/;';
+        $resultFile = '<?php ; /**/ ;';
+        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
+
+        $this->assertEquals($resultFile, $newVersion);
+        $this->assertEquals([1], $replacedAt);
+    }
+
+    /** @test */
+    public function optional_comment_placeholder_32()
+    {
+        $patterns = [
+            "'<white_space>?''<comment>?';" => ['replace' => '"<1>""<2>""<1>";'],
+        ];
+
+        $startFile = '<?php (1); /**/;';
+        $resultFile = '<?php (1); /**/ ;';
+        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
+
+        $this->assertEquals($resultFile, $newVersion);
+        $this->assertEquals([1, 1], $replacedAt);
+    }
+
+    /** @test */
+    public function optional_comment_placeholder_4()
+    {
+        $patterns = [
+            ";'<white_space>?''<comment>?';" => ['replace' => ';"<1>""<2>""<1>";'],
+        ];
+
+        $startFile = '<?php ;/**/ ;';
+        $resultFile = '<?php ;  ;';
         [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
 
         $this->assertEquals($resultFile, $newVersion);

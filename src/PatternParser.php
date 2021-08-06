@@ -72,6 +72,7 @@ class PatternParser
     public static function findPatternMatches($pattern, $tokens)
     {
         $result = TokenCompare::getMatches($pattern['search'], $tokens, $pattern['predicate'], $pattern['mutator']);
+
         [$tokens, $replacementLines] = self::applyAllMatches($result, $pattern['replace'], $tokens);
 
         isset($pattern['post_replace']) && [$tokens] = self::applyPostReplaces($pattern['post_replace'], $tokens);
