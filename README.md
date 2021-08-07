@@ -29,12 +29,13 @@ This will catch all the 3 cases above since the neutral php whitespaces are igno
 
 ### Keywords:
 
-- '\<whitespace\>'
+- '\<white_space\>'
 - '\<until\>'
 - '\<until_match\>'
 - '\<comment\>'
-- '\<var\>'
-- '\<string\>'
+- '\<variable\>' or '\<var\>'
+- '\<string\>' or '\<str\>'
+- '\<any\>'
 
 ### Example:
 lets say you want to remove the optional comma from arrays:
