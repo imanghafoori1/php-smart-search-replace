@@ -33,10 +33,7 @@ class TokenCompare
                 $startFrom = $k - 1;
                 $placeholderValues[] = [T_STRING, Stringify::fromTokens($untilTokens), $line];
             } elseif (self::is($pToken, '<until_match>')) {
-                $untilTokens = [];
-                $line = 1;
-                $level = 0;
-                $startingToken = ($pattern[$j - 1]); // may use getPreviousToken()
+                $startingToken = $pattern[$j - 1]; // may use getPreviousToken()
                 if (! in_array($startingToken, ['(', '[', '{'], true)) {
                     throw new \Exception('pattern invalid');
                 }
@@ -47,6 +44,9 @@ class TokenCompare
                     throw new \Exception('pattern invalid');
                 }
 
+                $untilTokens = [];
+                $line = 1;
+                $level = 0;
                 for ($k = $pi + 1; true; $k++) {
                     if ($tokens[$k] === $anti && $level === 0) {
                         break;

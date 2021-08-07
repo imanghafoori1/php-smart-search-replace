@@ -119,6 +119,10 @@ class PatternParser
 
     public static function applyOnReplacements($replace, $values)
     {
+        if (is_callable($replace)) {
+            return call_user_func($replace, $values);
+        }
+
         $newValue = $replace;
         foreach ($values as $number => $value) {
             $newValue = str_replace(['"<'.($number + 1).'>"', "'<".($number + 1).">'"], $value[1] ?? $value[0], $newValue);
