@@ -99,7 +99,7 @@ class TokenCompare
     }
     private static function compareOptionalTokens($patternTokens, $tokens, $startFrom)
     {
-        $pCount = count($patternTokens); // 2
+        $pCount = count($patternTokens);
         $j = $pCount - 1;
         $placeholderValues = [];
 
@@ -110,7 +110,6 @@ class TokenCompare
             if (self::is($pToken, '<any>')) {
                 $placeholderValues[] = $tToken;
                 $startFrom--;
-                $j--;
             } elseif (self::is($pToken, '<bool>') || self::is($pToken, '<boolean>')) {
                 if ($tToken[0] === T_STRING && in_array(strtolower($tToken[1]), ['true', 'false'])) {
                     $placeholderValues[] = $tToken;
@@ -118,7 +117,6 @@ class TokenCompare
                 } else {
                     $placeholderValues[] = [T_WHITESPACE, ''];
                 }
-                $j--;
             } else {
                 $name = trim($pToken[1], '\'\"?');
                 $map = [
@@ -135,14 +133,13 @@ class TokenCompare
                 $type = $map[$name];
 
                 if ($tToken[0] === $type) {
-
                     $placeholderValues[] = $tToken;
                     $startFrom--;
                 } else {
                     $placeholderValues[] = [T_WHITESPACE, ''];
                 }
-                $j--;
             }
+            $j--;
 
             //[$pToken, $j] = self::getNextToken($patternTokens, $j);
             //$pi = $startFrom;
@@ -183,7 +180,7 @@ class TokenCompare
         return self::endsWith(trim($token, '\'\"'), '?');
     }
 
-    public static function endsWith($haystack, $needle)
+    private static function endsWith($haystack, $needle)
     {
         return substr($haystack, -strlen($needle)) === $needle;
     }
@@ -311,7 +308,7 @@ class TokenCompare
     public static function matchesAny($avoidResultIn, $newTokens)
     {
         foreach ($avoidResultIn as $pattern) {
-            $_matchedValues = TokenCompare::getMatches(PatternParser::analyzeTokens($pattern), $newTokens);
+            $_matchedValues = TokenCompare::getMatches(PatternParser::analyzePatternTokens($pattern), $newTokens);
             if ($_matchedValues) {
                 return true;
             }

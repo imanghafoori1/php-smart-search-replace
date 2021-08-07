@@ -4,6 +4,7 @@ namespace Imanghafoori\SearchReplace\Tests;
 
 use Imanghafoori\SearchReplace\PatternParser;
 use Imanghafoori\LaravelMicroscope\Tests\BaseTestClass;
+use Imanghafoori\SearchReplace\Searcher;
 
 class WhitespaceTest extends BaseTestClass
 {
@@ -18,7 +19,7 @@ class WhitespaceTest extends BaseTestClass
 
         $startFile = '<?php [/**/];[/**/ ];[1,];["s" ];[ ];';
         $resultFile = '<?php [/**/];[];[1,];["s" ];[];';
-        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
         $this->assertEquals($resultFile, $newVersion);
     }
 
@@ -39,7 +40,7 @@ class WhitespaceTest extends BaseTestClass
         $startFile = file_get_contents(__DIR__.'/stubs/SimplePostController.stub');
 
         $resultFile = file_get_contents(__DIR__.'/stubs/EolSimplePostControllerResult.stub');
-        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
 
         $this->assertEquals($resultFile, $newVersion);
         $this->assertEquals([5, 8], $replacedAt);
@@ -53,7 +54,7 @@ class WhitespaceTest extends BaseTestClass
         ];
         $startFile = file_get_contents(__DIR__.'/stubs/SimplePostController.stub');
         $resultFile = file_get_contents(__DIR__.'/stubs/NoWhiteSpaceSimplePostController.stub');
-        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
 
         $this->assertEquals($resultFile, $newVersion);
         $this->assertEquals([13, 15, 20], $replacedAt);
@@ -68,7 +69,7 @@ class WhitespaceTest extends BaseTestClass
         $startFile = file_get_contents(__DIR__.'/stubs/SimplePostController.stub');
 
         $resultFile = file_get_contents(__DIR__.'/stubs/OptionalWhiteSpaceSimplePostController.stub');
-        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
 
         $this->assertEquals($resultFile, $newVersion);
         $this->assertEquals([16, 23], $replacedAt);
@@ -83,7 +84,7 @@ class WhitespaceTest extends BaseTestClass
         $startFile = '<?php ; /*H*/ ;';
 
         $resultFile = '<?php ; /*H*/';
-        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
 
         $this->assertEquals($resultFile, $newVersion);
         $this->assertEquals([1], $replacedAt);
@@ -98,7 +99,7 @@ class WhitespaceTest extends BaseTestClass
 
         $startFile = '<?php ; ;';
         $resultFile = '<?php ;  ;';
-        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
 
         $this->assertEquals($resultFile, $newVersion);
         $this->assertEquals([1], $replacedAt);
@@ -113,7 +114,7 @@ class WhitespaceTest extends BaseTestClass
 
         $startFile = '<?php ; /**/;';
         $resultFile = '<?php ; /**/ ;';
-        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
 
         $this->assertEquals($resultFile, $newVersion);
         $this->assertEquals([1], $replacedAt);
@@ -128,7 +129,7 @@ class WhitespaceTest extends BaseTestClass
 
         $startFile = '<?php (1); /**/;';
         $resultFile = '<?php (1); /**/ ;';
-        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
 
         $this->assertEquals($resultFile, $newVersion);
         $this->assertEquals([1, 1], $replacedAt);
@@ -143,7 +144,7 @@ class WhitespaceTest extends BaseTestClass
 
         $startFile = '<?php ;/**/ ;';
         $resultFile = '<?php ;  ;';
-        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
 
         $this->assertEquals($resultFile, $newVersion);
         $this->assertEquals([1], $replacedAt);

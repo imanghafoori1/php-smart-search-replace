@@ -4,6 +4,7 @@ namespace Imanghafoori\SearchReplace\Tests;
 
 use Imanghafoori\SearchReplace\PatternParser;
 use Imanghafoori\LaravelMicroscope\Tests\BaseTestClass;
+use Imanghafoori\SearchReplace\Searcher;
 
 class UntilTest extends BaseTestClass
 {
@@ -16,7 +17,7 @@ class UntilTest extends BaseTestClass
 
         $startFile = file_get_contents(__DIR__.'/stubs/SimplePostController.stub');
         $resultFile = file_get_contents(__DIR__.'/stubs/SimplePostController2.stub');
-        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
 
         $this->assertEquals($resultFile, $newVersion);
 
@@ -34,7 +35,7 @@ class UntilTest extends BaseTestClass
         $resultFile = '<?php if(true) {foo()->bar();}';
 
         $tokens = token_get_all($startFile);
-        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, $tokens);
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, $tokens);
 
         $this->assertEquals($resultFile, $newVersion);
 

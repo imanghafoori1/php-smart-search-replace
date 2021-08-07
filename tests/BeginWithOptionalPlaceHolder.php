@@ -4,6 +4,7 @@ namespace Imanghafoori\SearchReplace\Tests;
 
 use Imanghafoori\SearchReplace\PatternParser;
 use Imanghafoori\LaravelMicroscope\Tests\BaseTestClass;
+use Imanghafoori\SearchReplace\Searcher;
 
 class BeginWithOptionalPlaceHolder extends BaseTestClass
 {
@@ -16,7 +17,7 @@ class BeginWithOptionalPlaceHolder extends BaseTestClass
         $startCode = '<?php [1,2,3]; ';
 
         $resultCode = '<?php [1,2,3,]; ';
-        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startCode));
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startCode));
 
         $this->assertEquals($resultCode, $newVersion);
         $this->assertEquals([1], $replacedAt);
@@ -31,7 +32,7 @@ class BeginWithOptionalPlaceHolder extends BaseTestClass
         $start_code = '<?php [1,2,3 ]; ';
         $resultCode = '<?php [1,2,3, ]; ';
 
-        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($start_code));
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($start_code));
 
         $this->assertEquals($resultCode, $newVersion);
         $this->assertEquals([1], $replacedAt);
@@ -46,7 +47,7 @@ class BeginWithOptionalPlaceHolder extends BaseTestClass
         $startCode = '<?php [1,2,3 ]; ';
 
         $resultCode = '<?php [1,2,3, ]; ';
-        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startCode));
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startCode));
 
         $this->assertEquals($resultCode, $newVersion);
         $this->assertEquals([1], $replacedAt);
@@ -61,7 +62,7 @@ class BeginWithOptionalPlaceHolder extends BaseTestClass
         $startCode = '<?php [1,2,"3"   ]; ';
         $resultCode = '<?php [1,2,];"3"; ';
 
-        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startCode));
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startCode));
 
         $this->assertEquals($resultCode, $newVersion);
         $this->assertEquals([1], $replacedAt);
@@ -76,7 +77,7 @@ class BeginWithOptionalPlaceHolder extends BaseTestClass
         $startCode =  '<?php [1,2 ];';
         $resultCode = '<?php [1,2];';
 
-        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startCode));
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startCode));
 
         $this->assertEquals($resultCode, $newVersion);
         $this->assertEquals([1], $replacedAt);
@@ -90,7 +91,7 @@ class BeginWithOptionalPlaceHolder extends BaseTestClass
         $startCode =  '<?php [1,TRUE ];';
         $resultCode = '<?php [1,];TRUE ;';
 
-        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startCode));
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startCode));
 
         $this->assertEquals($resultCode, $newVersion);
         $this->assertEquals([1], $replacedAt);
@@ -101,7 +102,7 @@ class BeginWithOptionalPlaceHolder extends BaseTestClass
         $startCode =  '<?php [1,"TRUE"   ];';
         $resultCode = '<?php [1,"TRUE"]   ;';
 
-        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startCode));
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startCode));
 
         $this->assertEquals($resultCode, $newVersion);
         $this->assertEquals([1], $replacedAt);
@@ -112,7 +113,7 @@ class BeginWithOptionalPlaceHolder extends BaseTestClass
         $startCode =  '<?php [1,TRUE];';
         $resultCode = '<?php [1,];TRUE;';
 
-        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startCode));
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startCode));
 
         $this->assertEquals($resultCode, $newVersion);
         $this->assertEquals([1], $replacedAt);

@@ -3,6 +3,7 @@
 namespace Imanghafoori\SearchReplace\Tests;
 
 use Imanghafoori\SearchReplace\PatternParser;
+use Imanghafoori\SearchReplace\Searcher;
 use Imanghafoori\SearchReplace\TokenCompare;
 use PHPUnit\Framework\TestCase;
 
@@ -24,7 +25,7 @@ class PostReplaceTest extends TestCase
         $startFile = '<?php [1,2,3]; [1,2,3,]; [ ]; [/**/ ];';
 
         $resultFile = '<?php [1,2,3,]; [1,2,3,]; []; [];';
-        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
 
         $this->assertEquals($resultFile, $newVersion);
     }

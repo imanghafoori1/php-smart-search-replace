@@ -4,7 +4,7 @@ namespace Imanghafoori\SearchReplace;
 
 class PatternParser
 {
-    public static function replaceTokens($tokens, $from, $to, string $with)
+    private static function replaceTokens($tokens, $from, $to, string $with)
     {
         $lineNumber = 0;
 
@@ -30,54 +30,18 @@ class PatternParser
         return [$tokens, $lineNumber];
     }
 
-    public static function parsePatterns($refactorPatterns)
+    public static function parsePatterns($patterns)
     {
-        $tokens_to_search_for = [];
+        $analyzedPatterns = [];
 
         $i = 0;
-        foreach ($refactorPatterns as $pattern => $to) {
+        foreach ($patterns as $pattern => $to) {
             is_string($to) && $to = ['replace' => $to];
-            $tokens_to_search_for[$i] = ['search' => self::analyzeTokens($pattern)] + $to + ['predicate' => null, 'mutator' => null, 'post_replace' => []];
+            $analyzedPatterns[$i] = ['search' => self::analyzePatternTokens($pattern)] + $to + ['predicate' => null, 'mutator' => null, 'post_replace' => []];
             $i++;
         }
 
-        return $tokens_to_search_for;
-    }
-
-    public static function search($patterns, $tokens)
-    {
-        return self::findMultiplePatterns(self::parsePatterns($patterns), $tokens);
-    }
-
-    public static function searchReplace($patterns, $tokens)
-    {
-        [$tokens, $replacementLines] = self::search($patterns, $tokens);
-
-        return [Stringify::fromTokens($tokens), $replacementLines];
-    }
-
-    public static function findMultiplePatterns($patterns, $tokens)
-    {
-        $replacementAllLines = [];
-
-        foreach ($patterns as $pattern) {
-            [$tokens, $replacementLines] = self::findPatternMatches($pattern, $tokens);
-
-            $replacementAllLines = array_merge($replacementAllLines, $replacementLines);
-        }
-
-        return [$tokens, $replacementAllLines];
-    }
-
-    public static function findPatternMatches($pattern, $tokens)
-    {
-        $result = TokenCompare::getMatches($pattern['search'], $tokens, $pattern['predicate'], $pattern['mutator']);
-
-        [$tokens, $replacementLines] = self::applyAllMatches($result, $pattern['replace'], $tokens);
-
-        isset($pattern['post_replace']) && [$tokens] = self::applyPostReplaces($pattern['post_replace'], $tokens);
-
-        return [$tokens, $replacementLines];
+        return $analyzedPatterns;
     }
 
     private static function isPlaceHolder($token)
@@ -100,19 +64,7 @@ class PatternParser
         return $map[trim($token[1], '\'\"')] ?? false;
     }
 
-    public static function applyPatterns($patterns, $matches, $tokens)
-    {
-        $replacePatterns = array_values($patterns);
-
-        $replacementLines = [];
-        foreach ($matches as $pi => $patternMatch) {
-            [$tokens, $replacementLines] = self::applyAllMatches($patternMatch, $replacePatterns[$pi]['replace'], $tokens, $replacementLines);
-        }
-
-        return [$tokens, $replacementLines];
-    }
-
-    public static function analyzeTokens($pattern)
+    public static function analyzePatternTokens($pattern)
     {
         $nums = [
             "'<1:", "'<2:", "'<3:", "'<4:", "'<5:", "'<6:", "'<7:", "'<8:", "'<9:", "'<10:",
@@ -137,7 +89,7 @@ class PatternParser
         return $tokens;
     }
 
-    private static function applyAllMatches($patternMatches, $replace, $tokens)
+    public static function applyAllMatches($patternMatches, $replace, $tokens)
     {
         $replacementLines = [];
         foreach ($patternMatches as $matchValue) {
@@ -175,23 +127,11 @@ class PatternParser
         return $newValue;
     }
 
-    public static function applyPostReplaces($postReplaces, $tokens)
-    {
-        $wasReplaced = false;
-
-        foreach ($postReplaces as $key => $postReplace) {
-            [$tokens, $lines] = self::search([$key => $postReplace], token_get_all(Stringify::fromTokens($tokens)));
-            $lines && $wasReplaced = true;
-        }
-
-        return [$tokens, $wasReplaced];
-    }
-
     public static function applyWithPostReplacements($replace, $values, $postReplaces)
     {
         $newValue = self::applyOnReplacements($replace, $values);
 
-        [$newTokens,] = PatternParser::applyPostReplaces($postReplaces, token_get_all('<?php '.$newValue));
+        [$newTokens,] = PostReplace::applyPostReplaces($postReplaces, token_get_all('<?php '.$newValue));
         array_shift($newTokens);
 
         return Stringify::fromTokens($newTokens);

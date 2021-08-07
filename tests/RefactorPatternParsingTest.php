@@ -3,6 +3,7 @@
 namespace Imanghafoori\SearchReplace\Tests;
 
 use Imanghafoori\SearchReplace\PatternParser;
+use Imanghafoori\SearchReplace\Searcher;
 use Imanghafoori\SearchReplace\TokenCompare;
 use PHPUnit\Framework\TestCase;
 
@@ -22,7 +23,7 @@ class RefactorPatternParsingTest extends TestCase
 
         $startFile = '<?php [1 ]; ["s" ]; ["d"];';
         $resultFile = '<?php [1 ]; ["s" ,"s"]; ["d","d"];';
-        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
         $this->assertEquals($resultFile, $newVersion);
     }
 
@@ -37,7 +38,7 @@ class RefactorPatternParsingTest extends TestCase
 
         $startFile = '<?php [/**/]; [/**/ ]; [ /**/ ]; [1,]; ["s"];';
         $resultFile = '<?php []; []; [ ]; [1,]; ["s"];';
-        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
         $this->assertEquals($resultFile, $newVersion);
     }
 
@@ -52,7 +53,7 @@ class RefactorPatternParsingTest extends TestCase
 
         $startFile = '<?php [/**/]; [/**/ ]; ["s"];';
         $resultFile = '<?php []; []; ["s"];';
-        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
         $this->assertEquals($resultFile, $newVersion);
     }
 
@@ -65,7 +66,7 @@ class RefactorPatternParsingTest extends TestCase
         ];
         $startFile = file_get_contents(__DIR__.'/stubs/SimplePostController.stub');
         $resultFile = file_get_contents(__DIR__.'/stubs/ResultSimplePostController.stub');
-        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
 
         $this->assertEquals($resultFile, $newVersion);
         $this->assertEquals([15, 22, 25, 26], $replacedAt);
@@ -79,7 +80,7 @@ class RefactorPatternParsingTest extends TestCase
         ];
         $startFile = '<?php $var = 1;';
         $resultFile = '<?php $var;';
-        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
 
         $this->assertEquals($resultFile, $newVersion);
         $this->assertEquals([1], $replacedAt);
@@ -89,7 +90,7 @@ class RefactorPatternParsingTest extends TestCase
         ];
         $startFile = '<?php $var = 1;';
         $resultFile = '<?php $var;';
-        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
 
         $this->assertEquals($resultFile, $newVersion);
         $this->assertEquals([1], $replacedAt);
@@ -174,7 +175,7 @@ $user = $var;';
 $var = 0;
 
 $user = $var;';
-        [$newVersion, $replacedAt] = PatternParser::searchReplace($patterns, token_get_all($startFile));
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
 
         $this->assertEquals($resultFile, $newVersion);
         $this->assertEquals([3], $replacedAt);
