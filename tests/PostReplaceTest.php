@@ -2,9 +2,7 @@
 
 namespace Imanghafoori\SearchReplace\Tests;
 
-use Imanghafoori\SearchReplace\PatternParser;
 use Imanghafoori\SearchReplace\Searcher;
-use Imanghafoori\SearchReplace\TokenCompare;
 use PHPUnit\Framework\TestCase;
 
 class PostReplaceTest extends TestCase
