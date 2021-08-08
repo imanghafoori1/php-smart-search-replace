@@ -25,7 +25,7 @@ class TokenCompare
         while ($startFrom < $tCount && $j < $pCount) {
             if ($namedPatterns && $patternName = self::isRepeatingPattern($pToken)) {
                 $pattern = $namedPatterns[$patternName];
-                $ranalyzedPattern = PatternParser::analyzeTokens($pattern);
+                $ranalyzedPattern = PatternParser::analyzePatternTokens($pattern);
                 $rpToken = $ranalyzedPattern[0];
                 if ($r = self::compareTokens($ranalyzedPattern, $tokens, $startFrom)) {
                     [$repeatingMatches, $startFrom] = self::findRepeatingMatches($startFrom, $tokens, $rpToken, $ranalyzedPattern, $j, null, null);
@@ -301,7 +301,7 @@ class TokenCompare
     public static function matchesAny($avoidResultIn, $newTokens)
     {
         foreach ($avoidResultIn as $pattern) {
-            $_matchedValues = TokenCompare::getMatches(PatternParser::analyzeTokens($pattern), $newTokens);
+            $_matchedValues = TokenCompare::getMatches(PatternParser::analyzePatternTokens($pattern), $newTokens);
             if ($_matchedValues) {
                 return true;
             }
@@ -318,7 +318,7 @@ class TokenCompare
         while ($i < $allCount) {
             if ($namedPatterns && $patternName = self::isRepeatingPattern($pToken)) {
                 $pattern = $namedPatterns[$patternName];
-                $ranalyzedPattern = PatternParser::analyzeTokens($pattern);
+                $ranalyzedPattern = PatternParser::analyzePatternTokens($pattern);
                 $rpToken = $ranalyzedPattern[0];
                 [$repeatingMatches, $i] = self::findRepeatingMatches($i, $tokens, $rpToken, $ranalyzedPattern, $pIndex, $predicate, $mutator);
                 $pIndex++;

@@ -33,11 +33,16 @@ class PatternParser
     public static function parsePatterns($patterns)
     {
         $analyzedPatterns = [];
-
+        $defaults = [
+            'predicate' => null,
+            'mutator' => null,
+            'named_patterns' => [],
+            'post_replace' => []
+        ];
         $i = 0;
         foreach ($patterns as $pattern => $to) {
             is_string($to) && $to = ['replace' => $to];
-            $analyzedPatterns[$i] = ['search' => self::analyzePatternTokens($pattern)] + $to + ['predicate' => null, 'mutator' => null, 'post_replace' => []];
+            $analyzedPatterns[$i] = ['search' => self::analyzePatternTokens($pattern)] + $to + $defaults;
             $i++;
         }
 
