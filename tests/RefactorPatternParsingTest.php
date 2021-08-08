@@ -113,8 +113,6 @@ class RefactorPatternParsingTest extends TestCase
                 [T_STRING, 'true', 15],
                 [T_STRING, 'json', 17],
                 [T_CONSTANT_ENCAPSED_STRING, "'hi'", 17],
-                ',',
-                ',',
                 [T_LNUMBER, 404, 17],
             ]
         );
@@ -131,8 +129,6 @@ class RefactorPatternParsingTest extends TestCase
                 [T_STRING, 'FALSE', 22],
                 [T_STRING, 'json', 23],
                 [T_CONSTANT_ENCAPSED_STRING, "'Hello'", 23],
-                ',',
-                ',',
                 [T_LNUMBER, 403, 23],
             ]
         );
