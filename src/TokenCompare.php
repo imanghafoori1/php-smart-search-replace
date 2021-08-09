@@ -316,11 +316,12 @@ class TokenCompare
         $allCount = count($tokens);
 
         while ($i < $allCount) {
+            // if it STARTS with a repeating pattern.
             if ($namedPatterns && $patternName = self::isRepeatingPattern($pToken)) {
-                $pattern = $namedPatterns[$patternName];
-                $ranalyzedPattern = PatternParser::analyzePatternTokens($pattern);
-                $rpToken = $ranalyzedPattern[0];
-                [$repeatingMatches, $i] = self::findRepeatingMatches($i, $tokens, $rpToken, $ranalyzedPattern, $pIndex, $predicate, $mutator);
+                $pattern3 = $namedPatterns[$patternName];
+                $analyzedPattern = PatternParser::analyzePatternTokens($pattern3);
+                $rpToken = $analyzedPattern[0];
+                [$repeatingMatches, $i] = self::findRepeatingMatches($i, $tokens, $rpToken, $analyzedPattern, $pIndex, $predicate, $mutator);
                 $pIndex++;
 
                 // run out of pattern tokens
@@ -339,14 +340,14 @@ class TokenCompare
 
             $optionalPatternMatchCount = 0;
             if ($optionalStartingTokens) {
-                $matchedValues1 = self::compareOptionalTokens($optionalStartingTokens, $tokens, $i - 1);
-                foreach ($matchedValues1 as $x) {
-                    if ($x !== [T_WHITESPACE, '']) {
+                $matched_optional_values = self::compareOptionalTokens($optionalStartingTokens, $tokens, $i - 1);
+                foreach ($matched_optional_values as $xToken1) {
+                    if ($xToken1 !== [T_WHITESPACE, '']) {
                         $optionalPatternMatchCount++;
                     }
                 }
             } else {
-                $matchedValues1 = [];
+                $matched_optional_values = [];
             }
 
             $restPatternTokens = array_slice($patternTokens, $pIndex);
@@ -357,7 +358,7 @@ class TokenCompare
             }
 
             [$k, $matchedValues] = $isMatch;
-            $matchedValues = array_merge($matchedValues1, $matchedValues);
+            $matchedValues = array_merge($matched_optional_values, $matchedValues);
             $data = ['start' => $i - $pIndex, 'end' => $k, 'values' => $matchedValues];
             if (! $predicate || $predicate($data, $tokens)) {
                 $mutator && $matchedValues = $mutator($matchedValues);
@@ -376,8 +377,8 @@ class TokenCompare
 
     private static function isRepeatingPattern($pToken)
     {
-        if ($pToken[0] === T_CONSTANT_ENCAPSED_STRING && self::startsWith($str = trim($pToken[1], '\'\"'), '<repeating:')) {
-            return rtrim(ltrim($str, '<repeating:'), '>');
+        if ($pToken[0] === T_CONSTANT_ENCAPSED_STRING && self::startsWith($pName = trim($pToken[1], '\'\"'), '<repeating:')) {
+            return rtrim(Str::replaceFirst('<repeating:', '', $pName), '>');
         }
     }
 
