@@ -28,6 +28,26 @@ class WhitespaceTest extends BaseTestClass
     }
 
     /** @test */
+    public function match_white_space52()
+    {
+        $patterns = [
+            '["<1:white_space>"]' => [
+                'replace' => function ($values) {
+                    $this->assertEquals(' ', $values[0][1]);
+                    $this->assertEquals(T_WHITESPACE, $values[0][0]);
+                    return '[]';
+                },
+            ]
+        ];
+
+        $start = '<?php [/**/];[/**/ ];[1,];["s" ];[ ];';
+        $result = '<?php [/**/];[];[1,];["s" ];[];';
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($start));
+        $this->assertEquals($result, $newVersion);
+        $this->assertEquals([1, 1], $replacedAt);
+    }
+
+    /** @test */
     public function match_white_space()
     {
         $patterns = [

@@ -71,17 +71,7 @@ class PatternParser
 
     public static function analyzePatternTokens($pattern)
     {
-        $nums = [
-            "'<1:", "'<2:", "'<3:", "'<4:", "'<5:", "'<6:", "'<7:", "'<8:", "'<9:", "'<10:",
-        ];
-        $pattern = str_replace($nums, "'<", $pattern);
-
-        $nums = [
-            '"<1:', '"<2:', '"<3:', '"<4:', '"<5:', '"<6:', '"<7:', '"<8:', '"<9:', '"<10:',
-        ];
-        $pattern = str_replace($nums, '"<', $pattern);
-
-        $tokens = token_get_all('<?php '.$pattern);
+        $tokens = token_get_all('<?php '.self::cleanComments($pattern));
         array_shift($tokens);
 
         foreach ($tokens as $i => $token) {
@@ -162,5 +152,16 @@ class PatternParser
         }
 
         return Stringify::fromTokens($newTokens);
+    }
+
+    private static function cleanComments($pattern)
+    {
+        foreach (['"', "'"] as $c) {
+            for ($i = 1; $i !== 11; $i++) {
+                $pattern = str_replace("$c<$i:", "$c<", $pattern, $count);
+            }
+        }
+
+        return $pattern;
     }
 }
