@@ -33,12 +33,10 @@ class TokenCompare
                     return false;
                 }
 
-                $rpToken = $analyzedPattern[0];
-                [$repeatingMatches, $startFrom] = self::findRepeatingMatches(
-                    $startFrom, $tokens, $rpToken, $analyzedPattern, $j, null, null
-                );
+                [$repeatingMatches, $startFrom] = self::findRepeatingMatches($startFrom, $tokens, $analyzedPattern);
 
                 $repeatings[] = $repeatingMatches;
+
             } elseif (self::is($pToken, '<until>')) {
                 $untilTokens = [];
                 $line = 1;
@@ -275,20 +273,21 @@ class TokenCompare
         }
     }
 
-    private static function findRepeatingMatches($startFrom, $tokens, $startingPatternToken, array $analyzedPattern, $pIndex, $predicate, $mutator)
+    private static function findRepeatingMatches($startFrom, $tokens, $analyzedPattern)
     {
         $repeatingMatches = [];
         $end = $startFrom;
         while (true) {
-            $matches = self::getMatchesSimplePatterns($startFrom, $tokens, $startingPatternToken, $analyzedPattern, 0, [], null, null, [],1);
+            //$matches = self::getMatchesSimplePatterns($startFrom, $tokens, $startingPatternToken, $analyzedPattern, 0, [], null, null, [],1);
+            $isMatch = self::compareTokens($analyzedPattern, $tokens, $startFrom, []);
 
-            if (! $matches) {
+            if (! $isMatch) {
                 break;
             }
 
-            $end = $matches[0]['end'];
+            $end = $isMatch[0];
             [, $startFrom] = self::getNextToken($tokens, $end);
-            $repeatingMatches[] = $matches[0];
+            $repeatingMatches[] = $isMatch[1];
         }
 
         return [$repeatingMatches, $end];
@@ -325,6 +324,7 @@ class TokenCompare
         while ($i < $allCount) {
             // if it STARTS with a repeating pattern.
             if ($namedPatterns && $patternName = self::isRepeatingPattern($pToken)) {
+                // We compare it like a normal pattern.
                 if (! self::compareTokens(PatternParser::analyzePatternTokens($namedPatterns[$patternName]), $tokens, $i)) {
                     $i++;
                     continue;
@@ -353,7 +353,7 @@ class TokenCompare
             if (! $predicate || $predicate($data, $tokens)) {
                 $mutator && $matchedValues = $mutator($matchedValues);
                 $matches[] = ['start' => $i - $optionalPatternMatchCount, 'end' => $k, 'values' => $matchedValues, 'repeatings' => $repeatings];
-                if (count($matches)=== $maxDepth) {
+                if (count($matches) === $maxDepth) {
                     return $matches;
                 }
             }

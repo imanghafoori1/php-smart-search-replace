@@ -141,13 +141,12 @@ class PatternParser
             [$num, $pName] = explode(':', $r);
             $pattern = $namedPatterns[$pName];
 
-            $repeatsValues = [];
-            foreach ($repeating as $i => $repeat) {
+            foreach ($repeating as $repeat) {
+                $repeatsValues = [];
                 foreach ($repeat as $r) {
-                    $repeatsValues[$i][] = self::applyOnReplacements($pattern, $r["values"]);
+                    $repeatsValues[] = self::applyOnReplacements($pattern, $r);
                 }
-                $repeatsValues[$i] = implode('', $repeatsValues[$i]);
-                $newTokens[$index][1] = $repeatsValues[$i];
+                $newTokens[$index][1] = implode('', $repeatsValues);
             }
         }
 

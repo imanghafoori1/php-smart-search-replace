@@ -106,4 +106,40 @@ class RepeatingTest extends BaseTestClass
         [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
         $this->assertEquals($resultFile, $newVersion);
     }
+
+    /** @test */
+    public function optional_comment_placeholder_qrg1()
+    {
+        $patterns = [
+            "'<repeating:exp>'->get();" => [
+                'replace' => '->where(["<repeating:1:subs>"])->met();',
+                'named_patterns' => [
+                    'exp' => '->where("<str>", "<str>")',
+                    'subs' => '"<1>" => "<2>", ',
+                ]
+            ],
+        ];
+
+        $startFile =  "<?php
+        User::where('name', 'Iman')
+            ->where('family', 'Ghafoori')
+            ->where('job', 'be_to_che')
+            ->where('website', 'codino.org')
+            ->get();
+
+        User::where('_name', 'Iman___')
+            ->where('_family', 'Ghafoori___')
+            ->where('_web_site', '_codino__org_')
+            ->get();";
+
+        $resultFile = "<?php
+        User::where('name', 'Iman')
+            ->where(['family' => 'Ghafoori', 'job' => 'be_to_che', 'website' => 'codino.org', ])->met();
+
+        User::where('_name', 'Iman___')
+            ->where(['_family' => 'Ghafoori___', '_web_site' => '_codino__org_', ])->met();";
+
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
+        $this->assertEquals($resultFile, $newVersion);
+    }
 }
