@@ -94,20 +94,20 @@ class PatternParser
         return $tokens;
     }
 
-    public static function applyAllMatches($patternMatches, $replace, $tokens)
+    public static function applyAllMatches($patternMatches, $replace, $tokens, $namedPatterns)
     {
         $replacementLines = [];
         foreach ($patternMatches as $matchValue) {
-            [$tokens, $lineNum] = self::applyMatch($replace, $matchValue, $tokens);
+            [$tokens, $lineNum] = self::applyMatch($replace, $matchValue, $tokens, [], [], $namedPatterns);
             $replacementLines[] = $lineNum;
         }
 
         return [$tokens, $replacementLines];
     }
 
-    public static function applyMatch($replace, $match, $tokens, $avoiding = [], $postReplaces = [])
+    public static function applyMatch($replace, $match, $tokens, $avoiding = [], $postReplaces = [], $namedPatterns = [])
     {
-        $newValue = self::applyWithPostReplacements($replace, $match['values'], $postReplaces);
+        $newValue = self::applyWithPostReplacements($replace, $match['values'], $postReplaces, $namedPatterns, $match['repeatings']);
 
         [$newTokens, $lineNum] = self::replaceTokens($tokens, $match['start'], $match['end'], $newValue);
 
@@ -130,18 +130,36 @@ class PatternParser
 
         $newValue = $replace;
         foreach ($values as $number => $value) {
-            $newValue = str_replace(['"<'.($number + 1).'>"', "'<".($number + 1).">'"], $value[1] ?? $value[0], $newValue);
+            !is_array($value[0]) && $newValue = str_replace(['"<'.($number + 1).'>"', "'<".($number + 1).">'"], $value[1] ?? $value[0], $newValue);
         }
 
         return $newValue;
     }
 
-    public static function applyWithPostReplacements($replace, $values, $postReplaces)
+    public static function applyWithPostReplacements($replace, $values, $postReplaces, $namedPatterns = [], $repeating = [])
     {
         $newValue = self::applyOnReplacements($replace, $values);
 
         [$newTokens,] = PostReplace::applyPostReplaces($postReplaces, token_get_all('<?php '.$newValue));
         array_shift($newTokens);
+
+        foreach ($newTokens as $index => $t) {
+            $r = TokenCompare::isRepeatingPattern($t);
+            if (!$r) {
+                continue;
+            }
+            [$num, $pName] = explode(':', $r);
+            $pattern = $namedPatterns[$pName];
+
+            $repeatsValues = [];
+            foreach ($repeating as $i => $repeat) {
+                foreach ($repeat as $r) {
+                    $repeatsValues[$i][] = self::applyOnReplacements($pattern, $r["values"]);
+                }
+                $repeatsValues[$i] = implode('', $repeatsValues[$i]);
+                $newTokens[$index][1] = $repeatsValues[$i];
+            }
+        }
 
         return Stringify::fromTokens($newTokens);
     }

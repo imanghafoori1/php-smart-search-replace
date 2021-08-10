@@ -31,9 +31,9 @@ class Searcher
 
     public static function findPatternMatches($pattern, $tokens)
     {
-        $result = TokenCompare::getMatches($pattern['search'], $tokens, $pattern['predicate'], $pattern['mutator']);
+        $result = TokenCompare::getMatches($pattern['search'], $tokens, $pattern['predicate'], $pattern['mutator'], $pattern['named_patterns']);
 
-        [$tokens, $replacementLines] = PatternParser::applyAllMatches($result, $pattern['replace'], $tokens);
+        [$tokens, $replacementLines] = PatternParser::applyAllMatches($result, $pattern['replace'], $tokens, $pattern['named_patterns']);
 
         isset($pattern['post_replace']) && [$tokens] = PostReplace::applyPostReplaces($pattern['post_replace'], $tokens);
 

@@ -2,6 +2,8 @@
 
 namespace Imanghafoori\SearchReplace;
 
+use Imanghafoori\TokenAnalyzer\Str;
+
 class TokenCompare
 {
     private static $placeHolders = [T_CONSTANT_ENCAPSED_STRING, T_VARIABLE, T_LNUMBER, T_STRING];
@@ -11,29 +13,32 @@ class TokenCompare
         T_COMMENT => T_COMMENT,
         //',' => ',',
     ];
-
-    private static function compareTokens($pattern, $tokens, $startFrom, $namedPatterns = [])
+    private static function compareTokens2($pattern, $tokens, $startFrom /* , $namedPatterns = [] */)
     {
         $pi = $j = 0;
         $tCount = count($tokens);
         $pCount = count($pattern);
-        $placeholderValues = [];
+        $repeatings = $placeholderValues = [];
 
         $tToken = $tokens[$startFrom];
         $pToken = $pattern[$j];
 
         while ($startFrom < $tCount && $j < $pCount) {
-            if ($namedPatterns && $patternName = self::isRepeatingPattern($pToken)) {
+           /* if ($namedPatterns && $patternName = self::isRepeatingPattern($pToken)) {
+                dd($namedPatterns, $patternName);
                 $pattern = $namedPatterns[$patternName];
-                $ranalyzedPattern = PatternParser::analyzePatternTokens($pattern);
-                $rpToken = $ranalyzedPattern[0];
-                if ($r = self::compareTokens($ranalyzedPattern, $tokens, $startFrom)) {
-                    [$repeatingMatches, $startFrom] = self::findRepeatingMatches($startFrom, $tokens, $rpToken, $ranalyzedPattern, $j, null, null);
-                    $placeholderValues[] = $repeatingMatches;
-                } else {
+                $analyzedPattern = PatternParser::analyzePatternTokens($pattern);
+                if (! self::compareTokens($analyzedPattern, $tokens, $startFrom)) {
                     return false;
                 }
-            } elseif (self::is($pToken, '<until>')) {
+
+                $rpToken = $analyzedPattern[0];
+                [$repeatingMatches, $startFrom] = self::findRepeatingMatches(
+                    $startFrom, $tokens, $rpToken, $analyzedPattern, $j, null, null
+                );
+                $repeatings[] = $repeatingMatches;
+            } else*/
+                if (self::is($pToken, '<until>')) {
                 $untilTokens = [];
                 $line = 1;
                 for ($k = $pi + 1; $tokens[$k] !== $pattern[$j + 1]; $k++) {
@@ -107,6 +112,106 @@ class TokenCompare
 
         return false;
     }
+
+    private static function compareTokens($pattern, $tokens, $startFrom, $namedPatterns = [])
+    {
+        $pi = $j = 0;
+        $tCount = count($tokens);
+        $pCount = count($pattern);
+        $repeatings = $placeholderValues = [];
+
+        $tToken = $tokens[$startFrom];
+        $pToken = $pattern[$j];
+
+        while ($startFrom < $tCount && $j < $pCount) {
+            if ($namedPatterns && $patternName = self::isRepeatingPattern($pToken)) {
+                $pattern2 = $namedPatterns[$patternName];
+                $analyzedPattern = PatternParser::analyzePatternTokens($pattern2);
+                if (! self::compareTokens2($analyzedPattern, $tokens, $startFrom)) {
+                    return false;
+                }
+
+                $rpToken = $analyzedPattern[0];
+                [$repeatingMatches, $startFrom] = self::findRepeatingMatches(
+                    $startFrom, $tokens, $rpToken, $analyzedPattern, $j, null, null
+                );
+
+                $repeatings[] = $repeatingMatches;
+            } elseif (self::is($pToken, '<until>')) {
+                $untilTokens = [];
+                $line = 1;
+                for ($k = $pi + 1; $tokens[$k] !== $pattern[$j + 1]; $k++) {
+                    ! $line && isset($tokens[$k][2]) && $line = $tokens[$k][2];
+                    $untilTokens[] = $tokens[$k];
+                }
+                $startFrom = $k - 1;
+                $placeholderValues[] = [T_STRING, Stringify::fromTokens($untilTokens), $line];
+            } elseif (self::is($pToken, '<until_match>')) {
+                $startingToken = $pattern[$j - 1]; // may use getPreviousToken()
+                if (! in_array($startingToken, ['(', '[', '{'], true)) {
+                    throw new \Exception('pattern invalid');
+                }
+
+                $anti = self::getAnti($startingToken);
+
+                if ($anti !== $pattern[$j + 1]) {
+                    throw new \Exception('pattern invalid');
+                }
+
+                $untilTokens = [];
+                $line = 1;
+                $level = 0;
+                for ($k = $pi + 1; true; $k++) {
+                    if ($tokens[$k] === $anti && $level === 0) {
+                        break;
+                    }
+
+                    $tokens[$k] === $startingToken && $level--;
+                    $tokens[$k] === $anti && $level++;
+
+                    ! $line && isset($tokens[$k][2]) && $line = $tokens[$k][2];
+                    $untilTokens[] = $tokens[$k];
+                }
+
+                $startFrom = $k - 1;
+                $placeholderValues[] = [T_STRING, Stringify::fromTokens($untilTokens), $line];
+            } elseif (self::is($pToken, '<any>')) {
+                $placeholderValues[] = $tToken;
+            } elseif (self::is($pToken, '<white_space>')) {
+                $result = self::compareIt($tToken, T_WHITESPACE, $pToken[1], $startFrom);
+                if ($result === null) {
+                    return false;
+                }
+                $placeholderValues[] = $result;
+            } elseif (self::is($pToken, '<comment>')) {
+                $result = self::compareIt($tToken, T_COMMENT, $pToken[1], $startFrom);
+                if ($result === null) {
+                    return false;
+                }
+                $placeholderValues[] = $result;
+            } else {
+                $same = self::areTheSame($pToken, $tToken);
+
+                if (! $same) {
+                    return false;
+                }
+
+                $same === 'placeholder' && $placeholderValues[] = $tToken;
+            }
+
+            [$pToken, $j] = self::getNextToken($pattern, $j);
+
+            $pi = $startFrom;
+            [$tToken, $startFrom] = self::forwardToNextToken($pToken, $tokens, $startFrom);
+        }
+
+        if ($pCount === $j) {
+            return [$pi, $placeholderValues, $repeatings,];
+        }
+
+        return false;
+    }
+
     private static function compareOptionalTokens($patternTokens, $tokens, $startFrom)
     {
         $pCount = count($patternTokens);
@@ -357,12 +462,12 @@ class TokenCompare
                 continue;
             }
 
-            [$k, $matchedValues] = $isMatch;
+            [$k, $matchedValues, $repeatings] = $isMatch;
             $matchedValues = array_merge($matched_optional_values, $matchedValues);
             $data = ['start' => $i - $pIndex, 'end' => $k, 'values' => $matchedValues];
             if (! $predicate || $predicate($data, $tokens)) {
                 $mutator && $matchedValues = $mutator($matchedValues);
-                $matches[] = ['start' => $i - $optionalPatternMatchCount, 'end' => $k, 'values' => $matchedValues];
+                $matches[] = ['start' => $i - $optionalPatternMatchCount, 'end' => $k, 'values' => $matchedValues, 'repeatings' => $repeatings];
                 if (count($matches)=== $maxDepth) {
                     return $matches;
                 }
@@ -375,7 +480,7 @@ class TokenCompare
         return $matches;
     }
 
-    private static function isRepeatingPattern($pToken)
+    public static function isRepeatingPattern($pToken)
     {
         if ($pToken[0] === T_CONSTANT_ENCAPSED_STRING && self::startsWith($pName = trim($pToken[1], '\'\"'), '<repeating:')) {
             return rtrim(Str::replaceFirst('<repeating:', '', $pName), '>');
