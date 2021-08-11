@@ -35,6 +35,17 @@ class TokenCompare
 
                 $repeatings[] = $repeatingMatches;
 
+            } elseif ($patternNames = self::isGlobalFuncCall($pToken)) {
+                [$prev] = self::getPrevToken($tokens, $startFrom);
+                $patternNames = explode(',', $patternNames);
+
+                if ($tToken[0] !== T_STRING || ! in_array($tToken[1], $patternNames, true)) {
+                    return false;
+                }
+
+                if (in_array($prev[0], [T_NEW, T_OBJECT_OPERATOR, T_DOUBLE_COLON, T_FUNCTION])) {
+                    return false;
+                }
             } elseif (self::is($pToken, '<until>')) {
                 [$_value, $startFrom] = self::readUntil($pi, $tokens, $pattern[$j + 1]);
                 $placeholderValues[] = $_value;
@@ -159,6 +170,18 @@ class TokenCompare
         return [$token, $i];
     }
 
+    public static function getPrevToken($tokens, $i)
+    {
+        $i--;
+        $token = $tokens[$i] ?? '_';
+        while ($token[0] == T_WHITESPACE || $token[0] == T_COMMENT) {
+            $i--;
+            $token = $tokens[$i];
+        }
+
+        return [$token, $i];
+    }
+
     private static function is($token, $keyword)
     {
         return $token[0] === T_CONSTANT_ENCAPSED_STRING && trim($token[1], '\'\"?') === $keyword;
@@ -225,7 +248,7 @@ class TokenCompare
         return $pToken[1] === $token[1];
     }
 
-    public static function getMatches($patternTokens, $tokens, $predicate = null, $mutator = null, $namedPatterns = [], $startFrom = 0)
+    public static function getMatches($patternTokens, $tokens, $predicate = null, $mutator = null, $namedPatterns = [], $startFrom = 1)
     {
         $pIndex = self::firstNonOptionalPlaceholder($patternTokens);
         $pToken = $patternTokens[$pIndex];
@@ -302,6 +325,19 @@ class TokenCompare
                     $i++;
                     continue;
                 }
+            } elseif ($patternNames = self::isGlobalFuncCall($pToken)) {
+                $token = $tokens[$i];
+                [$prev] = self::getPrevToken($tokens, $i);
+                $patternNames = explode(',', $patternNames);
+
+                if ($token[0] !== T_STRING || ! in_array($token[1], $patternNames, true)) {
+                    $i++;
+                    continue;
+                }
+                if (in_array($prev[0], [T_NEW, T_OBJECT_OPERATOR, T_DOUBLE_COLON, T_FUNCTION])) {
+                    $i++;
+                    continue;
+                }
             } else {
                 $token = $tokens[$i];
 
@@ -342,6 +378,13 @@ class TokenCompare
     {
         if ($pToken[0] === T_CONSTANT_ENCAPSED_STRING && self::startsWith($pName = trim($pToken[1], '\'\"'), '<repeating:')) {
             return rtrim(Str::replaceFirst('<repeating:', '', $pName), '>');
+        }
+    }
+
+    public static function isGlobalFuncCall($pToken)
+    {
+        if ($pToken[0] === T_CONSTANT_ENCAPSED_STRING && self::startsWith($pName = trim($pToken[1], '\'\"'), '<global_func_call:')) {
+            return rtrim(Str::replaceFirst('<global_func_call:', '', $pName), '>');
         }
     }
 
