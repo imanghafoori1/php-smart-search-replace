@@ -103,6 +103,7 @@ class RefactorPatternParsingTest extends TestCase
         $this->assertEquals($resultFile, $newVersion);
         $this->assertEquals([1], $replacedAt);
 
+        // with double-quotes
         $patterns = [
             '"<var>" = 1;' => ['replace' => "'<1>';"],
         ];
@@ -112,6 +113,23 @@ class RefactorPatternParsingTest extends TestCase
 
         $this->assertEquals($resultFile, $newVersion);
         $this->assertEquals([1], $replacedAt);
+
+        ////////////////////////////////////////////////////////
+        $patterns = [
+            '"<name>"::h();' => [
+                'replace' => "",
+                'filters' => [
+                    1 => [
+                        'in_array' => ['h', 'g'],
+                    ]
+                ]
+            ],
+        ];
+        $startFile = '<?php h::h();g::h();k::h();';
+        $resultFile = '<?php k::h();';
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
+
+        $this->assertEquals($resultFile, $newVersion);
     }
 
     /** @test */

@@ -37,6 +37,7 @@ class PatternParser
             'predicate' => null,
             'mutator' => null,
             'named_patterns' => [],
+            'filters' => [],
             'post_replace' => []
         ];
         $i = 0;
