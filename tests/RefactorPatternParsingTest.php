@@ -114,7 +114,16 @@ class RefactorPatternParsingTest extends TestCase
         $this->assertEquals($resultFile, $newVersion);
         $this->assertEquals([1], $replacedAt);
 
-        ////////////////////////////////////////////////////////
+    }
+
+    /** @test */
+    public function filters()
+    {
+        $startFile = '<?php h::h();g::h();k::h();';
+        $resultFile = '<?php k::h();';
+
+        ////////////////////////////////////////////
+
         $patterns = [
             '"<name>"::h();' => [
                 'replace' => "",
@@ -125,8 +134,23 @@ class RefactorPatternParsingTest extends TestCase
                 ]
             ],
         ];
-        $startFile = '<?php h::h();g::h();k::h();';
-        $resultFile = '<?php k::h();';
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
+
+        $this->assertEquals($resultFile, $newVersion);
+
+        ////////////////////////////////////////////
+
+        $patterns = [
+            '"<name>"::h();' => [
+                'replace' => "",
+                'filters' => [
+                    1 => [
+                        'in_array' => 'h,g',
+                    ]
+                ]
+            ],
+        ];
+
         [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
 
         $this->assertEquals($resultFile, $newVersion);
