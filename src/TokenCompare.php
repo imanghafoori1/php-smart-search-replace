@@ -141,14 +141,11 @@ class TokenCompare
             }
             $j--;
 
-            //[$pToken, $j] = self::getNextToken($patternTokens, $j);
-            //$pi = $startFrom;
             if (! isset($patternTokens[$j])) {
                 return array_reverse($placeholderValues);
             }
             $pToken = $patternTokens[$j];
             $tToken = $tokens[$startFrom];
-            //[$tToken, $startFrom] = self::forwardToNextToken($pToken, $tokens, $startFrom);
         }
     }
 
@@ -248,24 +245,49 @@ class TokenCompare
         return $pToken[1] === $token[1];
     }
 
-    public static function getMatches($patternTokens, $tokens, $predicate = null, $mutator = null, $namedPatterns = [], $filters = [], $startFrom = 1)
+    public static function getMatches($patternTokens, $tokens, $predicate = null, $mutator = null, $namedPatterns = [], $filters = [], $startFrom = 1, $maxDepth = 200)
     {
         $pIndex = self::firstNonOptionalPlaceholder($patternTokens);
         $pToken = $patternTokens[$pIndex];
         $optionalStartingTokens = array_slice($patternTokens, 0, $pIndex);
 
-        return self::getMatchesSimplePatterns(
-            $startFrom,
-            $tokens,
-            $pToken,
-            $patternTokens,
-            $pIndex,
-            $optionalStartingTokens,
-            $predicate,
-            $mutator,
-            $namedPatterns,
-            $filters
-        );
+        $matches = [];
+        $i = $startFrom;
+        $allCount = count($tokens);
+
+        while ($i < $allCount) {
+            if (! self::isStartingPoint($namedPatterns, $pToken, $tokens, $i)) {
+                $i++;
+                continue;
+            }
+
+            [$optionalPatternMatchCount, $matched_optional_values] = self::optionalStartingTokens($optionalStartingTokens, $tokens, $i);
+
+            $restPatternTokens = array_slice($patternTokens, $pIndex);
+            $isMatch = self::compareTokens($restPatternTokens, $tokens, $i, $namedPatterns);
+            if (! $isMatch) {
+                $i++;
+                continue;
+            }
+
+            [$k, $matchedValues, $repeatings] = $isMatch;
+            $matchedValues = array_merge($matched_optional_values, $matchedValues);
+            $data = ['start' => $i - $pIndex, 'end' => $k, 'values' => $matchedValues, 'repeatings' => $repeatings];
+            if (! $predicate || call_user_func($predicate, $data, $tokens)) {
+                if (Filters::apply($filters, $data, $tokens)) {
+                    $mutator && $matchedValues = call_user_func($mutator, $matchedValues);
+                    $matches[] = ['start' => $i - $optionalPatternMatchCount, 'end' => $k, 'values' => $matchedValues, 'repeatings' => $repeatings];
+                    if (count($matches) === $maxDepth) {
+                        //return $matches;
+                    }
+                }
+            }
+
+            $k > $i && $i = $k - 1; // fast-forward
+            $i++;
+        }
+
+        return $matches;
     }
 
     private static function compareIt($tToken, int $type, $token, &$i)
@@ -321,46 +343,6 @@ class TokenCompare
         }
 
         return false;
-    }
-    private static function getMatchesSimplePatterns($startFrom, $tokens, $pToken, $patternTokens, $pIndex, $optionalStartingTokens, $predicate, $mutator, $namedPatterns = [], $filters = [], $maxDepth = 1000)
-    {
-        $matches = [];
-        $i = $startFrom;
-        $allCount = count($tokens);
-
-        while ($i < $allCount) {
-            if (! self::isStartingPoint($namedPatterns, $pToken, $tokens, $i)) {
-                $i++;
-                continue;
-            }
-
-            [$optionalPatternMatchCount, $matched_optional_values] = self::optionalStartingTokens($optionalStartingTokens, $tokens, $i);
-
-            $restPatternTokens = array_slice($patternTokens, $pIndex);
-            $isMatch = self::compareTokens($restPatternTokens, $tokens, $i, $namedPatterns);
-            if (! $isMatch) {
-                $i++;
-                continue;
-            }
-
-            [$k, $matchedValues, $repeatings] = $isMatch;
-            $matchedValues = array_merge($matched_optional_values, $matchedValues);
-            $data = ['start' => $i - $pIndex, 'end' => $k, 'values' => $matchedValues, 'repeatings' => $repeatings];
-            if (! $predicate || call_user_func($predicate, $data, $tokens)) {
-                if (Filters::apply($filters, $data, $tokens)) {
-                    $mutator && $matchedValues = call_user_func($mutator, $matchedValues);
-                    $matches[] = ['start' => $i - $optionalPatternMatchCount, 'end' => $k, 'values' => $matchedValues, 'repeatings' => $repeatings];
-                    if (count($matches) === $maxDepth) {
-                        return $matches;
-                    }
-                }
-            }
-
-            $k > $i && $i = $k - 1; // fast-forward
-            $i++;
-        }
-
-        return $matches;
     }
 
     public static function isRepeatingPattern($pToken)
