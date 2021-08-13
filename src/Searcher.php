@@ -6,7 +6,7 @@ class Searcher
 {
     public static function search($patterns, $tokens)
     {
-        return self::findMultiplePatterns(PatternParser::parsePatterns($patterns), $tokens);
+        return self::searchReplaceMultiplePatterns(PatternParser::parsePatterns($patterns), $tokens);
     }
 
     public static function searchReplace($patterns, $tokens)
@@ -16,12 +16,12 @@ class Searcher
         return [Stringify::fromTokens($tokens), $replacementLines];
     }
 
-    public static function findMultiplePatterns($patterns, $tokens)
+    public static function searchReplaceMultiplePatterns($parsedPatterns, $tokens)
     {
         $replacementAllLines = [];
 
-        foreach ($patterns as $pattern) {
-            [$tokens, $replacementLines] = self::findPatternMatches($pattern, $tokens);
+        foreach ($parsedPatterns as $pattern) {
+            [$tokens, $replacementLines] = self::searchReplaceOnePattern($pattern, $tokens);
 
             $replacementAllLines = array_merge($replacementAllLines, $replacementLines);
         }
@@ -29,7 +29,7 @@ class Searcher
         return [$tokens, $replacementAllLines];
     }
 
-    public static function findPatternMatches($pattern, $tokens)
+    public static function searchReplaceOnePattern($pattern, $tokens)
     {
         $result = TokenCompare::getMatches(
             $pattern['search'],
@@ -40,7 +40,12 @@ class Searcher
             $pattern['filters']
         );
 
-        [$tokens, $replacementLines] = PatternParser::applyAllMatches($result, $pattern['replace'], $tokens, $pattern['named_patterns']);
+        [$tokens, $replacementLines] = PatternParser::applyAllMatches(
+            $result,
+            $pattern['replace'],
+            $tokens,
+            $pattern['named_patterns']
+        );
 
         isset($pattern['post_replace']) && [$tokens] = PostReplace::applyPostReplaces($pattern['post_replace'], $tokens);
 

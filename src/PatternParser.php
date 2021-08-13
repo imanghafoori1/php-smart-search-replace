@@ -103,14 +103,27 @@ class PatternParser
         [$newTokens, $lineNum] = self::replaceTokens($tokens, $match['start'], $match['end'], $newValue);
 
         $wasPostReplaced = false;
-
-        $hasAny = TokenCompare::matchesAny($avoiding, token_get_all(Stringify::fromTokens($newTokens)));
+        $code = Stringify::fromTokens($newTokens);
+        $hasAny = TokenCompare::matchesAny($avoiding, token_get_all($code));
 
         if ($hasAny) {
             return [$tokens, null, $wasPostReplaced];
         }
 
+        if ($postReplaces && ! self::isValidPHP($code)) {
+            return [$tokens, null, $wasPostReplaced];
+        }
+
         return [$newTokens, $lineNum, $wasPostReplaced];
+    }
+
+    public static function isValidPHP($str)
+    {
+        file_put_contents(__DIR__. '/tmp.php', $str);
+        $output = shell_exec(sprintf('php -l %s 2>&1', escapeshellarg(__DIR__. '/tmp.php')));
+        unlink(__DIR__. '/tmp.php');
+
+        return preg_match('!No syntax errors detected!', $output);
     }
 
     public static function applyOnReplacements($replace, $values)
