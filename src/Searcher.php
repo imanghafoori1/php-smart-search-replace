@@ -44,7 +44,8 @@ class Searcher
             $result,
             $pattern['replace'],
             $tokens,
-            $pattern['named_patterns']
+            $pattern['named_patterns'],
+            $pattern['prevent_syntax_errors']
         );
 
         isset($pattern['post_replace']) && [$tokens] = PostReplace::applyPostReplaces($pattern['post_replace'], $tokens);

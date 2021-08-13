@@ -38,6 +38,7 @@ class PatternParser
             'mutator' => null,
             'named_patterns' => [],
             'filters' => [],
+            'prevent_syntax_errors' => false,
             'post_replace' => []
         ];
         $i = 0;
@@ -85,18 +86,18 @@ class PatternParser
         return $tokens;
     }
 
-    public static function applyAllMatches($patternMatches, $replace, $tokens, $namedPatterns)
+    public static function applyAllMatches($patternMatches, $replace, $tokens, $namedPatterns, $syntaxErrors)
     {
         $replacementLines = [];
         foreach ($patternMatches as $matchValue) {
-            [$tokens, $lineNum] = self::applyMatch($replace, $matchValue, $tokens, [], [], $namedPatterns);
+            [$tokens, $lineNum] = self::applyMatch($replace, $matchValue, $tokens, $syntaxErrors, [], [], $namedPatterns);
             $replacementLines[] = $lineNum;
         }
 
         return [$tokens, $replacementLines];
     }
 
-    public static function applyMatch($replace, $match, $tokens, $avoiding = [], $postReplaces = [], $namedPatterns = [])
+    public static function applyMatch($replace, $match, $tokens, $preventSyntaxErrors = false, $avoiding = [], $postReplaces = [], $namedPatterns = [])
     {
         $newValue = self::applyWithPostReplacements($replace, $match['values'], $postReplaces, $namedPatterns, $match['repeatings']);
 
@@ -110,16 +111,16 @@ class PatternParser
             return [$tokens, null, $wasPostReplaced];
         }
 
-        if ($postReplaces && ! self::isValidPHP($code)) {
+        if ($preventSyntaxErrors && ! self::isValidPHP($code)) {
             return [$tokens, null, $wasPostReplaced];
         }
 
         return [$newTokens, $lineNum, $wasPostReplaced];
     }
 
-    public static function isValidPHP($str)
+    public static function isValidPHP($code)
     {
-        file_put_contents(__DIR__. '/tmp.php', $str);
+        file_put_contents(__DIR__. '/tmp.php', $code);
         $output = shell_exec(sprintf('php -l %s 2>&1', escapeshellarg(__DIR__. '/tmp.php')));
         unlink(__DIR__. '/tmp.php');
 
