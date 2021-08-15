@@ -35,6 +35,10 @@ class TokenCompare
                 $namedPatterns = ['classRef' => '\\"<name>"'];
                 $isMatch = self::compareTokens($patterns, $tokens, $startFrom, $namedPatterns);
 
+                if (! $isMatch) {
+                    return false;
+                }
+
                 $matches = $isMatch[2][0];
 
                 $repeating = $matches;
@@ -50,6 +54,9 @@ class TokenCompare
                 if ($tToken[0] === T_NS_SEPARATOR) {
                     $patterns = PatternParser::analyzePatternTokens('"<repeating:classRef>"');
                     $matches = self::compareTokens($patterns, $tokens,  $startFrom, $namedPatterns);
+                    if (! $matches) {
+                        return false;
+                    }
                     $startFrom = $matches[0];
                     $placeholderValues[] = self::extractValue($matches[2][0], '');
                 } elseif ($tToken[0] === T_STRING) {
