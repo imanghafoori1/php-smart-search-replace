@@ -2,6 +2,7 @@
 
 namespace Imanghafoori\SearchReplace;
 
+use Exception;
 use Imanghafoori\TokenAnalyzer\Str;
 
 class TokenCompare
@@ -25,7 +26,45 @@ class TokenCompare
         $pToken = $pattern[$j];
 
         while ($startFrom < $tCount && $j < $pCount) {
-            if ($namedPatterns && $patternName = self::isRepeatingPattern($pToken)) {
+            if (self::is($pToken, '<full_class_ref>')) {
+                if ($tToken[0] !== T_NS_SEPARATOR) {
+                    return false;
+                }
+
+                $patterns = PatternParser::analyzePatternTokens('"<repeating:classRef>"');
+                $namedPatterns = ['classRef' => '\\"<name>"'];
+                $isMatch = self::compareTokens($patterns, $tokens, $startFrom, $namedPatterns);
+
+                $matches = $isMatch[2][0];
+
+                $repeating = $matches;
+                $parts = [''];
+                foreach ($repeating as $r) {
+                    $parts[] = $r[0][1];
+                }
+                $placeholderValues[] = [T_STRING, implode('\\', $parts), $r[0][2]];
+                $startFrom = $isMatch[0];
+            } elseif (self::is($pToken, '<class_ref>')) {
+                $namedPatterns = ['classRef' => '\\"<name>"'];
+
+                if ($tToken[0] === T_NS_SEPARATOR) {
+                    $patterns = PatternParser::analyzePatternTokens('"<repeating:classRef>"');
+                    $matches = self::compareTokens($patterns, $tokens,  $startFrom, $namedPatterns);
+                    $startFrom = $matches[0];
+                    $placeholderValues[] = self::extractValue($matches[2][0], '');
+                } elseif ($tToken[0] === T_STRING) {
+                    $patterns = PatternParser::analyzePatternTokens('"<name>""<repeating:classRef>"');
+                    $matches = self::compareTokens($patterns, $tokens, $startFrom, $namedPatterns);
+                    if (! $matches) {
+                        $placeholderValues[] = $tToken;
+                    } else {
+                        $startFrom = $matches[0];
+                        $placeholderValues[] = self::extractValue($matches[2][0], $matches[1][0][1]);
+                    }
+                } else {
+                    return false;
+                }
+            } elseif ($namedPatterns && $patternName = self::isRepeatingPattern($pToken)) {
                 $analyzedPattern = PatternParser::analyzePatternTokens($namedPatterns[$patternName]);
                 if (! self::compareTokens($analyzedPattern, $tokens, $startFrom)) {
                     return false;
@@ -52,11 +91,11 @@ class TokenCompare
             } elseif (self::is($pToken, '<until_match>')) {
                 $startingToken = $pattern[$j - 1]; // may use getPreviousToken()
                 if (! in_array($startingToken, ['(', '[', '{'], true)) {
-                    throw new \Exception('pattern invalid');
+                    throw new Exception('pattern invalid');
                 }
 
                 if (self::getAnti($startingToken) !== $pattern[$j + 1]) {
-                    throw new \Exception('pattern invalid');
+                    throw new Exception('pattern invalid');
                 }
 
                 [$_value, $startFrom] = self::readUntilMatch($pi, $tokens, $startingToken);
@@ -278,7 +317,7 @@ class TokenCompare
                     $mutator && $matchedValues = call_user_func($mutator, $matchedValues);
                     $matches[] = ['start' => $i - $optionalPatternMatchCount, 'end' => $k, 'values' => $matchedValues, 'repeatings' => $repeatings];
                     if (count($matches) === $maxDepth) {
-                        //return $matches;
+                        return $matches;
                     }
                 }
             }
@@ -470,8 +509,29 @@ class TokenCompare
     private static function isStartingPoint($namedPatterns, $pToken, $tokens, $i)
     {
         $isStartPoint = true;
-        // if it STARTS with a repeating pattern.
-        if ($namedPatterns && $patternName = self::isRepeatingPattern($pToken)) {
+        // If it STARTS with a repeating pattern.
+        if (self::is($pToken, '<class_ref>')) {
+            /* $patterns = PatternParser::analyzePatternTokens('"<repeating:classRef>"');
+             $matches = self::compareTokens(
+                 $patterns, $tokens,  $i, ['classRef' => '\\"<name>"']
+             );
+             if (! $matches) {
+                 $patterns = PatternParser::analyzePatternTokens('"<name>""<repeating:classRef>"');
+                 $matches = self::compareTokens(
+                     $patterns, $tokens,  $i, ['classRef' => '\\"<name>"']
+                 );
+             }
+             $isStartPoint = (bool) $matches;
+              */
+            $isStartPoint = ($tokens[$i][0] === T_STRING || $tokens[$i][0] === T_NS_SEPARATOR);
+        } elseif (self::is($pToken, '<full_class_ref>')) {
+         /* $patterns = PatternParser::analyzePatternTokens('"<repeating:classRef>"');
+            $matches = self::compareTokens(
+                $patterns, $tokens,  $i, ['classRef' => '\\"<name>"']
+            );
+            $isStartPoint = (bool) $matches;*/
+            $isStartPoint = ($tokens[$i][0] === T_NS_SEPARATOR);
+        } elseif ($namedPatterns && $patternName = self::isRepeatingPattern($pToken)) {
             // We compare it like a normal pattern.
             if (! self::compareTokens(PatternParser::analyzePatternTokens($namedPatterns[$patternName]), $tokens, $i)) {
                 $isStartPoint = false;
@@ -496,5 +556,16 @@ class TokenCompare
         }
 
         return $isStartPoint;
+    }
+
+    private static function extractValue($matches, string $first): array
+    {
+        $p2[] = $first;
+
+        foreach ($matches as $r) {
+            $p2[] = $r[0][1];
+        }
+
+        return [T_STRING, implode('\\', $p2), $r[0][2]];
     }
 }
