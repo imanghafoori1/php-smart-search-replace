@@ -20,6 +20,7 @@ class ClassReferenceTests extends BaseTestClass
         $this->assertEquals($resultCode, $newVersion);
         $this->assertEquals([1], $replacedAt);
     }
+
     /** @test */
     public function class_ref32()
     {
