@@ -89,7 +89,7 @@ class TokenCompare
                 } else {
                     return false;
                 }
-            } elseif (self::is($pToken, '<expression>')) {
+            } elseif (self::is($pToken, '<statement>')) {
                 [$_value, $startFrom] = self::readExpression($startFrom, $tokens);
                 $placeholderValues[] = $_value;
             } elseif ($namedPatterns && $patternName = self::isRepeatingPattern($pToken)) {
@@ -547,6 +547,8 @@ class TokenCompare
         // If it STARTS with a repeating pattern.
         if (self::is($pToken, '<class_ref>')) {
             $isStartPoint = ($tokens[$i][0] === T_STRING || $tokens[$i][0] === T_NS_SEPARATOR);
+        } elseif (self::is($pToken, '<statement>')) {
+
         } elseif (self::is($pToken, '<full_class_ref>')) {
             $isStartPoint = ($tokens[$i][0] === T_NS_SEPARATOR);
         } elseif ($namedPatterns && $patternName = self::isRepeatingPattern($pToken)) {
