@@ -15,6 +15,34 @@ class TokenCompare
         //',' => ',',
     ];
 
+    public static function readExpression($i, $tokens)
+    {
+        $level = 0;
+        $collected = [];
+        $line = 1;
+
+        for ($k = $i; true; $k++) {
+            $nextToken = $tokens[$k] ?? '_';
+            $collected[] = $nextToken;
+
+            if ($nextToken === ';' && $level === 0) {
+                $value = [T_STRING, Stringify::fromTokens($collected), $line];
+
+                return [$value, $k];
+            }
+
+            if (\in_array($nextToken[0], ['[', '(', '{', T_CURLY_OPEN], true)) {
+                $level++;
+            }
+
+            if (\in_array($nextToken[0], [']', ')', '}'], true)) {
+                $level--;
+            }
+
+            isset($nextToken[2]) && $line = $nextToken[2];
+        }
+    }
+
     private static function compareTokens($pattern, $tokens, $startFrom, $namedPatterns = [])
     {
         $pi = $j = 0;
@@ -61,6 +89,9 @@ class TokenCompare
                 } else {
                     return false;
                 }
+            } elseif (self::is($pToken, '<expression>')) {
+                [$_value, $startFrom] = self::readExpression($startFrom, $tokens);
+                $placeholderValues[] = $_value;
             } elseif ($namedPatterns && $patternName = self::isRepeatingPattern($pToken)) {
                 $analyzedPattern = PatternParser::analyzePatternTokens($namedPatterns[$patternName]);
                 if (! self::compareTokens($analyzedPattern, $tokens, $startFrom)) {

@@ -5,7 +5,7 @@ namespace Imanghafoori\SearchReplace\Tests;
 use Imanghafoori\LaravelMicroscope\Tests\BaseTestClass;
 use Imanghafoori\SearchReplace\Searcher;
 
-class ClassReferenceTests extends BaseTestClass
+class ClassReferenceTest extends BaseTestClass
 {
     /** @test */
     public function class_ref()
