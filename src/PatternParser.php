@@ -39,7 +39,7 @@ class PatternParser
             'named_patterns' => [],
             'filters' => [],
             'prevent_syntax_errors' => false,
-            'post_replace' => []
+            'post_replace' => [],
         ];
         $i = 0;
         foreach ($patterns as $pattern => $to) {
@@ -120,9 +120,9 @@ class PatternParser
 
     public static function isValidPHP($code)
     {
-        file_put_contents(__DIR__. '/tmp.php', $code);
-        $output = shell_exec(sprintf('php -l %s 2>&1', escapeshellarg(__DIR__. '/tmp.php')));
-        unlink(__DIR__. '/tmp.php');
+        file_put_contents(__DIR__.'/tmp.php', $code);
+        $output = shell_exec(sprintf('php -l %s 2>&1', escapeshellarg(__DIR__.'/tmp.php')));
+        unlink(__DIR__.'/tmp.php');
 
         return preg_match('!No syntax errors detected!', $output);
     }
@@ -135,7 +135,7 @@ class PatternParser
 
         $newValue = $replace;
         foreach ($values as $number => $value) {
-            !is_array($value[0]) && $newValue = str_replace(['"<'.($number + 1).'>"', "'<".($number + 1).">'"], $value[1] ?? $value[0], $newValue);
+            ! is_array($value[0]) && $newValue = str_replace(['"<'.($number + 1).'>"', "'<".($number + 1).">'"], $value[1] ?? $value[0], $newValue);
         }
 
         return $newValue;
@@ -150,7 +150,7 @@ class PatternParser
 
         foreach ($newTokens as $index => $t) {
             $r = TokenCompare::isRepeatingPattern($t);
-            if (!$r) {
+            if (! $r) {
                 continue;
             }
             [$num, $pName] = explode(':', $r);

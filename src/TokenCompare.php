@@ -72,7 +72,7 @@ class TokenCompare
                 $startFrom = $isMatch[0];
             } elseif (self::is($pToken, '<class_ref>')) {
                 if ($tToken[0] === T_NS_SEPARATOR) {
-                    $matches = self::compareTokens($repeatingClassRef, $tokens,  $startFrom, $classRef);
+                    $matches = self::compareTokens($repeatingClassRef, $tokens, $startFrom, $classRef);
                     if (! $matches) {
                         return false;
                     }
@@ -101,7 +101,6 @@ class TokenCompare
                 [$repeatingMatches, $startFrom] = self::findRepeatingMatches($startFrom, $tokens, $analyzedPattern);
 
                 $repeatings[] = $repeatingMatches;
-
             } elseif ($patternNames = self::isGlobalFuncCall($pToken)) {
                 [$prev] = self::getPrevToken($tokens, $startFrom);
                 $patternNames = explode(',', $patternNames);
@@ -293,7 +292,7 @@ class TokenCompare
             return false;
         }
 
-        if (in_array($pToken[0], self::$placeHolders, true) && !isset($pToken[1])) {
+        if (in_array($pToken[0], self::$placeHolders, true) && ! isset($pToken[1])) {
             return 'placeholder';
         }
 
@@ -312,8 +311,16 @@ class TokenCompare
         return $pToken[1] === $token[1];
     }
 
-    public static function getMatches($patternTokens, $tokens, $predicate = null, $mutator = null, $namedPatterns = [], $filters = [], $startFrom = 1, $maxDepth = 200)
-    {
+    public static function getMatches(
+        $patternTokens,
+        $tokens,
+        $predicate = null,
+        $mutator = null,
+        $namedPatterns = [],
+        $filters = [],
+        $startFrom = 1,
+        $maxDepth = 200
+    ) {
         $pIndex = self::firstNonOptionalPlaceholder($patternTokens);
         $pToken = $patternTokens[$pIndex];
         $optionalStartingTokens = array_slice($patternTokens, 0, $pIndex);
