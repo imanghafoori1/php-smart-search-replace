@@ -31,7 +31,7 @@ This will catch all the 3 cases above since the neutral php whitespaces are igno
 
 - '\<white_space\>'
 - '\<until\>'
-- '\<until_match\>'
+- '\<in_between\>'
 - '\<comment\>'
 - '\<variable\>' or '\<var\>'
 - '\<string\>' or '\<str\>'

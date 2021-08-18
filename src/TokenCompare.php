@@ -115,7 +115,7 @@ class TokenCompare
             } elseif (self::is($pToken, '<until>')) {
                 [$_value, $startFrom] = self::readUntil($pi, $tokens, $pattern[$j + 1]);
                 $placeholderValues[] = $_value;
-            } elseif (self::is($pToken, '<until_match>')) {
+            } elseif (self::is($pToken, '<in_between>')) {
                 $startingToken = $pattern[$j - 1]; // may use getPreviousToken()
                 if (! in_array($startingToken, ['(', '[', '{'], true)) {
                     throw new Exception('pattern invalid');
@@ -347,8 +347,8 @@ class TokenCompare
             [$k, $matchedValues, $repeatings] = $isMatch;
             $matchedValues = array_merge($matched_optional_values, $matchedValues);
             $data = ['start' => $i - $pIndex, 'end' => $k, 'values' => $matchedValues, 'repeatings' => $repeatings];
-            if (! $predicate || call_user_func($predicate, $data, $tokens)) {
-                if (Filters::apply($filters, $data, $tokens)) {
+            if (Filters::apply($filters, $data, $tokens)) {
+                if (! $predicate || call_user_func($predicate, $data, $tokens)) {
                     $mutator && $matchedValues = call_user_func($mutator, $matchedValues);
                     $matches[] = ['start' => $i - $optionalPatternMatchCount, 'end' => $k, 'values' => $matchedValues, 'repeatings' => $repeatings];
                     if (count($matches) === $maxDepth) {

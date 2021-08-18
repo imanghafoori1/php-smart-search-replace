@@ -24,10 +24,10 @@ class UntilTest extends BaseTestClass
     }
 
     /** @test */
-    public function until_matching()
+    public function in_between()
     {
         $patterns = [
-            "if('<until_match>'){}" => ['replace' => 'if(true) {"<1>";}'],
+            "if('<in_between>'){}" => ['replace' => 'if(true) {"<1>";}'],
         ];
 
         $startFile = '<?php if(foo()->bar()) {}';
@@ -46,7 +46,7 @@ class UntilTest extends BaseTestClass
     {
 
         $patterns = [
-            "'<global_func_call:dd,dump>'('<until_match>');" => [
+            "'<global_func_call:dd,dump>'('<in_between>');" => [
                 'replace' => ''
             ],
         ];
