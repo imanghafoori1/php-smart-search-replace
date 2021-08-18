@@ -42,9 +42,8 @@ class PatternParser
             'post_replace' => [],
         ];
         $i = 0;
-        foreach ($patterns as $pattern => $to) {
-            is_string($to) && $to = ['replace' => $to];
-            $analyzedPatterns[$i] = ['search' => self::analyzePatternTokens($pattern)] + $to + $defaults;
+        foreach ($patterns as $patternName => $to) {
+            $analyzedPatterns[$i] = ['search' => self::analyzePatternTokens($to['search'])] + $to + $defaults;
             $i++;
         }
 
