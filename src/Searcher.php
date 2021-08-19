@@ -36,7 +36,7 @@ class Searcher
         [
             $tokens,
             $replacementLines,
-        ] = PatternParser::applyAllMatches($result, $pattern['replace'], $tokens, $pattern['named_patterns'], $pattern['prevent_syntax_errors']);
+        ] = PatternParser::applyAllMatches($result, $pattern['replace'], $tokens, $pattern['named_patterns'], $pattern['avoid_syntax_errors']);
 
         isset($pattern['post_replace']) && [$tokens] = PostReplace::applyPostReplaces($pattern['post_replace'], $tokens);
 

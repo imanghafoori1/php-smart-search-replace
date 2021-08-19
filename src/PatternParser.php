@@ -38,7 +38,7 @@ class PatternParser
             'mutator' => null,
             'named_patterns' => [],
             'filters' => [],
-            'prevent_syntax_errors' => false,
+            'avoid_syntax_errors' => false,
             'post_replace' => [],
         ];
         $i = 0;
