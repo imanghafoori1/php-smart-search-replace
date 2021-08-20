@@ -43,7 +43,7 @@ class PatternParser
         ];
         $i = 0;
         foreach ($patterns as $patternName => $to) {
-            $analyzedPatterns[$i] = ['search' => self::analyzePatternTokens($to['search'])] + $to + $defaults;
+            $analyzedPatterns[$i] = ['search' => self::tokenize($to['search'])] + $to + $defaults;
             $i++;
         }
 
@@ -70,7 +70,7 @@ class PatternParser
         return $map[trim($token[1], '\'\"')] ?? false;
     }
 
-    public static function analyzePatternTokens($pattern)
+    public static function tokenize($pattern)
     {
         $tokens = token_get_all('<?php '.self::cleanComments($pattern));
         array_shift($tokens);

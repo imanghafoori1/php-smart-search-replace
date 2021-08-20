@@ -54,8 +54,8 @@ class TokenCompare
         $pToken = $pattern[$j];
 
         $classRef = ['classRef' => '\\"<name>"'];
-        $repeatingClassRef = PatternParser::analyzePatternTokens('"<repeating:classRef>"');
-        $nameRepeatingClassRef = PatternParser::analyzePatternTokens('"<name>""<repeating:classRef>"');
+        $repeatingClassRef = PatternParser::tokenize('"<repeating:classRef>"');
+        $nameRepeatingClassRef = PatternParser::tokenize('"<name>""<repeating:classRef>"');
         while ($startFrom < $tCount && $j < $pCount) {
             if (self::is($pToken, '<full_class_ref>')) {
                 if ($tToken[0] !== T_NS_SEPARATOR) {
@@ -93,7 +93,7 @@ class TokenCompare
                 [$_value, $startFrom] = self::readExpression($startFrom, $tokens);
                 $placeholderValues[] = $_value;
             } elseif ($namedPatterns && $patternName = self::isRepeatingPattern($pToken)) {
-                $analyzedPattern = PatternParser::analyzePatternTokens($namedPatterns[$patternName]);
+                $analyzedPattern = PatternParser::tokenize($namedPatterns[$patternName]);
                 if (! self::compareTokens($analyzedPattern, $tokens, $startFrom)) {
                     return false;
                 }
@@ -105,29 +105,27 @@ class TokenCompare
                 $patternNames = explode(',', $patternNames);
 
                 if ($tToken[0] === T_NS_SEPARATOR) {
-                    $matches = self::compareTokens($repeatingClassRef, $tokens, $startFrom, $classRef);
+                    $matches = self::compareTokens(PatternParser::tokenize('\\"<name>"'), $tokens, $startFrom);
                     if (! $matches) {
                         return false;
                     }
-                    $va = self::extractValue($matches[2][0]);
-                    $segments = explode('\\', $va[1]);
-                    $name = array_pop($segments);
-                    if (in_array($name, $patternNames)) {
-                        $startFrom = $matches[0];
-                        $placeholderValues[] = $va;
+
+                    $strValue = self::concatinate($matches[1]);
+
+                    foreach ($patternNames as $patternName23) {
+                        if ($strValue[1] === $patternName23 || $strValue[1] === '\\'.$patternName23) {
+                            $startFrom = $matches[0];
+                            $placeholderValues[] = $strValue;
+                            break;
+                        }
                     }
                 } elseif ($tToken[0] === T_STRING) {
-                    $matches = self::compareTokens($nameRepeatingClassRef, $tokens, $startFrom, $classRef);
-                    if (! $matches) {
-                        if (in_array($tToken[1], $patternNames)) {
-                            $placeholderValues[] = $tToken;
-                        } else {
-                            return false;
-                        }
-                    } else {
-                        $startFrom = $matches[0];
-                        $placeholderValues[] = self::extractValue($matches[2][0], $matches[1][0][1]);
+                    if (! in_array($tToken[1], $patternNames)) {
+                        return false;
                     }
+
+                    $placeholderValues[] = $tToken;
+
                 } else {
                     return false;
                 }
@@ -429,7 +427,7 @@ class TokenCompare
     public static function matchesAny($avoidResultIn, $newTokens)
     {
         foreach ($avoidResultIn as $pattern) {
-            $_matchedValues = TokenCompare::getMatches(PatternParser::analyzePatternTokens($pattern), $newTokens);
+            $_matchedValues = TokenCompare::getMatches(PatternParser::tokenize($pattern), $newTokens);
             if ($_matchedValues) {
                 return true;
             }
@@ -572,7 +570,7 @@ class TokenCompare
             $isStartPoint = ($tokens[$i][0] === T_NS_SEPARATOR);
         } elseif ($namedPatterns && $patternName = self::isRepeatingPattern($pToken)) {
             // We compare it like a normal pattern.
-            if (! self::compareTokens(PatternParser::analyzePatternTokens($namedPatterns[$patternName]), $tokens, $i)) {
+            if (! self::compareTokens(PatternParser::tokenize($namedPatterns[$patternName]), $tokens, $i)) {
                 $isStartPoint = false;
             }
         } elseif ($patternNames = self::isGlobalFuncCall($pToken)) {
@@ -613,5 +611,17 @@ class TokenCompare
         }
 
         return [T_STRING, implode('\\', $segments), $match[0][2]];
+    }
+
+    private static function concatinate(array $matches): array
+    {
+        $segments = [''];
+        foreach ($matches as $match) {
+            $segments[] = $match[1];
+        }
+
+        $strValue = [T_STRING, implode('\\', $segments), $match[2]];
+
+        return $strValue;
     }
 }

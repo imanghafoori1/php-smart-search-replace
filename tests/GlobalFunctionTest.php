@@ -12,13 +12,13 @@ class GlobalFunctionTest extends BaseTestClass
     {
         $patterns = [
             "name" => [
-                'search' => "'<global_func_call:dd>'();",
+                'search' => ";'<global_func_call:dd>'()",
                 'replace' => ''
             ],
         ];
 
         $startFile_ = '<?php function dd(){} new dd();dd::  aa();$a->  dd(); jj();dd();dd(); \dd(); \kk();';
-        $resultFile = '<?php function dd(){} new dd();dd::  aa();$a->  dd(); jj();  \kk();';
+        $resultFile = '<?php function dd(){} new dd();dd::  aa();$a->  dd(); jj(); \kk();';
 
         $tokens = token_get_all($startFile_);
         [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, $tokens);
@@ -37,7 +37,7 @@ class GlobalFunctionTest extends BaseTestClass
         ];
 
 
-        $startFile = '<?php function dd(){} new dd();dd::  aa();$a->  dd();dd(); dd(); dump();';
+        $startFile = '<?php function dd(){} new dd();dd::  aa();$a->  dd();dd(); \dd(); dump();';
         $resultFile = '<?php function dd(){} new dd();dd::  aa();$a->  dd();  ';
 
         $tokens = token_get_all($startFile);
