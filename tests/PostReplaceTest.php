@@ -11,11 +11,12 @@ class PostReplaceTest extends TestCase
     public function post_replace()
     {
         $patterns = [
-            "]" => [
+            "name" => [
+                'search' => ']',
                 'replace' => ',]',
                 'post_replace' => [
-                    ',,]' => ['replace' => ',]'],
-                    '[,]' => ['replace' => '[]'],
+                    'name1' => ['search' => ',,]', 'replace' => ',]'],
+                    'name2' => ['search' => '[,]', 'replace' => '[]'],
                 ],
             ]
         ];

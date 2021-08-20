@@ -11,7 +11,10 @@ class StatementTest extends BaseTestClass
     public function statement()
     {
         $patterns = [
-            '$user = "<statement>"' => ['replace' => '"<1>"'],
+            'name' => [
+                'search' => '$user = "<statement>"' ,
+                'replace' => '"<1>"'
+            ],
         ];
         ////////////////////////////////////
 
@@ -25,7 +28,10 @@ class StatementTest extends BaseTestClass
 
         ////////////////////////////////////
         $patterns = [
-            '"<statement>"' => ['replace' => ''],
+            'name' => [
+                'search' => '"<statement>"' ,
+                'replace' => ''
+            ],
         ];
 
         $startCode = '<?php $user = where(function () { $a = 1; $a; });';
@@ -36,7 +42,10 @@ class StatementTest extends BaseTestClass
         $this->assertEquals($resultCode, $newVersion);
         ////////////////////////////////////
         $patterns = [
-            '"<statement>""<statement>"' => ['replace' => ''],
+            'name' => [
+                'search' => '"<statement>""<statement>"' ,
+                'replace' => ''
+            ],
         ];
         $startCode = '<?php $user = where(function () { $a = 1; $a; }); $a = 1;';
         $resultCode = '<?php ';
@@ -51,7 +60,10 @@ class StatementTest extends BaseTestClass
     public function statement_2()
     {
         $patterns = [
-            '"<statement>"$a = 1;' => ['replace' => '"<1>"'],
+            'name' => [
+                'search' => '"<statement>"$a = 1;' ,
+                'replace' => '"<1>"'
+            ],
         ];
         $startCode = '<?php $user = where(function () { $a = 1; $a; }); $a = 1;';
         $resultCode = '<?php $user = where(function () { $a = 1; $a; });';

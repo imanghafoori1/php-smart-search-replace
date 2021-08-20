@@ -11,7 +11,9 @@ class ClassReferenceTest extends BaseTestClass
     public function class_ref()
     {
         $patterns = [
-            "new '<class_ref>'(); new Foo(); new '<class_ref>'();" => ['replace' => '"<1>"::class;"<2>"::class;'],
+            'name' => [
+                'search' => "new '<class_ref>'(); new Foo(); new '<class_ref>'();",
+                'replace' => '"<1>"::class;"<2>"::class;'],
         ];
         $startCode = '<?php new \App\Models\User(); new Foo(); new App2\Models2\User2();';
         $resultCode = '<?php \App\Models\User::class;App2\Models2\User2::class;';
@@ -25,7 +27,9 @@ class ClassReferenceTest extends BaseTestClass
     public function class_ref32()
     {
         $patterns = [
-            "new '<class_ref>'(); new '<class_ref>'(); new '<class_ref>'();" => ['replace' => '"<1>"::class; "<2>"::class; "<3>"::class;'],
+            'name' => [
+                'search' => "new '<class_ref>'(); new '<class_ref>'(); new '<class_ref>'();",
+                'replace' => '"<1>"::class; "<2>"::class; "<3>"::class;'],
         ];
         $startCode = '<?php new User1(); new \App2\Models\User(); new App3\Models\User();';
         $resultCode = '<?php User1::class; \App2\Models\User::class; App3\Models\User::class;';
@@ -39,7 +43,9 @@ class ClassReferenceTest extends BaseTestClass
     public function class_ref_3()
     {
         $patterns = [
-            "new '<class_ref>'();" => ['replace' => ''],
+            'name' => [
+                'search' => "new '<class_ref>'();",
+                'replace' => ''],
         ];
         $startCode = '<?php new User();';
         $resultCode = '<?php ';
@@ -53,7 +59,9 @@ class ClassReferenceTest extends BaseTestClass
     public function class_ref_4()
     {
         $patterns = [
-            "new '<class_ref>'();" => ['replace' => ''],
+            'name' => [
+                'search' => "new '<class_ref>'();",
+                'replace' => ''],
         ];
         $startCode = '<?php new \User();';
         $resultCode = '<?php ';
@@ -80,7 +88,9 @@ class ClassReferenceTest extends BaseTestClass
     public function full_class_ref()
     {
         $patterns = [
-            "new '<full_class_ref>'(); '<full_class_ref>'();" => ['replace' => '"<1>";'],
+            'name' => [
+                'search' => "new '<full_class_ref>'(); '<full_class_ref>'();",
+                'replace' => '"<1>";'],
         ];
         $startCode = '<?php new \App\Models\User(); \App\Models\User();';
         $resultCode = '<?php \App\Models\User;';
@@ -94,7 +104,9 @@ class ClassReferenceTest extends BaseTestClass
     public function full_class_ref_does_not_capture_semi_qualified_refs()
     {
         $patterns = [
-            "new '<full_class_ref>'();" => ['replace' => '"<1>";'],
+            'name' => [
+                'search' => "new '<full_class_ref>'();",
+                'replace' => '"<1>";'],
         ];
         $startCode = '<?php new App\Models\User();';
         $resultCode = '<?php new App\Models\User();';
@@ -108,7 +120,9 @@ class ClassReferenceTest extends BaseTestClass
     public function full_class_ref_not_capture_non_qualified_refs()
     {
         $patterns = [
-            "new '<full_class_ref>'();" => ['replace' => '"<1>";'],
+            'name' => [
+                'search' => "new '<full_class_ref>'();",
+                'replace' => '"<1>";'],
         ];
         $startCode = '<?php new User();';
         $resultCode = '<?php new User();';

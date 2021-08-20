@@ -11,7 +11,8 @@ class WhitespaceTest extends BaseTestClass
     public function match_white_space2()
     {
         $patterns = [
-            '["<white_space>"]' => [
+            'name' => [
+                'search' => '["<white_space>"]',
                 'replace' => function ($values) {
                     $this->assertEquals(' ', $values[0][1]);
                     $this->assertEquals(T_WHITESPACE, $values[0][0]);
@@ -31,7 +32,8 @@ class WhitespaceTest extends BaseTestClass
     public function match_white_space52()
     {
         $patterns = [
-            '["<1:white_space>"]' => [
+            'name' => [
+                'search' => '["<1:white_space>"]',
                 'replace' => function ($values) {
                     $this->assertEquals(' ', $values[0][1]);
                     $this->assertEquals(T_WHITESPACE, $values[0][0]);
@@ -51,7 +53,8 @@ class WhitespaceTest extends BaseTestClass
     public function match_white_space()
     {
         $patterns = [
-            '["<white_space>"]' => [
+            'name' => [
+                'search' => '["<white_space>"]',
                 'replace' => '[]',
             ]
         ];
@@ -67,13 +70,15 @@ class WhitespaceTest extends BaseTestClass
     public function white_space()
     {
         $patterns = [
-            "use App\Club;'<white_space>'use App\Events\MemberCommentedClubPost;" =>
+            "name" =>
                 [
+                    'search' => "use App\Club;'<white_space>'use App\Events\MemberCommentedClubPost;",
                     'replace' => "use App\Club; use App\Events\MemberCommentedClubPost;",
                 ],
 
-            "use Illuminate\Http\Request;'<white_space>'" =>
+            "name2" =>
                 [
+                    'search' => "use Illuminate\Http\Request;'<white_space>'",
                     'replace' => ''
                 ],
         ];
@@ -90,7 +95,10 @@ class WhitespaceTest extends BaseTestClass
     public function white_space_placeholder()
     {
         $patterns = [
-            ")'<white_space>'{" => ['replace' => '){'],
+            "name" => [
+                'search' => ")'<white_space>'{",
+                'replace' => '){'
+            ],
         ];
         $startFile = file_get_contents(__DIR__.'/stubs/SimplePostController.stub');
         $resultFile = file_get_contents(__DIR__.'/stubs/NoWhiteSpaceSimplePostController.stub');
@@ -104,7 +112,10 @@ class WhitespaceTest extends BaseTestClass
     public function optional_white_space_placeholder()
     {
         $patterns = [
-            "response('<white_space>?')'<white_space>?'->json" => ['replace' => 'response()"<2>"->mson'],
+            "name" => [
+                'search' => "response('<white_space>?')'<white_space>?'->json",
+                'replace' => 'response()"<2>"->mson'
+            ],
         ];
         $startFile = file_get_contents(__DIR__.'/stubs/SimplePostController.stub');
 
@@ -119,7 +130,10 @@ class WhitespaceTest extends BaseTestClass
     public function optional_comment_placeholder()
     {
         $patterns = [
-            ";'<white_space>?''<comment>';" => ['replace' => ';"<1>""<2>"'],
+            "name" => [
+                'search' => ";'<white_space>?''<comment>';",
+                'replace' => ';"<1>""<2>"'
+            ],
         ];
         $startFile = '<?php ; /*H*/ ;';
 
@@ -134,7 +148,10 @@ class WhitespaceTest extends BaseTestClass
     public function optional_comment_placeholder_2()
     {
         $patterns = [
-            ";'<white_space>?''<comment>?';" => ['replace' => ';"<1>""<2>""<1>";'],
+            "name" => [
+                'search' => ";'<white_space>?''<comment>?';",
+                'replace' => ';"<1>""<2>""<1>";'
+            ],
         ];
 
         $startFile = '<?php ; ;';
@@ -149,7 +166,10 @@ class WhitespaceTest extends BaseTestClass
     public function optional_comment_placeholder_3()
     {
         $patterns = [
-            ";'<white_space>?''<comment>?';" => ['replace' => ';"<1>""<2>""<1>";'],
+            "name" => [
+                'search' => ";'<white_space>?''<comment>?';",
+                'replace' => ';"<1>""<2>""<1>";'
+            ],
         ];
 
         $startFile = '<?php ; /**/;';
@@ -164,7 +184,10 @@ class WhitespaceTest extends BaseTestClass
     public function optional_comment_placeholder_32()
     {
         $patterns = [
-            "'<white_space>?''<comment>?';" => ['replace' => '"<1>""<2>""<1>";'],
+            "name" => [
+                'search' => "'<white_space>?''<comment>?';",
+                'replace' => '"<1>""<2>""<1>";'
+            ],
         ];
 
         $startFile = '<?php (1); /**/;';
@@ -179,7 +202,10 @@ class WhitespaceTest extends BaseTestClass
     public function optional_comment_placeholder_4()
     {
         $patterns = [
-            ";'<white_space>?''<comment>?';" => ['replace' => ';"<1>""<2>""<1>";'],
+            "name" => [
+                'search' => ";'<white_space>?''<comment>?';",
+                'replace' => ';"<1>""<2>""<1>";'
+            ],
         ];
 
         $startFile = '<?php ;/**/ ;';

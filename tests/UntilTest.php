@@ -11,7 +11,10 @@ class UntilTest extends BaseTestClass
     public function until_placeholder()
     {
         $patterns = [
-            'return response()"<until>";' => ['replace' => 'response()"<1>"->throwResponse();'],
+            'name' => [
+                'search' => 'return response()"<until>";',
+                'replace' => 'response()"<1>"->throwResponse();'
+            ],
         ];
 
         $startFile = file_get_contents(__DIR__.'/stubs/SimplePostController.stub');
@@ -27,7 +30,10 @@ class UntilTest extends BaseTestClass
     public function in_between()
     {
         $patterns = [
-            "if('<in_between>'){}" => ['replace' => 'if(true) {"<1>";}'],
+            "name" => [
+                'search' => "if('<in_between>'){}",
+                'replace' => 'if(true) {"<1>";}'
+            ],
         ];
 
         $startFile = '<?php if(foo()->bar()) {}';
@@ -40,37 +46,4 @@ class UntilTest extends BaseTestClass
 
         $this->assertEquals([1], $replacedAt);
     }
-
-    /** @test */
-    public function function_call()
-    {
-
-        $patterns = [
-            "'<global_func_call:dd,dump>'('<in_between>');" => [
-                'replace' => ''
-            ],
-        ];
-
-
-        $startFile = '<?php function dd(){} new dd();dd::  aa();$a->  dd();dd(); dd(); dump();';
-        $resultFile = '<?php function dd(){} new dd();dd::  aa();$a->  dd();  ';
-
-        $tokens = token_get_all($startFile);
-        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, $tokens);
-
-        $this->assertEquals($resultFile, $newVersion);
-
-        $patterns = [
-            ";'<global_func_call:dd>'();" => ['replace' => ''],
-        ];
-
-        $startFile = '<?php function dd(){} new dd();dd::  aa();$a->  dd();dd(); dd();';
-        $resultFile = '<?php function dd(){} new dd();dd::  aa();$a->  dd()';
-
-        $tokens = token_get_all($startFile);
-        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, $tokens);
-
-        $this->assertEquals($resultFile, $newVersion);
-    }
-
 }

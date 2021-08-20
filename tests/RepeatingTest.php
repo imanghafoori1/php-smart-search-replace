@@ -11,11 +11,12 @@ class RepeatingTest extends BaseTestClass
     public function optional_comment_placeholder_5()
     {
         $patterns = [
-            "'<var>''<repeating:exp>';'<var>';" => [
+            "name" => [
+                'search' => "'<var>''<repeating:exp>';'<var>';",
                 'replace' => '"<1>";"<2>";',
                 'named_patterns' => [
                     'exp' => '->a("<str>", "<str>")',
-                ]
+                ],
             ],
         ];
 
@@ -29,7 +30,8 @@ class RepeatingTest extends BaseTestClass
     public function optional_comment_placeholder_q5()
     {
         $patterns = [
-            "'<var>''<repeating:exp>';" => [
+            "name"=> [
+                'search' => "'<var>''<repeating:exp>';",
                 'replace' => '"<1>""<repeating:1:subs>";',
                 'named_patterns' => [
                     'exp' => '->a("<str>", "<str>")',
@@ -48,7 +50,8 @@ class RepeatingTest extends BaseTestClass
     public function optional_comment_placeholder_qd5()
     {
         $patterns = [
-            "User::where('<str>', '<str>')'<repeating:exp>'" => [
+            "name"=> [
+                'search' => "User::where('<str>', '<str>')'<repeating:exp>'",
                 'replace' => 'User::where(["<1>" => "<2>", "<repeating:1:subs>"])',
                 'named_patterns' => [
                     'exp' => '->where("<str>", "<str>")',
@@ -69,7 +72,8 @@ class RepeatingTest extends BaseTestClass
     public function optional_comment_placeholder_qgd5()
     {
         $patterns = [
-            "'<repeating:exp>'" => [
+            "name"=> [
+                'search' => "'<repeating:exp>'",
                 'replace' => '->where(["<repeating:1:subs>"])',
                 'named_patterns' => [
                     'exp' => '->where("<str>", "<str>")',
@@ -90,7 +94,8 @@ class RepeatingTest extends BaseTestClass
     public function optional_comment_placeholder_qg1()
     {
         $patterns = [
-            "'<repeating:exp>'->get();" => [
+            "name"=> [
+                'search' => "'<repeating:exp>'->get();",
                 'replace' => '->where(["<repeating:1:subs>"])->met();',
                 'named_patterns' => [
                     'exp' => '->where("<str>", "<str>")',
@@ -111,7 +116,8 @@ class RepeatingTest extends BaseTestClass
     public function optional_comment_placeholder_qrg1()
     {
         $patterns = [
-            "'<repeating:exp>'->get();" => [
+            "name"=> [
+                'search' => "'<repeating:exp>'->get();",
                 'replace' => '->where(["<repeating:1:subs>"])->met();',
                 'named_patterns' => [
                     'exp' => '->where("<str>", "<str>")',

@@ -13,7 +13,8 @@ class RefactorPatternParsingTest extends TestCase
     public function any_keyword2()
     {
         $patterns = [
-            '["<any>""<white_space>?"]' => [
+            'name' => [
+                'search' => '["<any>""<white_space>?"]',
                 'replace' => '["<1>""<2>","<1>"]',
                 'predicate' => function ($matches) {
                     return $matches['values'][0][0] === T_CONSTANT_ENCAPSED_STRING;
@@ -31,7 +32,8 @@ class RefactorPatternParsingTest extends TestCase
     public function comment_numbering_is_not_important()
     {
         $patterns = [
-            '["<10:any>""<8:white_space>?"]' => [
+            'name' => [
+                'search' => '["<10:any>""<8:white_space>?"]',
                 'replace' => '["<1>""<2>","<1>"]',
                 'predicate' => function ($matches) {
                     return $matches['values'][0][0] === T_CONSTANT_ENCAPSED_STRING;
@@ -49,7 +51,8 @@ class RefactorPatternParsingTest extends TestCase
     public function match_comment()
     {
         $patterns = [
-           '"<comment>"]' => [
+           'name' => [
+               'search' => '"<comment>"]',
                 'replace' => ']',
             ]
         ];
@@ -64,7 +67,8 @@ class RefactorPatternParsingTest extends TestCase
     public function match_optional_comment()
     {
         $patterns = [
-           '"<comment>?""<white_space>?"]' => [
+           'name' => [
+               'search' => '"<comment>?""<white_space>?"]',
                 'replace' => ']',
             ]
         ];
@@ -79,8 +83,14 @@ class RefactorPatternParsingTest extends TestCase
     public function capturing_place_holders()
     {
         $patterns = [
-            "if (!'<variable>' && '<boolean>') { return response()->'<name>'(['message' => __('<string>'),], '<number>'); }" => ['replace' => 'Foo::bar("<1>", "<2>", "<3>"(), "<4>");'],
-            'foo(false, true, null);' => ['replace' => 'bar("hi");'],
+            "name" => [
+                'search' => "if (!'<variable>' && '<boolean>') { return response()->'<name>'(['message' => __('<string>'),], '<number>'); }",
+                'replace' => 'Foo::bar("<1>", "<2>", "<3>"(), "<4>");'
+            ],
+            'name2' => [
+                'search' => 'foo(false, true, null);',
+                'replace' => 'bar("hi");'
+            ],
         ];
         $startFile = file_get_contents(__DIR__.'/stubs/SimplePostController.stub');
         $resultFile = file_get_contents(__DIR__.'/stubs/ResultSimplePostController.stub');
@@ -94,7 +104,10 @@ class RefactorPatternParsingTest extends TestCase
     public function basic_capturing_place_holders()
     {
         $patterns = [
-            "'<var>' = 1;" => ['replace' => "'<1>';"],
+            "name" => [
+                'search' => "'<var>' = 1;",
+                'replace' => "'<1>';"
+            ],
         ];
         $startFile = '<?php $var = 1;';
         $resultFile = '<?php $var;';
@@ -105,7 +118,10 @@ class RefactorPatternParsingTest extends TestCase
 
         // with double-quotes
         $patterns = [
-            '"<var>" = 1;' => ['replace' => "'<1>';"],
+            'name' => [
+                'search' => '"<var>" = 1;',
+                'replace' => "'<1>';"
+            ],
         ];
         $startFile = '<?php $var = 1;';
         $resultFile = '<?php $var;';
@@ -125,7 +141,8 @@ class RefactorPatternParsingTest extends TestCase
         ////////////////////////////////////////////
 
         $patterns = [
-            '"<name>"::h();' => [
+            '"name' => [
+                'search' => '"<name>"::h();',
                 'replace' => "",
                 'filters' => [
                     1 => [
@@ -141,7 +158,8 @@ class RefactorPatternParsingTest extends TestCase
         ////////////////////////////////////////////
 
         $patterns = [
-            '"<name>"::h();' => [
+            'name' => [
+                'search' => '"<name>"::h();',
                 'replace' => "",
                 'filters' => [
                     1 => [
@@ -216,7 +234,8 @@ class RefactorPatternParsingTest extends TestCase
     public function capturing_predicate()
     {
         $patterns = [
-            "'<var>' = '<var>';" => [
+            "name" => [
+                'search' => "'<var>' = '<var>';",
                 'replace' => '',
                 'predicate' => function ($matches) {
                     return $matches['values'][0][1] === $matches['values'][1][1];
