@@ -102,14 +102,33 @@ class TokenCompare
 
                 $repeatings[] = $repeatingMatches;
             } elseif ($patternNames = self::isGlobalFuncCall($pToken)) {
-                [$prev] = self::getPrevToken($tokens, $startFrom);
                 $patternNames = explode(',', $patternNames);
 
-                if ($tToken[0] !== T_STRING || ! in_array($tToken[1], $patternNames, true)) {
-                    return false;
-                }
-
-                if (in_array($prev[0], [T_NEW, T_OBJECT_OPERATOR, T_DOUBLE_COLON, T_FUNCTION])) {
+                if ($tToken[0] === T_NS_SEPARATOR) {
+                    $matches = self::compareTokens($repeatingClassRef, $tokens, $startFrom, $classRef);
+                    if (! $matches) {
+                        return false;
+                    }
+                    $va = self::extractValue($matches[2][0]);
+                    $segments = explode('\\', $va[1]);
+                    $name = array_pop($segments);
+                    if (in_array($name, $patternNames)) {
+                        $startFrom = $matches[0];
+                        $placeholderValues[] = $va;
+                    }
+                } elseif ($tToken[0] === T_STRING) {
+                    $matches = self::compareTokens($nameRepeatingClassRef, $tokens, $startFrom, $classRef);
+                    if (! $matches) {
+                        if (in_array($tToken[1], $patternNames)) {
+                            $placeholderValues[] = $tToken;
+                        } else {
+                            return false;
+                        }
+                    } else {
+                        $startFrom = $matches[0];
+                        $placeholderValues[] = self::extractValue($matches[2][0], $matches[1][0][1]);
+                    }
+                } else {
                     return false;
                 }
             } elseif (self::is($pToken, '<until>')) {
@@ -558,15 +577,22 @@ class TokenCompare
             }
         } elseif ($patternNames = self::isGlobalFuncCall($pToken)) {
             $token = $tokens[$i];
-            [$prev] = self::getPrevToken($tokens, $i);
             $patternNames = explode(',', $patternNames);
 
-            if ($token[0] !== T_STRING || ! in_array($token[1], $patternNames, true)) {
-                $isStartPoint = false;
+            if ($token[0] !== T_STRING && $token[0] !== T_NS_SEPARATOR
+                //|| ! in_array($token[1], $patternNames, true)
+            ) {
+                return false;
             }
-            if (in_array($prev[0], [T_NEW, T_OBJECT_OPERATOR, T_DOUBLE_COLON, T_FUNCTION])) {
-                $isStartPoint = false;
+            $excluded = [T_NEW, T_OBJECT_OPERATOR, T_DOUBLE_COLON, T_FUNCTION];
+            defined('T_NULLSAFE_OBJECT_OPERATOR') && $excluded[] = T_NULLSAFE_OBJECT_OPERATOR;
+
+            [$prev] = self::getPrevToken($tokens, $i);
+            if (in_array($prev[0], $excluded)) {
+               return false;
             }
+
+            return true;
         } else {
             $token = $tokens[$i];
 
