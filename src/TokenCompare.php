@@ -573,19 +573,19 @@ class TokenCompare
             if (! self::compareTokens(PatternParser::tokenize($namedPatterns[$patternName]), $tokens, $i)) {
                 $isStartPoint = false;
             }
-        } elseif ($patternNames = self::isGlobalFuncCall($pToken)) {
+        } elseif (self::isGlobalFuncCall($pToken)) {
             $token = $tokens[$i];
-            $patternNames = explode(',', $patternNames);
 
-            if ($token[0] !== T_STRING && $token[0] !== T_NS_SEPARATOR
-                //|| ! in_array($token[1], $patternNames, true)
-            ) {
+            if ($token[0] !== T_STRING && $token[0] !== T_NS_SEPARATOR) {
                 return false;
             }
             $excluded = [T_NEW, T_OBJECT_OPERATOR, T_DOUBLE_COLON, T_FUNCTION];
             defined('T_NULLSAFE_OBJECT_OPERATOR') && $excluded[] = T_NULLSAFE_OBJECT_OPERATOR;
 
-            [$prev] = self::getPrevToken($tokens, $i);
+            [$prev, $prevI] = self::getPrevToken($tokens, $i);
+            if ($prev[0] === T_NS_SEPARATOR) {
+                [$prev] = self::getPrevToken($tokens, $prevI);
+            }
             if (in_array($prev[0], $excluded)) {
                return false;
             }
@@ -613,15 +613,13 @@ class TokenCompare
         return [T_STRING, implode('\\', $segments), $match[0][2]];
     }
 
-    private static function concatinate(array $matches): array
+    private static function concatinate(array $matches)
     {
         $segments = [''];
         foreach ($matches as $match) {
             $segments[] = $match[1];
         }
 
-        $strValue = [T_STRING, implode('\\', $segments), $match[2]];
-
-        return $strValue;
+        return [T_STRING, implode('\\', $segments), $match[2]];
     }
 }

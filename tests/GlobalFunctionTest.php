@@ -37,10 +37,10 @@ class GlobalFunctionTest extends BaseTestClass
         ];
 
 
-        $startFile = '<?php function dd(){} new dd();dd::  aa();$a->  dd();dd(); \dd(); dump();';
-        $resultFile = '<?php function dd(){} new dd();dd::  aa();$a->  dd();  ';
+        $start_File = '<?php function dd(){} new dd(); new \dump();aa::  dd();$a->  dd();dd(); \dd(); dump();';
+        $resultFile = '<?php function dd(){} new dd(); new \dump();aa::  dd();$a->  dd();  ';
 
-        $tokens = token_get_all($startFile);
+        $tokens = token_get_all($start_File);
         [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, $tokens);
 
         $this->assertEquals($resultFile, $newVersion);
