@@ -56,6 +56,22 @@ class ClassReferenceTest extends BaseTestClass
     }
 
     /** @test */
+    public function class_ref_6()
+    {
+        $patterns = [
+            'name' => [
+                'search' => "'<class_ref>'();",
+                'replace' => ''],
+        ];
+        $startCode = '<?php new User();';
+        $resultCode = '<?php new ';
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startCode));
+
+        $this->assertEquals($resultCode, $newVersion);
+        $this->assertEquals([1], $replacedAt);
+    }
+
+    /** @test */
     public function class_ref_4()
     {
         $patterns = [
