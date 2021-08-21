@@ -2,7 +2,6 @@
 
 namespace Imanghafoori\SearchReplace\Tests;
 
-use Imanghafoori\LaravelMicroscope\Tests\BaseTestClass;
 use Imanghafoori\SearchReplace\Searcher;
 
 class RepeatingTest extends BaseTestClass
