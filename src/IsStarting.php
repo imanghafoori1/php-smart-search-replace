@@ -2,7 +2,9 @@
 
 namespace Imanghafoori\SearchReplace;
 
+use Imanghafoori\SearchReplace\Keywords\Any;
 use Imanghafoori\SearchReplace\Keywords\ClassRef;
+use Imanghafoori\SearchReplace\Keywords\Comment;
 use Imanghafoori\SearchReplace\Keywords\FullClassRef;
 use Imanghafoori\SearchReplace\Keywords\GlobalFunctionCall;
 use Imanghafoori\SearchReplace\Keywords\Keyword;
@@ -17,6 +19,8 @@ class IsStarting
         GlobalFunctionCall::class,
         RepeatingPattern::class,
         Statement::class,
+        Comment::class,
+        Any::class,
         Keyword::class
     ];
 

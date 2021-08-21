@@ -14,12 +14,7 @@ class Keyword
     public static function Body($tokens, $i, $pToken)
     {
         $token = $tokens[$i];
-        $isStartPoint = true;
-        if (! TokenCompare::areTheSame($pToken, $token)) {
-            $isStartPoint = false;
-        }
 
-        return $isStartPoint;
-
+        return TokenCompare::areTheSame($pToken, $token) ? true : false;
     }
 }

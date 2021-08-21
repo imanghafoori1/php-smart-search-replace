@@ -281,16 +281,8 @@ class TokenCompare
 
     public static function areTheSame($pToken, $token)
     {
-        if (self::is($pToken, '<any>')) {
-            return true;
-        }
-
         if (self::is($pToken, '<white_space>')) {
             return $token[0] === T_WHITESPACE;
-        }
-
-        if (self::is($pToken, '<comment>')) {
-            return $token[0] === T_COMMENT;
         }
 
         if ($pToken[0] !== $token[0]) {
