@@ -43,7 +43,7 @@ class TokenCompare
         }
     }
 
-    private static function compareTokens($pattern, $tokens, $startFrom, $namedPatterns = [])
+    public static function compareTokens($pattern, $tokens, $startFrom, $namedPatterns = [])
     {
         $pi = $j = 0;
         $tCount = count($tokens);
@@ -250,24 +250,12 @@ class TokenCompare
         return [$token, $i];
     }
 
-    public static function getPrevToken($tokens, $i)
-    {
-        $i--;
-        $token = $tokens[$i] ?? '_';
-        while ($token[0] == T_WHITESPACE || $token[0] == T_COMMENT) {
-            $i--;
-            $token = $tokens[$i];
-        }
-
-        return [$token, $i];
-    }
-
-    private static function is($token, $keyword)
+    public static function is($token, $keyword)
     {
         return $token[0] === T_CONSTANT_ENCAPSED_STRING && trim($token[1], '\'\"?') === $keyword;
     }
 
-    private static function isOptional($token)
+    public static function isOptional($token)
     {
         return self::endsWith(trim($token, '\'\"'), '?');
     }
@@ -286,12 +274,12 @@ class TokenCompare
         ][$startingToken];
     }
 
-    private static function startsWith($haystack, $needle)
+    public static function startsWith($haystack, $needle)
     {
         return substr($haystack, 0, strlen($needle)) === $needle;
     }
 
-    private static function areTheSame($pToken, $token)
+    public static function areTheSame($pToken, $token)
     {
         if (self::is($pToken, '<any>')) {
             return true;
@@ -347,7 +335,7 @@ class TokenCompare
         $allCount = count($tokens);
 
         while ($i < $allCount) {
-            if (! self::isStartingPoint($namedPatterns, $pToken, $tokens, $i)) {
+            if (! IsStarting::check($namedPatterns, $pToken, $tokens, $i)) {
                 $i++;
                 continue;
             }
@@ -556,50 +544,6 @@ class TokenCompare
     private static function isBooleanToken($tToken)
     {
         return $tToken[0] === T_STRING && in_array(strtolower($tToken[1]), ['true', 'false']);
-    }
-
-    private static function isStartingPoint($namedPatterns, $pToken, $tokens, $i)
-    {
-        $isStartPoint = true;
-        // If it STARTS with a repeating pattern.
-        if (self::is($pToken, '<class_ref>')) {
-            $isStartPoint = ($tokens[$i][0] === T_STRING || $tokens[$i][0] === T_NS_SEPARATOR);
-        } elseif (self::is($pToken, '<statement>')) {
-
-        } elseif (self::is($pToken, '<full_class_ref>')) {
-            $isStartPoint = ($tokens[$i][0] === T_NS_SEPARATOR);
-        } elseif ($namedPatterns && $patternName = self::isRepeatingPattern($pToken)) {
-            // We compare it like a normal pattern.
-            if (! self::compareTokens(PatternParser::tokenize($namedPatterns[$patternName]), $tokens, $i)) {
-                $isStartPoint = false;
-            }
-        } elseif (self::isGlobalFuncCall($pToken)) {
-            $token = $tokens[$i];
-
-            if ($token[0] !== T_STRING && $token[0] !== T_NS_SEPARATOR) {
-                return false;
-            }
-            $excluded = [T_NEW, T_OBJECT_OPERATOR, T_DOUBLE_COLON, T_FUNCTION];
-            defined('T_NULLSAFE_OBJECT_OPERATOR') && $excluded[] = T_NULLSAFE_OBJECT_OPERATOR;
-
-            [$prev, $prevI] = self::getPrevToken($tokens, $i);
-            if ($prev[0] === T_NS_SEPARATOR) {
-                [$prev] = self::getPrevToken($tokens, $prevI);
-            }
-            if (in_array($prev[0], $excluded)) {
-               return false;
-            }
-
-            return true;
-        } else {
-            $token = $tokens[$i];
-
-            if (! self::areTheSame($pToken, $token)) {
-                $isStartPoint = false;
-            }
-        }
-
-        return $isStartPoint;
     }
 
     private static function extractValue($matches, $first = '')
