@@ -6,12 +6,12 @@ use Imanghafoori\SearchReplace\TokenCompare;
 
 class Statement
 {
-    public static function Condition($pToken)
+    public static function is($pToken)
     {
         return TokenCompare::is($pToken, '<statement>');
     }
 
-    public static function Body()
+    public static function mustStart()
     {
         return true;
     }

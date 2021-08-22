@@ -6,12 +6,12 @@ use Imanghafoori\SearchReplace\TokenCompare;
 
 class GlobalFunctionCall
 {
-    public static function Condition($pToken)
+    public static function is($pToken)
     {
         return TokenCompare::isGlobalFuncCall($pToken);
     }
 
-    public static function Body($tokens, $i)
+    public static function mustStart($tokens, $i)
     {
         $token = $tokens[$i];
 

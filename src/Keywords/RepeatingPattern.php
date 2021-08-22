@@ -8,12 +8,12 @@ use Imanghafoori\TokenAnalyzer\Str;
 
 class RepeatingPattern
 {
-    public static function Condition($pToken)
+    public static function is($pToken)
     {
         return $pToken[0] === T_CONSTANT_ENCAPSED_STRING && TokenCompare::startsWith(trim($pToken[1], '\'\"'), '<repeating:');
     }
 
-    public static function Body($tokens, $i, $pToken, $namedPatterns)
+    public static function mustStart($tokens, $i, $pToken, $namedPatterns)
     {
         $isStartPoint = true;
         TokenCompare::startsWith($pName = trim($pToken[1], '\'\"'), '<repeating:');

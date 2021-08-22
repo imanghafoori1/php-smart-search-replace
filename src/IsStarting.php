@@ -29,8 +29,8 @@ class IsStarting
     public static function check($namedPatterns, $pToken, $tokens, $i)
     {
         foreach (self::$keywords as $keyword) {
-            if ($keyword::condition($pToken)) {
-                return $keyword::body($tokens, $i, $pToken, $namedPatterns);
+            if ($keyword::is($pToken)) {
+                return $keyword::mustStart($tokens, $i, $pToken, $namedPatterns);
             }
         }
     }
