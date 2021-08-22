@@ -4,16 +4,17 @@ namespace Imanghafoori\SearchReplace\Keywords;
 
 use Imanghafoori\SearchReplace\TokenCompare;
 
-
-class ClassRef
+class Boolean
 {
     public static function is($pToken)
     {
-        return TokenCompare::is($pToken, '<class_ref>');
+        return TokenCompare::is($pToken, ['<bool>', '<boolean>']);
     }
 
     public static function mustStart($tokens, $i)
     {
-        return ($tokens[$i][0] === T_STRING || $tokens[$i][0] === T_NS_SEPARATOR);
+        $t = $tokens[$i];
+
+        return $t[0] === T_STRING && in_array(strtolower($t[1]), ['true', 'false'], true);
     }
 }
