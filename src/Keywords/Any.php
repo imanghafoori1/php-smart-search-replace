@@ -4,11 +4,11 @@ namespace Imanghafoori\SearchReplace\Keywords;
 
 use Imanghafoori\SearchReplace\TokenCompare;
 
-class Statement
+class Any
 {
     public static function is($pToken)
     {
-        return TokenCompare::is($pToken, '<statement>');
+        return TokenCompare::is($pToken, '<any>');
     }
 
     public static function mustStart()

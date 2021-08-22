@@ -126,6 +126,23 @@ class WhitespaceTest extends BaseTestClass
     }
 
     /** @test */
+    public function match_white_space_empty()
+    {
+        $patterns = [
+            'name' => [
+                'search' => '"<white_space>"',
+                'replace' => '',
+            ]
+        ];
+
+        $start = '<?php ; ;';
+        $result = '<?php ;;';
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($start));
+        $this->assertEquals($result, $newVersion);
+        $this->assertEquals([1], $replacedAt);
+    }
+
+    /** @test */
     public function optional_comment_placeholder()
     {
         $patterns = [
