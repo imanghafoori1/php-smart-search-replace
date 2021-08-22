@@ -2,12 +2,11 @@
 
 namespace Imanghafoori\SearchReplace\Tests;
 
-use Imanghafoori\SearchReplace\PatternParser;
 use Imanghafoori\SearchReplace\Searcher;
 use Imanghafoori\SearchReplace\TokenCompare;
-use PHPUnit\Framework\TestCase;
+use Imanghafoori\SearchReplace\PatternParser;
 
-class RefactorPatternParsingTest extends TestCase
+class RefactorPatternParsingTest extends BaseTestClass
 {
     /** @test */
     public function any_keyword2()
