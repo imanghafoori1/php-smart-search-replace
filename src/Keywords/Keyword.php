@@ -15,6 +15,6 @@ class Keyword
     {
         $token = $tokens[$i];
 
-        return TokenCompare::areTheSame($pToken, $token) ? true : false;
+        return (bool) TokenCompare::areTheSame($pToken, $token);
     }
 }
