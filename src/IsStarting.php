@@ -10,6 +10,7 @@ use Imanghafoori\SearchReplace\Keywords\GlobalFunctionCall;
 use Imanghafoori\SearchReplace\Keywords\Keyword;
 use Imanghafoori\SearchReplace\Keywords\RepeatingPattern;
 use Imanghafoori\SearchReplace\Keywords\Statement;
+use Imanghafoori\SearchReplace\Keywords\WhiteSpace;
 
 class IsStarting
 {
@@ -21,6 +22,7 @@ class IsStarting
         Statement::class,
         Comment::class,
         Any::class,
+        WhiteSpace::class,
         Keyword::class
     ];
 
