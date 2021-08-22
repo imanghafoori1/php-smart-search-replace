@@ -2,18 +2,18 @@
 
 namespace Imanghafoori\SearchReplace;
 
-use Imanghafoori\TokenAnalyzer\Str;
 use Imanghafoori\SearchReplace\Tokens\Any;
-use Imanghafoori\SearchReplace\Tokens\Token;
-use Imanghafoori\SearchReplace\Tokens\Until;
-use Imanghafoori\SearchReplace\Tokens\Comment;
 use Imanghafoori\SearchReplace\Tokens\ClassRef;
-use Imanghafoori\SearchReplace\Tokens\InBetween;
-use Imanghafoori\SearchReplace\Tokens\Statement;
-use Imanghafoori\SearchReplace\Tokens\WhiteSpace;
+use Imanghafoori\SearchReplace\Tokens\Comment;
 use Imanghafoori\SearchReplace\Tokens\FullClassRef;
+use Imanghafoori\SearchReplace\Tokens\InBetween;
 use Imanghafoori\SearchReplace\Tokens\IsGlobalFuncCall;
 use Imanghafoori\SearchReplace\Tokens\IsRepeatingPattern;
+use Imanghafoori\SearchReplace\Tokens\Statement;
+use Imanghafoori\SearchReplace\Tokens\Token;
+use Imanghafoori\SearchReplace\Tokens\Until;
+use Imanghafoori\SearchReplace\Tokens\WhiteSpace;
+use Imanghafoori\TokenAnalyzer\Str;
 
 class TokenCompare
 {
@@ -67,56 +67,30 @@ class TokenCompare
         $repeatingClassRef = PatternParser::tokenize('"<repeating:classRef>"');
         $nameRepeatingClassRef = PatternParser::tokenize('"<name>""<repeating:classRef>"');
 
-        // $class_tokens = [
-        //     FullClassRef::class,
-        //     ClassRef::class,
-        //     Statement::class,
-        //     IsRepeatingPattern::class,
-        //     IsGlobalFuncCall::class,
-        //     Until::class,
-        //     InBetween::class,
-        //     Any::class,
-        //     WhiteSpace::class,
-        //     Comment::class,
-        // ];
+         $keywords = [
+             FullClassRef::class,
+             ClassRef::class,
+             Statement::class,
+             IsRepeatingPattern::class,
+             IsGlobalFuncCall::class,
+             Until::class,
+             InBetween::class,
+             Any::class,
+             WhiteSpace::class,
+             Comment::class,
+             Token::class,
+         ];
 
         while ($startFrom < $tCount && $j < $pCount) {
-            // $flag = true;
-            // foreach($class_tokens as $class_token) {
-            //     if($class_token::is($pToken, $namedPatterns)) {
-            //         $flag = false;
-            //         if($class_token::mustStart($tToken, $repeatingClassRef, $tokens, $classRef, $startFrom, $placeholderValues, $nameRepeatingClassRef, $pattern, $pi, $j, $pToken, $namedPatterns, $repeatings) === false ) {
-            //             return false;
-            //         }
-            //     }
-            // }
-            // if($flag) {
-            //     Token::mustStart($tToken, $repeatingClassRef, $tokens, $classRef, $startFrom, $placeholderValues, $nameRepeatingClassRef, $pattern, $pi, $j, $pToken, $namedPatterns, $repeatings);
-            // }
-            
-            if (FullClassRef::is($pToken)) {
-                if(FullClassRef::mustStart($tToken, $repeatingClassRef, $tokens, $classRef, $startFrom, $placeholderValues) === false ) return false;
-            } elseif (ClassRef::is($pToken)) {
-                if(ClassRef::mustStart($tToken, $repeatingClassRef, $tokens, $classRef, $startFrom, $placeholderValues, $nameRepeatingClassRef) === false ) return false;
-            } elseif (Statement::is($pToken)) {
-                if(Statement::mustStart($tToken, $repeatingClassRef, $tokens, $classRef, $startFrom, $placeholderValues) === false ) return false;
-            } elseif (IsRepeatingPattern::is($pToken, $namedPatterns)) {
-                if(IsRepeatingPattern::mustStart($tToken, $repeatingClassRef, $tokens, $classRef, $startFrom, $placeholderValues, $nameRepeatingClassRef, $pattern, $pi, $j, $pToken, $namedPatterns, $repeatings) === false ) return false;
-            } elseif (IsGlobalFuncCall::is($pToken)) {
-                if(IsGlobalFuncCall::mustStart($tToken, $repeatingClassRef, $tokens, $classRef, $startFrom, $placeholderValues, $nameRepeatingClassRef, $pattern, $pi, $j, $pToken) === false ) return false;
-            } elseif (Until::is($pToken)) {
-                if(Until::mustStart($tToken, $repeatingClassRef, $tokens, $classRef, $startFrom, $placeholderValues, $nameRepeatingClassRef, $pattern, $pi, $j) === false ) return false;
-            } elseif (InBetween::is($pToken)) {
-                if(InBetween::mustStart($tToken, $repeatingClassRef, $tokens, $classRef, $startFrom, $placeholderValues, $nameRepeatingClassRef, $pattern, $pi, $j) === false ) return false;
-            } elseif (Any::is($pToken)) {
-                if(Any::mustStart($tToken, $repeatingClassRef, $tokens, $classRef, $startFrom, $placeholderValues) === false ) return false;
-            } elseif (WhiteSpace::is($pToken)) {
-                if(WhiteSpace::mustStart($tToken, $repeatingClassRef, $tokens, $classRef, $startFrom, $placeholderValues, $nameRepeatingClassRef, $pattern, $pi, $j, $pToken) === false ) return false;
-            } elseif (Comment::is($pToken)) {
-                if(Comment::mustStart($tToken, $repeatingClassRef, $tokens, $classRef, $startFrom, $placeholderValues, $nameRepeatingClassRef, $pattern, $pi, $j, $pToken) === false ) return false;
-            } else {
-                if(Token::mustStart($tToken, $repeatingClassRef, $tokens, $classRef, $startFrom, $placeholderValues, $nameRepeatingClassRef, $pattern, $pi, $j, $pToken) === false ) return false;
-            }
+            foreach($keywords as $class_token) {
+                 if($class_token::is($pToken, $namedPatterns)) {
+                     if($class_token::mustStart($tToken, $repeatingClassRef, $tokens, $classRef, $startFrom, $placeholderValues, $nameRepeatingClassRef, $pattern, $pi, $j, $pToken, $namedPatterns, $repeatings) === false) {
+                         return false;
+                     } else {
+                         break;
+                     }
+                 }
+             }
 
             [$pToken, $j] = self::getNextToken($pattern, $j);
 
