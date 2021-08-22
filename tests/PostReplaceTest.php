@@ -3,9 +3,8 @@
 namespace Imanghafoori\SearchReplace\Tests;
 
 use Imanghafoori\SearchReplace\Searcher;
-use PHPUnit\Framework\TestCase;
 
-class PostReplaceTest extends TestCase
+class PostReplaceTest extends BaseTestClass
 {
     /** @test */
     public function post_replace()
