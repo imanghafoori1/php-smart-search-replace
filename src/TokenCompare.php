@@ -2,8 +2,18 @@
 
 namespace Imanghafoori\SearchReplace;
 
-use Exception;
 use Imanghafoori\TokenAnalyzer\Str;
+use Imanghafoori\SearchReplace\Tokens\Any;
+use Imanghafoori\SearchReplace\Tokens\Token;
+use Imanghafoori\SearchReplace\Tokens\Until;
+use Imanghafoori\SearchReplace\Tokens\Comment;
+use Imanghafoori\SearchReplace\Tokens\ClassRef;
+use Imanghafoori\SearchReplace\Tokens\InBetween;
+use Imanghafoori\SearchReplace\Tokens\Statement;
+use Imanghafoori\SearchReplace\Tokens\WhiteSpace;
+use Imanghafoori\SearchReplace\Tokens\FullClassRef;
+use Imanghafoori\SearchReplace\Tokens\IsGlobalFuncCall;
+use Imanghafoori\SearchReplace\Tokens\IsRepeatingPattern;
 
 class TokenCompare
 {
@@ -56,116 +66,56 @@ class TokenCompare
         $classRef = ['classRef' => '\\"<name>"'];
         $repeatingClassRef = PatternParser::tokenize('"<repeating:classRef>"');
         $nameRepeatingClassRef = PatternParser::tokenize('"<name>""<repeating:classRef>"');
+
+        // $class_tokens = [
+        //     FullClassRef::class,
+        //     ClassRef::class,
+        //     Statement::class,
+        //     IsRepeatingPattern::class,
+        //     IsGlobalFuncCall::class,
+        //     Until::class,
+        //     InBetween::class,
+        //     Any::class,
+        //     WhiteSpace::class,
+        //     Comment::class,
+        // ];
+
         while ($startFrom < $tCount && $j < $pCount) {
-            if (self::is($pToken, '<full_class_ref>')) {
-                if ($tToken[0] !== T_NS_SEPARATOR) {
-                    return false;
-                }
-
-                $isMatch = self::compareTokens($repeatingClassRef, $tokens, $startFrom, $classRef);
-
-                if (! $isMatch) {
-                    return false;
-                }
-
-                $placeholderValues[] = self::extractValue($isMatch[2][0]);
-                $startFrom = $isMatch[0];
-            } elseif (self::is($pToken, '<class_ref>')) {
-                if ($tToken[0] === T_NS_SEPARATOR) {
-                    $matches = self::compareTokens($repeatingClassRef, $tokens, $startFrom, $classRef);
-                    if (! $matches) {
-                        return false;
-                    }
-                    $startFrom = $matches[0];
-                    $placeholderValues[] = self::extractValue($matches[2][0]);
-                } elseif ($tToken[0] === T_STRING) {
-                    $matches = self::compareTokens($nameRepeatingClassRef, $tokens, $startFrom, $classRef);
-                    if (! $matches) {
-                        $placeholderValues[] = $tToken;
-                    } else {
-                        $startFrom = $matches[0];
-                        $placeholderValues[] = self::extractValue($matches[2][0], $matches[1][0][1]);
-                    }
-                } else {
-                    return false;
-                }
-            } elseif (self::is($pToken, '<statement>')) {
-                [$_value, $startFrom] = self::readExpression($startFrom, $tokens);
-                $placeholderValues[] = $_value;
-            } elseif ($namedPatterns && $patternName = self::isRepeatingPattern($pToken)) {
-                $analyzedPattern = PatternParser::tokenize($namedPatterns[$patternName]);
-                if (! self::compareTokens($analyzedPattern, $tokens, $startFrom)) {
-                    return false;
-                }
-
-                [$repeatingMatches, $startFrom] = self::findRepeatingMatches($startFrom, $tokens, $analyzedPattern);
-
-                $repeatings[] = $repeatingMatches;
-            } elseif ($patternNames = self::isGlobalFuncCall($pToken)) {
-                $patternNames = explode(',', $patternNames);
-
-                if ($tToken[0] === T_NS_SEPARATOR) {
-                    $matches = self::compareTokens(PatternParser::tokenize('\\"<name>"'), $tokens, $startFrom);
-                    if (! $matches) {
-                        return false;
-                    }
-
-                    $strValue = self::concatinate($matches[1]);
-
-                    foreach ($patternNames as $patternName23) {
-                        if ($strValue[1] === $patternName23 || $strValue[1] === '\\'.$patternName23) {
-                            $startFrom = $matches[0];
-                            $placeholderValues[] = $strValue;
-                            break;
-                        }
-                    }
-                } elseif ($tToken[0] === T_STRING) {
-                    if (! in_array($tToken[1], $patternNames)) {
-                        return false;
-                    }
-
-                    $placeholderValues[] = $tToken;
-
-                } else {
-                    return false;
-                }
-            } elseif (self::is($pToken, '<until>')) {
-                [$_value, $startFrom] = self::readUntil($pi, $tokens, $pattern[$j + 1]);
-                $placeholderValues[] = $_value;
-            } elseif (self::is($pToken, '<in_between>')) {
-                $startingToken = $pattern[$j - 1]; // may use getPreviousToken()
-                if (! in_array($startingToken, ['(', '[', '{'], true)) {
-                    throw new Exception('pattern invalid');
-                }
-
-                if (self::getAnti($startingToken) !== $pattern[$j + 1]) {
-                    throw new Exception('pattern invalid');
-                }
-
-                [$_value, $startFrom] = self::readUntilMatch($pi, $tokens, $startingToken);
-                $placeholderValues[] = $_value;
-            } elseif (self::is($pToken, '<any>')) {
-                $placeholderValues[] = $tToken;
-            } elseif (self::is($pToken, '<white_space>')) {
-                $result = self::compareIt($tToken, T_WHITESPACE, $pToken[1], $startFrom);
-                if ($result === null) {
-                    return false;
-                }
-                $placeholderValues[] = $result;
-            } elseif (self::is($pToken, '<comment>')) {
-                $result = self::compareIt($tToken, T_COMMENT, $pToken[1], $startFrom);
-                if ($result === null) {
-                    return false;
-                }
-                $placeholderValues[] = $result;
+            // $flag = true;
+            // foreach($class_tokens as $class_token) {
+            //     if($class_token::is($pToken, $namedPatterns)) {
+            //         $flag = false;
+            //         if($class_token::mustStart($tToken, $repeatingClassRef, $tokens, $classRef, $startFrom, $placeholderValues, $nameRepeatingClassRef, $pattern, $pi, $j, $pToken, $namedPatterns, $repeatings) === false ) {
+            //             return false;
+            //         }
+            //     }
+            // }
+            // if($flag) {
+            //     Token::mustStart($tToken, $repeatingClassRef, $tokens, $classRef, $startFrom, $placeholderValues, $nameRepeatingClassRef, $pattern, $pi, $j, $pToken, $namedPatterns, $repeatings);
+            // }
+            
+            if (FullClassRef::is($pToken)) {
+                if(FullClassRef::mustStart($tToken, $repeatingClassRef, $tokens, $classRef, $startFrom, $placeholderValues) === false ) return false;
+            } elseif (ClassRef::is($pToken)) {
+                if(ClassRef::mustStart($tToken, $repeatingClassRef, $tokens, $classRef, $startFrom, $placeholderValues, $nameRepeatingClassRef) === false ) return false;
+            } elseif (Statement::is($pToken)) {
+                if(Statement::mustStart($tToken, $repeatingClassRef, $tokens, $classRef, $startFrom, $placeholderValues) === false ) return false;
+            } elseif (IsRepeatingPattern::is($pToken, $namedPatterns)) {
+                if(IsRepeatingPattern::mustStart($tToken, $repeatingClassRef, $tokens, $classRef, $startFrom, $placeholderValues, $nameRepeatingClassRef, $pattern, $pi, $j, $pToken, $namedPatterns, $repeatings) === false ) return false;
+            } elseif (IsGlobalFuncCall::is($pToken)) {
+                if(IsGlobalFuncCall::mustStart($tToken, $repeatingClassRef, $tokens, $classRef, $startFrom, $placeholderValues, $nameRepeatingClassRef, $pattern, $pi, $j, $pToken) === false ) return false;
+            } elseif (Until::is($pToken)) {
+                if(Until::mustStart($tToken, $repeatingClassRef, $tokens, $classRef, $startFrom, $placeholderValues, $nameRepeatingClassRef, $pattern, $pi, $j) === false ) return false;
+            } elseif (InBetween::is($pToken)) {
+                if(InBetween::mustStart($tToken, $repeatingClassRef, $tokens, $classRef, $startFrom, $placeholderValues, $nameRepeatingClassRef, $pattern, $pi, $j) === false ) return false;
+            } elseif (Any::is($pToken)) {
+                if(Any::mustStart($tToken, $repeatingClassRef, $tokens, $classRef, $startFrom, $placeholderValues) === false ) return false;
+            } elseif (WhiteSpace::is($pToken)) {
+                if(WhiteSpace::mustStart($tToken, $repeatingClassRef, $tokens, $classRef, $startFrom, $placeholderValues, $nameRepeatingClassRef, $pattern, $pi, $j, $pToken) === false ) return false;
+            } elseif (Comment::is($pToken)) {
+                if(Comment::mustStart($tToken, $repeatingClassRef, $tokens, $classRef, $startFrom, $placeholderValues, $nameRepeatingClassRef, $pattern, $pi, $j, $pToken) === false ) return false;
             } else {
-                $same = self::areTheSame($pToken, $tToken);
-
-                if (! $same) {
-                    return false;
-                }
-
-                $same === 'placeholder' && $placeholderValues[] = $tToken;
+                if(Token::mustStart($tToken, $repeatingClassRef, $tokens, $classRef, $startFrom, $placeholderValues, $nameRepeatingClassRef, $pattern, $pi, $j, $pToken) === false ) return false;
             }
 
             [$pToken, $j] = self::getNextToken($pattern, $j);
@@ -265,7 +215,7 @@ class TokenCompare
         return substr($haystack, -strlen($needle)) === $needle;
     }
 
-    private static function getAnti(string $startingToken)
+    public static function getAnti(string $startingToken)
     {
         return [
             '(' => ')',
@@ -357,7 +307,7 @@ class TokenCompare
         return $matches;
     }
 
-    private static function compareIt($tToken, int $type, $token, &$i)
+    public static function compareIt($tToken, int $type, $token, &$i)
     {
         if ($tToken[0] === $type) {
             return $tToken;
@@ -370,7 +320,7 @@ class TokenCompare
         }
     }
 
-    private static function findRepeatingMatches($startFrom, $tokens, $analyzedPattern)
+    public static function findRepeatingMatches($startFrom, $tokens, $analyzedPattern)
     {
         $repeatingMatches = [];
         $end = $startFrom;
@@ -492,7 +442,7 @@ class TokenCompare
         return [$optionalPatternMatchCount, $matched_optional_values];
     }
 
-    private static function readUntilMatch($i, $tokens, $startingToken)
+    public static function readUntilMatch($i, $tokens, $startingToken)
     {
         $anti = self::getAnti($startingToken);
         $untilTokens = [];
@@ -516,7 +466,7 @@ class TokenCompare
         return [$value, $startFrom];
     }
 
-    private static function readUntil($pi, $tokens, $pattern)
+    public static function readUntil($pi, $tokens, $pattern)
     {
         $untilTokens = [];
         $line = 1;
@@ -534,10 +484,10 @@ class TokenCompare
         return $tToken[0] === T_STRING && in_array(strtolower($tToken[1]), ['true', 'false']);
     }
 
-    private static function extractValue($matches, $first = '')
+    public static function extractValue($matches, $first = '')
     {
         $segments = [$first];
-
+        
         foreach ($matches as $match) {
             $segments[] = $match[0][1];
         }
@@ -545,7 +495,7 @@ class TokenCompare
         return [T_STRING, implode('\\', $segments), $match[0][2]];
     }
 
-    private static function concatinate(array $matches)
+    public static function concatinate(array $matches)
     {
         $segments = [''];
         foreach ($matches as $match) {
