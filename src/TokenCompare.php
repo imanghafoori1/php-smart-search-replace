@@ -63,10 +63,6 @@ class TokenCompare
         $tToken = $tokens[$startFrom];
         $pToken = $pattern[$j];
 
-        $classRef = ['classRef' => '\\"<name>"'];
-        $repeatingClassRef = PatternParser::tokenize('"<repeating:classRef>"');
-        $nameRepeatingClassRef = PatternParser::tokenize('"<name>""<repeating:classRef>"');
-
          $keywords = [
              FullClassRef::class,
              ClassRef::class,
@@ -84,7 +80,7 @@ class TokenCompare
         while ($startFrom < $tCount && $j < $pCount) {
             foreach($keywords as $class_token) {
                  if($class_token::is($pToken, $namedPatterns)) {
-                     if($class_token::mustStart($tToken, $repeatingClassRef, $tokens, $classRef, $startFrom, $placeholderValues, $nameRepeatingClassRef, $pattern, $pi, $j, $pToken, $namedPatterns, $repeatings) === false) {
+                     if($class_token::mustStart($tToken, $tokens, $startFrom, $placeholderValues, $pToken, $pattern, $pi, $j, $namedPatterns, $repeatings) === false) {
                          return false;
                      } else {
                          break;

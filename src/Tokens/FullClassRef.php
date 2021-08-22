@@ -2,16 +2,21 @@
 
 namespace Imanghafoori\SearchReplace\Tokens;
 
+use Imanghafoori\SearchReplace\PatternParser;
 use Imanghafoori\SearchReplace\TokenCompare;
 
-class FullClassRef {
-    public static function is ($pToken) 
+class FullClassRef
+{
+    public static function is($pToken)
     {
         return TokenCompare::is($pToken, '<full_class_ref>');
     }
 
-    public static function mustStart ($tToken, $repeatingClassRef, $tokens, $classRef, &$startFrom, &$placeholderValues) 
+    public static function mustStart($tToken, $tokens, &$startFrom, &$placeholderValues)
     {
+        $classRef = ['classRef' => '\\"<name>"'];
+        $repeatingClassRef = PatternParser::tokenize('"<repeating:classRef>"');
+
         if ($tToken[0] !== T_NS_SEPARATOR) {
             return false;
         }

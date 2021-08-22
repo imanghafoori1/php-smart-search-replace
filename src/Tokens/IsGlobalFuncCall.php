@@ -2,16 +2,23 @@
 
 namespace Imanghafoori\SearchReplace\Tokens;
 
-use Imanghafoori\SearchReplace\TokenCompare;
 use Imanghafoori\SearchReplace\PatternParser;
+use Imanghafoori\SearchReplace\TokenCompare;
 
-class IsGlobalFuncCall {
-    public static function is ($pToken) 
+class IsGlobalFuncCall
+{
+    public static function is($pToken)
     {
         return TokenCompare::isGlobalFuncCall($pToken);
     }
 
-    public static function mustStart ($tToken, $repeatingClassRef, $tokens, $classRef, &$startFrom, &$placeholderValues, $nameRepeatingClassRef, $pattern, $pi, $j, $pToken) {
+    public static function mustStart(
+        $tToken,
+        $tokens,
+        &$startFrom,
+        &$placeholderValues,
+        $pToken
+    ) {
         $patternNames = explode(',', TokenCompare::isGlobalFuncCall($pToken));
 
         if ($tToken[0] === T_NS_SEPARATOR) {
@@ -35,7 +42,6 @@ class IsGlobalFuncCall {
             }
 
             $placeholderValues[] = $tToken;
-
         } else {
             return false;
         }

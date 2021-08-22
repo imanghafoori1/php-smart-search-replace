@@ -4,13 +4,20 @@ namespace Imanghafoori\SearchReplace\Tokens;
 
 use Imanghafoori\SearchReplace\TokenCompare;
 
-class Token {
-    public static function is () 
+class Token
+{
+    public static function is()
     {
         return true;
     }
 
-    public static function mustStart ($tToken, $repeatingClassRef, $tokens, $classRef, &$startFrom, &$placeholderValues, $nameRepeatingClassRef, $pattern, $pi, $j, $pToken) {
+    public static function mustStart(
+        $tToken,
+        $tokens,
+        &$startFrom,
+        &$placeholderValues,
+        $pToken
+    ) {
         $same = TokenCompare::areTheSame($pToken, $tToken);
 
         if (! $same) {
