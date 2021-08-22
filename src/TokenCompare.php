@@ -252,7 +252,7 @@ class TokenCompare
 
     public static function is($token, $keyword)
     {
-        return $token[0] === T_CONSTANT_ENCAPSED_STRING && trim($token[1], '\'\"?') === $keyword;
+        return $token[0] === T_CONSTANT_ENCAPSED_STRING && in_array(trim($token[1], '\'\"?'), (array) $keyword, true);
     }
 
     public static function isOptional($token)

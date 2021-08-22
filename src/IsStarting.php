@@ -3,6 +3,7 @@
 namespace Imanghafoori\SearchReplace;
 
 use Imanghafoori\SearchReplace\Keywords\Any;
+use Imanghafoori\SearchReplace\Keywords\Boolean;
 use Imanghafoori\SearchReplace\Keywords\ClassRef;
 use Imanghafoori\SearchReplace\Keywords\Comment;
 use Imanghafoori\SearchReplace\Keywords\FullClassRef;
@@ -23,6 +24,7 @@ class IsStarting
         Comment::class,
         Any::class,
         WhiteSpace::class,
+        Boolean::class,
         Keyword::class
     ];
 
