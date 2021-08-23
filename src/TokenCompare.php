@@ -25,34 +25,6 @@ class TokenCompare
         //',' => ',',
     ];
 
-    public static function readExpression($i, $tokens)
-    {
-        $level = 0;
-        $collected = [];
-        $line = 1;
-
-        for ($k = $i; true; $k++) {
-            $nextToken = $tokens[$k] ?? '_';
-            $collected[] = $nextToken;
-
-            if ($nextToken === ';' && $level === 0) {
-                $value = [T_STRING, Stringify::fromTokens($collected), $line];
-
-                return [$value, $k];
-            }
-
-            if (\in_array($nextToken[0], ['[', '(', '{', T_CURLY_OPEN], true)) {
-                $level++;
-            }
-
-            if (\in_array($nextToken[0], [']', ')', '}'], true)) {
-                $level--;
-            }
-
-            isset($nextToken[2]) && $line = $nextToken[2];
-        }
-    }
-
     public static function compareTokens($pattern, $tokens, $startFrom, $namedPatterns = [])
     {
         $pi = $j = 0;
@@ -152,7 +124,7 @@ class TokenCompare
         }
     }
 
-    private static function getNextToken($tokens, $i, $notIgnored = null)
+    public static function getNextToken($tokens, $i, $notIgnored = null)
     {
         $ignored = self::$ignored;
 
@@ -183,15 +155,6 @@ class TokenCompare
     public static function endsWith($haystack, $needle)
     {
         return substr($haystack, -strlen($needle)) === $needle;
-    }
-
-    public static function getAnti(string $startingToken)
-    {
-        return [
-            '(' => ')',
-            '{' => '}',
-            '[' => ']',
-        ][$startingToken];
     }
 
     public static function startsWith($haystack, $needle)
@@ -290,25 +253,6 @@ class TokenCompare
         }
     }
 
-    public static function findRepeatingMatches($startFrom, $tokens, $analyzedPattern)
-    {
-        $repeatingMatches = [];
-        $end = $startFrom;
-        while (true) {
-            $isMatch = self::compareTokens($analyzedPattern, $tokens, $startFrom, []);
-
-            if (! $isMatch) {
-                break;
-            }
-
-            $end = $isMatch[0];
-            [, $startFrom] = self::getNextToken($tokens, $end);
-            $repeatingMatches[] = $isMatch[1];
-        }
-
-        return [$repeatingMatches, $end];
-    }
-
     private static function forwardToNextToken($pToken, $tokens, $startFrom)
     {
         if (self::is($pToken, '<white_space>')) {
@@ -336,13 +280,6 @@ class TokenCompare
     {
         if ($pToken[0] === T_CONSTANT_ENCAPSED_STRING && self::startsWith($pName = trim($pToken[1], '\'\"'), '<repeating:')) {
             return rtrim(Str::replaceFirst('<repeating:', '', $pName), '>');
-        }
-    }
-
-    public static function isGlobalFuncCall($pToken)
-    {
-        if ($pToken[0] === T_CONSTANT_ENCAPSED_STRING && self::startsWith($pName = trim($pToken[1], '\'\"'), '<global_func_call:')) {
-            return rtrim(Str::replaceFirst('<global_func_call:', '', $pName), '>');
         }
     }
 
@@ -410,43 +347,6 @@ class TokenCompare
         }
 
         return [$optionalPatternMatchCount, $matched_optional_values];
-    }
-
-    public static function readUntilMatch($i, $tokens, $startingToken)
-    {
-        $anti = self::getAnti($startingToken);
-        $untilTokens = [];
-        $line = 1;
-        $level = 0;
-        for ($k = $i + 1; true; $k++) {
-            if ($tokens[$k] === $anti && $level === 0) {
-                break;
-            }
-
-            $tokens[$k] === $startingToken && $level--;
-            $tokens[$k] === $anti && $level++;
-
-            ! $line && isset($tokens[$k][2]) && $line = $tokens[$k][2];
-            $untilTokens[] = $tokens[$k];
-        }
-
-        $startFrom = $k - 1;
-        $value = [T_STRING, Stringify::fromTokens($untilTokens), $line];
-
-        return [$value, $startFrom];
-    }
-
-    public static function readUntil($pi, $tokens, $pattern)
-    {
-        $untilTokens = [];
-        $line = 1;
-        for ($k = $pi + 1; $tokens[$k] !== $pattern; $k++) {
-            ! $line && isset($tokens[$k][2]) && $line = $tokens[$k][2];
-            $untilTokens[] = $tokens[$k];
-        }
-        $placeholderValue = [T_STRING, Stringify::fromTokens($untilTokens), $line];
-
-        return [$placeholderValue, $k - 1];
     }
 
     private static function isBooleanToken($tToken)

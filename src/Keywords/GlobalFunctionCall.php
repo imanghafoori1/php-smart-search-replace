@@ -3,12 +3,20 @@
 namespace Imanghafoori\SearchReplace\Keywords;
 
 use Imanghafoori\SearchReplace\TokenCompare;
+use Imanghafoori\TokenAnalyzer\Str;
 
 class GlobalFunctionCall
 {
     public static function is($pToken)
     {
-        return TokenCompare::isGlobalFuncCall($pToken);
+        return self::isGlobalFuncCall($pToken);
+    }
+
+    public static function isGlobalFuncCall($pToken)
+    {
+        if ($pToken[0] === T_CONSTANT_ENCAPSED_STRING && TokenCompare::startsWith($pName = trim($pToken[1], '\'\"'), '<global_func_call:')) {
+            return rtrim(Str::replaceFirst('<global_func_call:', '', $pName), '>');
+        }
     }
 
     public static function mustStart($tokens, $i)

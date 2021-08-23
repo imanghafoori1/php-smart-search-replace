@@ -29,8 +29,28 @@ class IsRepeatingPattern
             return false;
         }
 
-        [$repeatingMatches, $startFrom] = TokenCompare::findRepeatingMatches($startFrom, $tokens, $analyzedPattern);
+        [$repeatingMatches, $startFrom] = self::findRepeatingMatches($startFrom, $tokens, $analyzedPattern);
 
         $repeatings[] = $repeatingMatches;
     }
+
+    public static function findRepeatingMatches($startFrom, $tokens, $analyzedPattern)
+    {
+        $repeatingMatches = [];
+        $end = $startFrom;
+        while (true) {
+            $isMatch = TokenCompare::compareTokens($analyzedPattern, $tokens, $startFrom, []);
+
+            if (! $isMatch) {
+                break;
+            }
+
+            $end = $isMatch[0];
+            [, $startFrom] = TokenCompare::getNextToken($tokens, $end);
+            $repeatingMatches[] = $isMatch[1];
+        }
+
+        return [$repeatingMatches, $end];
+    }
+
 }

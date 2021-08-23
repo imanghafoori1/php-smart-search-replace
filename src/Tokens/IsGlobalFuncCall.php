@@ -2,6 +2,7 @@
 
 namespace Imanghafoori\SearchReplace\Tokens;
 
+use Imanghafoori\SearchReplace\Keywords\GlobalFunctionCall;
 use Imanghafoori\SearchReplace\PatternParser;
 use Imanghafoori\SearchReplace\TokenCompare;
 
@@ -9,7 +10,7 @@ class IsGlobalFuncCall
 {
     public static function is($pToken)
     {
-        return TokenCompare::isGlobalFuncCall($pToken);
+        return GlobalFunctionCall::isGlobalFuncCall($pToken);
     }
 
     public static function mustStart(
@@ -19,7 +20,7 @@ class IsGlobalFuncCall
         &$placeholderValues,
         $pToken
     ) {
-        $patternNames = explode(',', TokenCompare::isGlobalFuncCall($pToken));
+        $patternNames = explode(',', GlobalFunctionCall::isGlobalFuncCall($pToken));
 
         if ($tToken[0] === T_NS_SEPARATOR) {
             $matches = TokenCompare::compareTokens(PatternParser::tokenize('\\"<name>"'), $tokens, $startFrom);
