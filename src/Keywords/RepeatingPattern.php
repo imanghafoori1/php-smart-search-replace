@@ -48,7 +48,7 @@ class RepeatingPattern
         $repeatings[] = $repeatingMatches;
     }
 
-    public static function findRepeatingMatches($startFrom, $tokens, $analyzedPattern)
+    private static function findRepeatingMatches($startFrom, $tokens, $analyzedPattern)
     {
         $repeatingMatches = [];
         $end = $startFrom;

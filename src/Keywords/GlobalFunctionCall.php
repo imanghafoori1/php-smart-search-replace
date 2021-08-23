@@ -13,13 +13,6 @@ class GlobalFunctionCall
         return $pToken[0] === T_CONSTANT_ENCAPSED_STRING && TokenCompare::startsWith(trim($pToken[1], '\'\"'), '<global_func_call:');
     }
 
-    public static function getParams($pToken)
-    {
-        $pName = trim($pToken[1], '\'\"');
-
-        return rtrim(Str::replaceFirst('<global_func_call:', '', $pName), '>');
-    }
-
     public static function mustStart($tokens, $i)
     {
         $token = $tokens[$i];
@@ -39,18 +32,6 @@ class GlobalFunctionCall
         }
 
         return true;
-    }
-
-    private static function getPrevToken($tokens, $i)
-    {
-        $i--;
-        $token = $tokens[$i] ?? '_';
-        while ($token[0] == T_WHITESPACE || $token[0] == T_COMMENT) {
-            $i--;
-            $token = $tokens[$i];
-        }
-
-        return [$token, $i];
     }
 
     public static function getValue($tokens, &$startFrom, &$placeholderValues, $pToken) {
@@ -83,7 +64,7 @@ class GlobalFunctionCall
         }
     }
 
-    public static function concatinate(array $matches)
+    private static function concatinate(array $matches)
     {
         $segments = [''];
         foreach ($matches as $match) {
@@ -91,5 +72,24 @@ class GlobalFunctionCall
         }
 
         return [T_STRING, implode('\\', $segments), $match[2]];
+    }
+
+    private static function getParams($pToken)
+    {
+        $pName = trim($pToken[1], '\'\"');
+
+        return rtrim(Str::replaceFirst('<global_func_call:', '', $pName), '>');
+    }
+
+    private static function getPrevToken($tokens, $i)
+    {
+        $i--;
+        $token = $tokens[$i] ?? '_';
+        while ($token[0] == T_WHITESPACE || $token[0] == T_COMMENT) {
+            $i--;
+            $token = $tokens[$i];
+        }
+
+        return [$token, $i];
     }
 }

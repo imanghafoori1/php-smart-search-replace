@@ -2,30 +2,21 @@
 
 namespace Imanghafoori\SearchReplace;
 
-use Imanghafoori\SearchReplace\Keywords\Any;
-use Imanghafoori\SearchReplace\Keywords\Boolean;
-use Imanghafoori\SearchReplace\Keywords\ClassRef;
-use Imanghafoori\SearchReplace\Keywords\Comment;
-use Imanghafoori\SearchReplace\Keywords\FullClassRef;
-use Imanghafoori\SearchReplace\Keywords\GlobalFunctionCall;
-use Imanghafoori\SearchReplace\Keywords\Keyword;
-use Imanghafoori\SearchReplace\Keywords\RepeatingPattern;
-use Imanghafoori\SearchReplace\Keywords\Statement;
-use Imanghafoori\SearchReplace\Keywords\WhiteSpace;
+use Imanghafoori\SearchReplace\Keywords;
 
 class IsStarting
 {
     public static $keywords = [
-        ClassRef::class,
-        FullClassRef::class,
-        GlobalFunctionCall::class,
-        RepeatingPattern::class,
-        Statement::class,
-        Comment::class,
-        Any::class,
-        WhiteSpace::class,
-        Boolean::class,
-        Keyword::class
+        Keywords\ClassRef::class,
+        Keywords\FullClassRef::class,
+        Keywords\GlobalFunctionCall::class,
+        Keywords\RepeatingPattern::class,
+        Keywords\Statement::class,
+        Keywords\Comment::class,
+        Keywords\Any::class,
+        Keywords\WhiteSpace::class,
+        Keywords\Boolean::class,
+        Keywords\Keyword::class
     ];
 
     public static function check($namedPatterns, $pToken, $tokens, $i)

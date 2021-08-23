@@ -23,7 +23,7 @@ class Statement
         $placeholderValues[] = $_value;
     }
 
-    public static function readExpression($i, $tokens)
+    private static function readExpression($i, $tokens)
     {
         $level = 0;
         $collected = [];
