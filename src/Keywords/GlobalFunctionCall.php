@@ -3,14 +3,14 @@
 namespace Imanghafoori\SearchReplace\Keywords;
 
 use Imanghafoori\SearchReplace\PatternParser;
-use Imanghafoori\SearchReplace\TokenCompare;
+use Imanghafoori\SearchReplace\Finder;
 use Imanghafoori\TokenAnalyzer\Str;
 
 class GlobalFunctionCall
 {
     public static function is($pToken)
     {
-        return $pToken[0] === T_CONSTANT_ENCAPSED_STRING && TokenCompare::startsWith(trim($pToken[1], '\'\"'), '<global_func_call:');
+        return $pToken[0] === T_CONSTANT_ENCAPSED_STRING && Finder::startsWith(trim($pToken[1], '\'\"'), '<global_func_call:');
     }
 
     public static function mustStart($tokens, $i)
@@ -34,12 +34,13 @@ class GlobalFunctionCall
         return true;
     }
 
-    public static function getValue($tokens, &$startFrom, &$placeholderValues, $pToken) {
+    public static function getValue($tokens, &$startFrom, &$placeholderValues, $pToken)
+    {
         $tToken = $tokens[$startFrom] ?? '_';
         $patternNames = explode(',', self::getParams($pToken));
 
         if ($tToken[0] === T_NS_SEPARATOR) {
-            $matches = TokenCompare::compareTokens(PatternParser::tokenize('\\"<name>"'), $tokens, $startFrom);
+            $matches = Finder::compareTokens(PatternParser::tokenize('\\"<name>"'), $tokens, $startFrom);
             if (! $matches) {
                 return false;
             }

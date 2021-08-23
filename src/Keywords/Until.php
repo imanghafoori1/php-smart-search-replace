@@ -1,15 +1,15 @@
 <?php
 
-namespace Imanghafoori\SearchReplace\Tokens;
+namespace Imanghafoori\SearchReplace\Keywords;
 
+use Imanghafoori\SearchReplace\Finder;
 use Imanghafoori\SearchReplace\Stringify;
-use Imanghafoori\SearchReplace\TokenCompare;
 
 class Until
 {
     public static function is($pToken)
     {
-        return TokenCompare::is($pToken, '<until>');
+        return Finder::is($pToken, '<until>');
     }
 
     public static function getValue(
@@ -25,7 +25,7 @@ class Until
         $placeholderValues[] = $_value;
     }
 
-    public static function readUntil($pi, $tokens, $pattern)
+    private static function readUntil($pi, $tokens, $pattern)
     {
         $untilTokens = [];
         $line = 1;

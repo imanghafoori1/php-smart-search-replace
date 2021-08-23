@@ -3,13 +3,13 @@
 namespace Imanghafoori\SearchReplace\Keywords;
 
 use Imanghafoori\SearchReplace\PatternParser;
-use Imanghafoori\SearchReplace\TokenCompare;
+use Imanghafoori\SearchReplace\Finder;
 
 class FullClassRef
 {
     public static function is($pToken)
     {
-        return TokenCompare::is($pToken, '<full_class_ref>');
+        return Finder::is($pToken, '<full_class_ref>');
     }
 
     public static function mustStart($tokens, $i)
@@ -27,13 +27,13 @@ class FullClassRef
             return false;
         }
 
-        $isMatch = TokenCompare::compareTokens($repeatingClassRef, $tokens, $startFrom, $classRef);
+        $isMatch = Finder::compareTokens($repeatingClassRef, $tokens, $startFrom, $classRef);
 
         if (! $isMatch) {
             return false;
         }
 
-        $placeholderValues[] = TokenCompare::extractValue($isMatch[2][0]);
+        $placeholderValues[] = Finder::extractValue($isMatch[2][0]);
         $startFrom = $isMatch[0];
     }
 }

@@ -2,13 +2,13 @@
 
 namespace Imanghafoori\SearchReplace\Keywords;
 
-use Imanghafoori\SearchReplace\TokenCompare;
+use Imanghafoori\SearchReplace\Finder;
 
 class Any
 {
     public static function is($pToken)
     {
-        return TokenCompare::is($pToken, '<any>');
+        return Finder::is($pToken, '<any>');
     }
 
     public static function mustStart()

@@ -2,7 +2,7 @@
 
 namespace Imanghafoori\SearchReplace\Keywords;
 
-use Imanghafoori\SearchReplace\TokenCompare;
+use Imanghafoori\SearchReplace\Finder;
 
 class Keyword
 {
@@ -15,6 +15,18 @@ class Keyword
     {
         $token = $tokens[$i];
 
-        return (bool) TokenCompare::areTheSame($pToken, $token);
+        return (bool) Finder::areTheSame($pToken, $token);
+    }
+
+    public static function getValue($tokens, &$startFrom, &$placeholderValues, $pToken)
+    {
+        $tToken = $tokens[$startFrom] ?? '_';
+        $same = Finder::areTheSame($pToken, $tToken);
+
+        if (! $same) {
+            return false;
+        }
+
+        $same === 'placeholder' && $placeholderValues[] = $tToken;
     }
 }

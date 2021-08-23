@@ -3,10 +3,9 @@
 namespace Imanghafoori\SearchReplace;
 
 use Imanghafoori\SearchReplace\Keywords;
-use Imanghafoori\SearchReplace\Tokens;
 use Imanghafoori\TokenAnalyzer\Str;
 
-class TokenCompare
+class Finder
 {
     public static $keywords = [
         Keywords\FullClassRef::class,
@@ -14,15 +13,20 @@ class TokenCompare
         Keywords\Statement::class,
         Keywords\RepeatingPattern::class,
         Keywords\GlobalFunctionCall::class,
-        Tokens\Until::class,
-        Tokens\InBetween::class,
+        Keywords\Until::class,
+        Keywords\InBetween::class,
         Keywords\Any::class,
         Keywords\WhiteSpace::class,
         Keywords\Comment::class,
-        Tokens\Token::class,
+        Keywords\Keyword::class,
     ];
 
-    private static $placeHolders = [T_CONSTANT_ENCAPSED_STRING, T_VARIABLE, T_LNUMBER, T_STRING];
+    private static $placeHolders = [
+        T_CONSTANT_ENCAPSED_STRING,
+        T_VARIABLE,
+        T_LNUMBER,
+        T_STRING,
+    ];
 
     private static $ignored = [
         T_WHITESPACE => T_WHITESPACE,
@@ -35,14 +39,14 @@ class TokenCompare
         $pi = $j = 0;
         $tCount = count($tokens);
         $pCount = count($pattern);
-        $repeatings = $placeholderValues = [];
+        $repeating = $placeholderValues = [];
 
         $pToken = $pattern[$j];
 
         while ($startFrom < $tCount && $j < $pCount) {
             foreach (self::$keywords as $class_token) {
                 if ($class_token::is($pToken, $namedPatterns)) {
-                    if ($class_token::getValue($tokens, $startFrom, $placeholderValues, $pToken, $pattern, $pi, $j, $namedPatterns, $repeatings) === false) {
+                    if ($class_token::getValue($tokens, $startFrom, $placeholderValues, $pToken, $pattern, $pi, $j, $namedPatterns, $repeating) === false) {
                         return false;
                     } else {
                         break;
@@ -57,7 +61,7 @@ class TokenCompare
         }
 
         if ($pCount === $j) {
-            return [$pi, $placeholderValues, $repeatings,];
+            return [$pi, $placeholderValues, $repeating,];
         }
 
         return false;
@@ -76,7 +80,7 @@ class TokenCompare
             if (self::is($pToken, '<any>')) {
                 $placeholderValues[] = $tToken;
                 $startFrom--;
-            } elseif (self::is($pToken, '<bool>') || self::is($pToken, '<boolean>')) {
+            } elseif (self::is($pToken, ['<bool>', '<boolean>'])) {
                 if (self::isBooleanToken($tToken)) {
                     $placeholderValues[] = $tToken;
                     $startFrom--;
@@ -257,7 +261,7 @@ class TokenCompare
     public static function matchesAny($avoidResultIn, $newTokens)
     {
         foreach ($avoidResultIn as $pattern) {
-            $_matchedValues = TokenCompare::getMatches(PatternParser::tokenize($pattern), $newTokens);
+            $_matchedValues = Finder::getMatches(PatternParser::tokenize($pattern), $newTokens);
             if ($_matchedValues) {
                 return true;
             }

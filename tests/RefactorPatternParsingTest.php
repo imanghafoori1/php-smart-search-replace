@@ -3,7 +3,7 @@
 namespace Imanghafoori\SearchReplace\Tests;
 
 use Imanghafoori\SearchReplace\Searcher;
-use Imanghafoori\SearchReplace\TokenCompare;
+use Imanghafoori\SearchReplace\Finder;
 use Imanghafoori\SearchReplace\PatternParser;
 
 class RefactorPatternParsingTest extends BaseTestClass
@@ -195,12 +195,23 @@ class RefactorPatternParsingTest extends BaseTestClass
     /** @test */
     public function can_parse_patterns()
     {
-        $patterns = require __DIR__.'/stubs/refactor_patterns.php';
+        $patterns = [
+            "name" => [
+                'search' => "if (!'<variable>' && '<boolean>') { return response()->'<name>'(['message' => __('<string>'),], '<number>'); }",
+                'replace' => 'Foo::bar("<1>", "<2>", "<3>"(), "<4>");'
+            ],
+
+            'name2' => [
+                'search' => 'foo(false, true, null);',
+                'replace' => 'bar("hi");'
+            ],
+        ];
+
         $sampleFileTokens = token_get_all(file_get_contents(__DIR__.'/stubs/SimplePostController.stub'));
 
         $patterns = PatternParser::parsePatterns($patterns);
         foreach ($patterns as $pIndex => $pattern) {
-            $matches[$pIndex] = TokenCompare::getMatches($pattern['search'], $sampleFileTokens, $pattern['predicate'], $pattern['mutator']);
+            $matches[$pIndex] = Finder::getMatches($pattern['search'], $sampleFileTokens, $pattern['predicate'], $pattern['mutator']);
         }
 
         $this->assertEquals($matches[0][0]['values'],

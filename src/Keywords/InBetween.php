@@ -1,16 +1,16 @@
 <?php
 
-namespace Imanghafoori\SearchReplace\Tokens;
+namespace Imanghafoori\SearchReplace\Keywords;
 
 use Exception;
+use Imanghafoori\SearchReplace\Finder;
 use Imanghafoori\SearchReplace\Stringify;
-use Imanghafoori\SearchReplace\TokenCompare;
 
 class InBetween
 {
     public static function is($pToken)
     {
-        return TokenCompare::is($pToken, '<in_between>');
+        return Finder::is($pToken, '<in_between>');
     }
 
     public static function getValue(
@@ -35,7 +35,7 @@ class InBetween
         $placeholderValues[] = $_value;
     }
 
-    public static function readUntilMatch($i, $tokens, $startingToken)
+    private static function readUntilMatch($i, $tokens, $startingToken)
     {
         $anti = self::getAnti($startingToken);
         $untilTokens = [];
@@ -59,7 +59,7 @@ class InBetween
         return [$value, $startFrom];
     }
 
-    public static function getAnti(string $startingToken)
+    private static function getAnti(string $startingToken)
     {
         return [
             '(' => ')',

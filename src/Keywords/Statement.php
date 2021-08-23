@@ -3,13 +3,13 @@
 namespace Imanghafoori\SearchReplace\Keywords;
 
 use Imanghafoori\SearchReplace\Stringify;
-use Imanghafoori\SearchReplace\TokenCompare;
+use Imanghafoori\SearchReplace\Finder;
 
 class Statement
 {
     public static function is($pToken)
     {
-        return TokenCompare::is($pToken, '<statement>');
+        return Finder::is($pToken, '<statement>');
     }
 
     public static function mustStart()
@@ -39,11 +39,11 @@ class Statement
                 return [$value, $k];
             }
 
-            if (\in_array($nextToken[0], ['[', '(', '{', T_CURLY_OPEN], true)) {
+            if (in_array($nextToken[0], ['[', '(', '{', T_CURLY_OPEN], true)) {
                 $level++;
             }
 
-            if (\in_array($nextToken[0], [']', ')', '}'], true)) {
+            if (in_array($nextToken[0], [']', ')', '}'], true)) {
                 $level--;
             }
 
