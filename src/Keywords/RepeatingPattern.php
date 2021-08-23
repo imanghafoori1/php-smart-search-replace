@@ -26,4 +26,44 @@ class RepeatingPattern
 
         return $isStartPoint;
     }
+
+    public static function getValue(
+        $tokens,
+        &$startFrom,
+        &$placeholderValues,
+        $pToken,
+        $pattern,
+        $pi,
+        $j,
+        $namedPatterns,
+        &$repeatings
+    ) {
+        $analyzedPattern = PatternParser::tokenize($namedPatterns[TokenCompare::isRepeatingPattern($pToken)]);
+        if (! TokenCompare::compareTokens($analyzedPattern, $tokens, $startFrom)) {
+            return false;
+        }
+
+        [$repeatingMatches, $startFrom] = self::findRepeatingMatches($startFrom, $tokens, $analyzedPattern);
+
+        $repeatings[] = $repeatingMatches;
+    }
+
+    public static function findRepeatingMatches($startFrom, $tokens, $analyzedPattern)
+    {
+        $repeatingMatches = [];
+        $end = $startFrom;
+        while (true) {
+            $isMatch = TokenCompare::compareTokens($analyzedPattern, $tokens, $startFrom, []);
+
+            if (! $isMatch) {
+                break;
+            }
+
+            $end = $isMatch[0];
+            [, $startFrom] = TokenCompare::getNextToken($tokens, $end);
+            $repeatingMatches[] = $isMatch[1];
+        }
+
+        return [$repeatingMatches, $end];
+    }
 }

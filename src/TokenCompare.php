@@ -2,21 +2,26 @@
 
 namespace Imanghafoori\SearchReplace;
 
-use Imanghafoori\SearchReplace\Tokens\Any;
-use Imanghafoori\SearchReplace\Tokens\ClassRef;
-use Imanghafoori\SearchReplace\Tokens\Comment;
-use Imanghafoori\SearchReplace\Tokens\FullClassRef;
-use Imanghafoori\SearchReplace\Tokens\InBetween;
-use Imanghafoori\SearchReplace\Tokens\IsGlobalFuncCall;
-use Imanghafoori\SearchReplace\Tokens\IsRepeatingPattern;
-use Imanghafoori\SearchReplace\Tokens\Statement;
-use Imanghafoori\SearchReplace\Tokens\Token;
-use Imanghafoori\SearchReplace\Tokens\Until;
-use Imanghafoori\SearchReplace\Tokens\WhiteSpace;
+use Imanghafoori\SearchReplace\Keywords;
+use Imanghafoori\SearchReplace\Tokens;
 use Imanghafoori\TokenAnalyzer\Str;
 
 class TokenCompare
 {
+    public static $keywords = [
+        Keywords\FullClassRef::class,
+        Keywords\ClassRef::class,
+        Keywords\Statement::class,
+        Keywords\RepeatingPattern::class,
+        Keywords\GlobalFunctionCall::class,
+        Tokens\Until::class,
+        Tokens\InBetween::class,
+        Keywords\Any::class,
+        Keywords\WhiteSpace::class,
+        Keywords\Comment::class,
+        Tokens\Token::class,
+    ];
+
     private static $placeHolders = [T_CONSTANT_ENCAPSED_STRING, T_VARIABLE, T_LNUMBER, T_STRING];
 
     private static $ignored = [
@@ -34,22 +39,8 @@ class TokenCompare
 
         $pToken = $pattern[$j];
 
-         $keywords = [
-             FullClassRef::class,
-             ClassRef::class,
-             Statement::class,
-             IsRepeatingPattern::class,
-             IsGlobalFuncCall::class,
-             Until::class,
-             InBetween::class,
-             Any::class,
-             WhiteSpace::class,
-             Comment::class,
-             Token::class,
-         ];
-
         while ($startFrom < $tCount && $j < $pCount) {
-            foreach ($keywords as $class_token) {
+            foreach (self::$keywords as $class_token) {
                 if ($class_token::is($pToken, $namedPatterns)) {
                     if ($class_token::getValue($tokens, $startFrom, $placeholderValues, $pToken, $pattern, $pi, $j, $namedPatterns, $repeatings) === false) {
                         return false;
@@ -62,7 +53,7 @@ class TokenCompare
             [$pToken, $j] = self::getNextToken($pattern, $j);
 
             $pi = $startFrom;
-            [$tToken, $startFrom] = self::forwardToNextToken($pToken, $tokens, $startFrom);
+            [, $startFrom] = self::forwardToNextToken($pToken, $tokens, $startFrom);
         }
 
         if ($pCount === $j) {
@@ -362,15 +353,5 @@ class TokenCompare
         }
 
         return [T_STRING, implode('\\', $segments), $match[0][2]];
-    }
-
-    public static function concatinate(array $matches)
-    {
-        $segments = [''];
-        foreach ($matches as $match) {
-            $segments[] = $match[1];
-        }
-
-        return [T_STRING, implode('\\', $segments), $match[2]];
     }
 }

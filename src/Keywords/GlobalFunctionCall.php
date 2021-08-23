@@ -2,6 +2,7 @@
 
 namespace Imanghafoori\SearchReplace\Keywords;
 
+use Imanghafoori\SearchReplace\PatternParser;
 use Imanghafoori\SearchReplace\TokenCompare;
 use Imanghafoori\TokenAnalyzer\Str;
 
@@ -9,14 +10,14 @@ class GlobalFunctionCall
 {
     public static function is($pToken)
     {
-        return self::isGlobalFuncCall($pToken);
+        return $pToken[0] === T_CONSTANT_ENCAPSED_STRING && TokenCompare::startsWith(trim($pToken[1], '\'\"'), '<global_func_call:');
     }
 
-    public static function isGlobalFuncCall($pToken)
+    public static function getParams($pToken)
     {
-        if ($pToken[0] === T_CONSTANT_ENCAPSED_STRING && TokenCompare::startsWith($pName = trim($pToken[1], '\'\"'), '<global_func_call:')) {
-            return rtrim(Str::replaceFirst('<global_func_call:', '', $pName), '>');
-        }
+        $pName = trim($pToken[1], '\'\"');
+
+        return rtrim(Str::replaceFirst('<global_func_call:', '', $pName), '>');
     }
 
     public static function mustStart($tokens, $i)
@@ -50,5 +51,45 @@ class GlobalFunctionCall
         }
 
         return [$token, $i];
+    }
+
+    public static function getValue($tokens, &$startFrom, &$placeholderValues, $pToken) {
+        $tToken = $tokens[$startFrom] ?? '_';
+        $patternNames = explode(',', self::getParams($pToken));
+
+        if ($tToken[0] === T_NS_SEPARATOR) {
+            $matches = TokenCompare::compareTokens(PatternParser::tokenize('\\"<name>"'), $tokens, $startFrom);
+            if (! $matches) {
+                return false;
+            }
+
+            $strValue = self::concatinate($matches[1]);
+
+            foreach ($patternNames as $patternName23) {
+                if ($strValue[1] === $patternName23 || $strValue[1] === '\\'.$patternName23) {
+                    $startFrom = $matches[0];
+                    $placeholderValues[] = $strValue;
+                    break;
+                }
+            }
+        } elseif ($tToken[0] === T_STRING) {
+            if (! in_array($tToken[1], $patternNames)) {
+                return false;
+            }
+
+            $placeholderValues[] = $tToken;
+        } else {
+            return false;
+        }
+    }
+
+    public static function concatinate(array $matches)
+    {
+        $segments = [''];
+        foreach ($matches as $match) {
+            $segments[] = $match[1];
+        }
+
+        return [T_STRING, implode('\\', $segments), $match[2]];
     }
 }

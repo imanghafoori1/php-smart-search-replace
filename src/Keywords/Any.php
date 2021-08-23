@@ -15,4 +15,9 @@ class Any
     {
         return true;
     }
+
+    public static function getValue($tokens, $startFrom, &$placeholderValues)
+    {
+        $placeholderValues[] = $tokens[$startFrom];
+    }
 }
