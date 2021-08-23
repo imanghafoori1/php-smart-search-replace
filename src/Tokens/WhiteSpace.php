@@ -11,13 +11,8 @@ class WhiteSpace
         return TokenCompare::is($pToken, '<white_space>');
     }
 
-    public static function getValue(
-        $tToken,
-        $tokens,
-        &$startFrom,
-        &$placeholderValues,
-        $pToken
-    ) {
+    public static function getValue($tokens, &$startFrom, &$placeholderValues, $pToken) {
+        $tToken = $tokens[$startFrom] ?? '_';
         $result = TokenCompare::compareIt($tToken, T_WHITESPACE, $pToken[1], $startFrom);
         if ($result === null) {
             return false;

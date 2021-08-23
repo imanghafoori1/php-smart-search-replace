@@ -12,8 +12,9 @@ class ClassRef
         return TokenCompare::is($pToken, '<class_ref>');
     }
 
-    public static function getValue($tToken, $tokens, &$startFrom, &$placeholderValues)
+    public static function getValue($tokens, &$startFrom, &$placeholderValues)
     {
+        $tToken = $tokens[$startFrom] ?? '_';
         $classRef = ['classRef' => '\\"<name>"'];
         $repeatingClassRef = PatternParser::tokenize('"<repeating:classRef>"');
         $nameRepeatingClassRef = PatternParser::tokenize('"<name>""<repeating:classRef>"');

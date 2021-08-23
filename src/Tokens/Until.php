@@ -13,7 +13,6 @@ class Until
     }
 
     public static function getValue(
-        $tToken,
         $tokens,
         &$startFrom,
         &$placeholderValues,

@@ -14,7 +14,6 @@ class InBetween
     }
 
     public static function getValue(
-        $tToken,
         $tokens,
         &$startFrom,
         &$placeholderValues,

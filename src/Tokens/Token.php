@@ -11,13 +11,9 @@ class Token
         return true;
     }
 
-    public static function getValue(
-        $tToken,
-        $tokens,
-        &$startFrom,
-        &$placeholderValues,
-        $pToken
-    ) {
+    public static function getValue($tokens, &$startFrom, &$placeholderValues, $pToken)
+    {
+        $tToken = $tokens[$startFrom] ?? '_';
         $same = TokenCompare::areTheSame($pToken, $tToken);
 
         if (! $same) {

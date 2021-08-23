@@ -13,13 +13,8 @@ class IsGlobalFuncCall
         return GlobalFunctionCall::isGlobalFuncCall($pToken);
     }
 
-    public static function getValue(
-        $tToken,
-        $tokens,
-        &$startFrom,
-        &$placeholderValues,
-        $pToken
-    ) {
+    public static function getValue($tokens, &$startFrom, &$placeholderValues, $pToken) {
+        $tToken = $tokens[$startFrom] ?? '_';
         $patternNames = explode(',', GlobalFunctionCall::isGlobalFuncCall($pToken));
 
         if ($tToken[0] === T_NS_SEPARATOR) {

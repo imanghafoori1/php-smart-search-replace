@@ -11,13 +11,8 @@ class Comment
         return TokenCompare::is($pToken, '<comment>');
     }
 
-    public static function getValue(
-        $tToken,
-        $tokens,
-        &$startFrom,
-        &$placeholderValues,
-        $pToken
-    ) {
+    public static function getValue($tokens, &$startFrom, &$placeholderValues, $pToken) {
+        $tToken = $tokens[$startFrom] ?? '_';
         $result = TokenCompare::compareIt($tToken, T_COMMENT, $pToken[1], $startFrom);
         if ($result === null) {
             return false;

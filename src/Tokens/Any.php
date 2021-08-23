@@ -11,8 +11,8 @@ class Any
         return TokenCompare::is($pToken, '<any>');
     }
 
-    public static function getValue($tToken, $tokens, &$startFrom, &$placeholderValues)
+    public static function getValue($tokens, &$startFrom, &$placeholderValues)
     {
-        $placeholderValues[] = $tToken;
+        $placeholderValues[] = $tokens[$startFrom] ?? '_';
     }
 }
