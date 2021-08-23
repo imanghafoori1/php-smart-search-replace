@@ -12,7 +12,7 @@ class Until
         return TokenCompare::is($pToken, '<until>');
     }
 
-    public static function mustStart(
+    public static function getValue(
         $tToken,
         $tokens,
         &$startFrom,

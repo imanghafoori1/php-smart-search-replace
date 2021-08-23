@@ -11,7 +11,7 @@ class Comment
         return TokenCompare::is($pToken, '<comment>');
     }
 
-    public static function mustStart(
+    public static function getValue(
         $tToken,
         $tokens,
         &$startFrom,

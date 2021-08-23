@@ -12,7 +12,7 @@ class IsRepeatingPattern
         return $namedPatterns && TokenCompare::isRepeatingPattern($pToken);
     }
 
-    public static function mustStart(
+    public static function getValue(
         $tToken,
         $tokens,
         &$startFrom,

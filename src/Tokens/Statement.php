@@ -12,7 +12,7 @@ class Statement
         return TokenCompare::is($pToken, '<statement>');
     }
 
-    public static function mustStart($tToken, $tokens, &$startFrom, &$placeholderValues)
+    public static function getValue($tToken, $tokens, &$startFrom, &$placeholderValues)
     {
         [$_value, $startFrom] = self::readExpression($startFrom, $tokens);
         $placeholderValues[] = $_value;

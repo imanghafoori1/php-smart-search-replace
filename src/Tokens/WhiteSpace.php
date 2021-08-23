@@ -11,7 +11,7 @@ class WhiteSpace
         return TokenCompare::is($pToken, '<white_space>');
     }
 
-    public static function mustStart(
+    public static function getValue(
         $tToken,
         $tokens,
         &$startFrom,

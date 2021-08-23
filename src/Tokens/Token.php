@@ -11,7 +11,7 @@ class Token
         return true;
     }
 
-    public static function mustStart(
+    public static function getValue(
         $tToken,
         $tokens,
         &$startFrom,

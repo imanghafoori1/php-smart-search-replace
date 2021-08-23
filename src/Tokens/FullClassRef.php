@@ -12,7 +12,7 @@ class FullClassRef
         return TokenCompare::is($pToken, '<full_class_ref>');
     }
 
-    public static function mustStart($tToken, $tokens, &$startFrom, &$placeholderValues)
+    public static function getValue($tToken, $tokens, &$startFrom, &$placeholderValues)
     {
         $classRef = ['classRef' => '\\"<name>"'];
         $repeatingClassRef = PatternParser::tokenize('"<repeating:classRef>"');

@@ -50,15 +50,15 @@ class TokenCompare
          ];
 
         while ($startFrom < $tCount && $j < $pCount) {
-            foreach($keywords as $class_token) {
-                 if($class_token::is($pToken, $namedPatterns)) {
-                     if($class_token::mustStart($tToken, $tokens, $startFrom, $placeholderValues, $pToken, $pattern, $pi, $j, $namedPatterns, $repeatings) === false) {
-                         return false;
-                     } else {
-                         break;
-                     }
-                 }
-             }
+            foreach ($keywords as $class_token) {
+                if ($class_token::is($pToken, $namedPatterns)) {
+                    if ($class_token::getValue($tToken, $tokens, $startFrom, $placeholderValues, $pToken, $pattern, $pi, $j, $namedPatterns, $repeatings) === false) {
+                        return false;
+                    } else {
+                        break;
+                    }
+                }
+            }
 
             [$pToken, $j] = self::getNextToken($pattern, $j);
 

@@ -13,7 +13,7 @@ class InBetween
         return TokenCompare::is($pToken, '<in_between>');
     }
 
-    public static function mustStart(
+    public static function getValue(
         $tToken,
         $tokens,
         &$startFrom,
