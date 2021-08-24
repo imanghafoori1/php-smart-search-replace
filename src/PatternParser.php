@@ -6,7 +6,6 @@ class PatternParser
 {
     public static function parsePatterns($patterns)
     {
-        $analyzedPatterns = [];
         $defaults = [
             'predicate' => null,
             'mutator' => null,
@@ -15,10 +14,10 @@ class PatternParser
             'avoid_syntax_errors' => false,
             'post_replace' => [],
         ];
-        $i = 0;
+
+        $analyzedPatterns = [];
         foreach ($patterns as $to) {
-            $analyzedPatterns[$i] = ['search' => self::tokenize($to['search'])] + $to + $defaults;
-            $i++;
+            $analyzedPatterns[] = ['search' => self::tokenize($to['search'])] + $to + $defaults;
         }
 
         return $analyzedPatterns;
@@ -32,9 +31,7 @@ class PatternParser
         $map = [
             "<string>" => T_CONSTANT_ENCAPSED_STRING,
             "<str>" => T_CONSTANT_ENCAPSED_STRING,
-            "<variable>" => T_VARIABLE,
-            "<var>" => T_VARIABLE,
-            "<number>" => T_LNUMBER,
+            //"<number>" => T_LNUMBER,
             "<name>" => T_STRING,
             "<boolean>" => T_STRING,
             "<bool>" => T_STRING,

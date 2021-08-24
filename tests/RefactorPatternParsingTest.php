@@ -47,25 +47,6 @@ class RefactorPatternParsingTest extends BaseTestClass
     }
 
     /** @test */
-    public function comment_numbering_is_not_important()
-    {
-        $patterns = [
-            'name' => [
-                'search' => '["<10:any>""<8:white_space>?"]',
-                'replace' => '["<1>""<2>","<1>"]',
-                'predicate' => function ($matches) {
-                    return $matches['values'][0][0] === T_CONSTANT_ENCAPSED_STRING;
-                }
-            ]
-        ];
-
-        $startFile = '<?php [1 ]; ["s" ]; ["d"];';
-        $resultFile = '<?php [1 ]; ["s" ,"s"]; ["d","d"];';
-        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
-        $this->assertEquals($resultFile, $newVersion);
-    }
-
-    /** @test */
     public function match_comment()
     {
         $patterns = [
@@ -91,8 +72,8 @@ class RefactorPatternParsingTest extends BaseTestClass
             ]
         ];
 
-        $startFile = '<?php [/**/]; [/**/ ]; ["s"];';
-        $resultFile = '<?php []; []; ["s"];';
+        $startFile = '<?php [/**/]; [/**/ ]; ["s"]; ["s" ];';
+        $resultFile = '<?php []; []; ["s"]; ["s"];';
         [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
         $this->assertEquals($resultFile, $newVersion);
     }
@@ -148,48 +129,6 @@ class RefactorPatternParsingTest extends BaseTestClass
         $this->assertEquals($resultFile, $newVersion);
         $this->assertEquals([1], $replacedAt);
 
-    }
-
-    /** @test */
-    public function filters()
-    {
-        $startFile = '<?php h::h();g::h();k::h();';
-        $resultFile = '<?php k::h();';
-
-        ////////////////////////////////////////////
-
-        $patterns = [
-            '"name' => [
-                'search' => '"<name>"::h();',
-                'replace' => "",
-                'filters' => [
-                    1 => [
-                        'in_array' => ['h', 'g'],
-                    ]
-                ]
-            ],
-        ];
-        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
-
-        $this->assertEquals($resultFile, $newVersion);
-
-        ////////////////////////////////////////////
-
-        $patterns = [
-            'name' => [
-                'search' => '"<name>"::h();',
-                'replace' => "",
-                'filters' => [
-                    1 => [
-                        'in_array' => 'h,g',
-                    ]
-                ]
-            ],
-        ];
-
-        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
-
-        $this->assertEquals($resultFile, $newVersion);
     }
 
     /** @test */
@@ -257,31 +196,5 @@ class RefactorPatternParsingTest extends BaseTestClass
 
         $end = $matches[1][1]['end'];
         $this->assertEquals($sampleFileTokens[$end], ';');
-    }
-
-    /** @test */
-    public function capturing_predicate()
-    {
-        $patterns = [
-            "name" => [
-                'search' => "'<var>' = '<var>';",
-                'replace' => '',
-                'predicate' => function ($matches) {
-                    return $matches['values'][0][1] === $matches['values'][1][1];
-                }
-            ],
-        ];
-        $startFile = '<?php
-$var = 0;
-$var = $var;
-$user = $var;';
-        $resultFile = '<?php
-$var = 0;
-
-$user = $var;';
-        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
-
-        $this->assertEquals($resultFile, $newVersion);
-        $this->assertEquals([3], $replacedAt);
     }
 }
