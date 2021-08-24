@@ -23,13 +23,7 @@ class InBetween
         $j
     ) {
         $startingToken = $pattern[$j - 1]; // may use getPreviousToken()
-        if (! in_array($startingToken, ['(', '[', '{'], true)) {
-            throw new Exception('pattern invalid');
-        }
-
-        if (self::getAnti($startingToken) !== $pattern[$j + 1]) {
-            throw new Exception('pattern invalid');
-        }
+        self::validate($startingToken, $pattern[$j + 1]);
 
         [$_value, $startFrom] = self::readUntilMatch($pi, $tokens, $startingToken);
         $placeholderValues[] = $_value;
@@ -66,5 +60,16 @@ class InBetween
             '{' => '}',
             '[' => ']',
         ][$startingToken];
+    }
+
+    private static function validate($startingToken, $pattern)
+    {
+        if (! in_array($startingToken, ['(', '[', '{'], true)) {
+            throw new Exception('pattern invalid');
+        }
+
+        if (self::getAnti($startingToken) !== $pattern) {
+            throw new Exception('pattern invalid');
+        }
     }
 }

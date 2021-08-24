@@ -13,23 +13,6 @@ class GlobalFunctionCall
         return $pToken[0] === T_CONSTANT_ENCAPSED_STRING && Finder::startsWith(trim($pToken[1], '\'\"'), '<global_func_call:');
     }
 
-    public static function mustStart($tokens, $i)
-    {
-        [$prev, $prevI] = self::getPrevToken($tokens, $i);
-        if ($prev[0] === T_NS_SEPARATOR) {
-            [$prev] = self::getPrevToken($tokens, $prevI);
-        }
-
-        $excluded = [T_NEW, T_OBJECT_OPERATOR, T_DOUBLE_COLON, T_FUNCTION];
-        defined('T_NULLSAFE_OBJECT_OPERATOR') && $excluded[] = T_NULLSAFE_OBJECT_OPERATOR;
-
-        if (in_array($prev[0], $excluded)) {
-            return false;
-        }
-
-        return true;
-    }
-
     public static function getValue($tokens, &$startFrom, &$placeholderValues, $pToken)
     {
         if (! self::mustStart($tokens, $startFrom)) {
@@ -92,5 +75,23 @@ class GlobalFunctionCall
         }
 
         return [$token, $i];
+    }
+
+    private static function mustStart($tokens, $i)
+    {
+        [$prev, $prevI] = self::getPrevToken($tokens, $i);
+
+        if ($prev[0] === T_NS_SEPARATOR) {
+            [$prev] = self::getPrevToken($tokens, $prevI);
+        }
+
+        $excluded = [T_NEW, T_OBJECT_OPERATOR, T_DOUBLE_COLON, T_FUNCTION];
+        defined('T_NULLSAFE_OBJECT_OPERATOR') && $excluded[] = T_NULLSAFE_OBJECT_OPERATOR;
+
+        if (in_array($prev[0], $excluded)) {
+            return false;
+        }
+
+        return true;
     }
 }

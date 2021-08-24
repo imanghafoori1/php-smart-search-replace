@@ -208,20 +208,20 @@ class Finder
 
             [$optionalPatternMatchCount, $matched_optional_values] = self::optionalStartingTokens($optionalStartingTokens, $tokens, $i);
 
-            [$k, $matchedValues, $repeatings] = $isMatch;
+            [$end, $matchedValues, $repeatings] = $isMatch;
             $matchedValues = array_merge($matched_optional_values, $matchedValues);
-            $data = ['start' => $i - $pIndex, 'end' => $k, 'values' => $matchedValues, 'repeatings' => $repeatings];
+            $data = ['start' => $i - $pIndex, 'end' => $end, 'values' => $matchedValues, 'repeatings' => $repeatings];
             if (Filters::apply($filters, $data, $tokens)) {
                 if (! $predicate || call_user_func($predicate, $data, $tokens)) {
                     $mutator && $matchedValues = call_user_func($mutator, $matchedValues);
-                    $matches[] = ['start' => $i - $optionalPatternMatchCount, 'end' => $k, 'values' => $matchedValues, 'repeatings' => $repeatings];
+                    $matches[] = ['start' => $i - $optionalPatternMatchCount, 'end' => $end, 'values' => $matchedValues, 'repeatings' => $repeatings];
                     if (count($matches) === $maxDepth) {
                         return $matches;
                     }
                 }
             }
 
-            $k > $i && $i = $k - 1; // fast-forward
+            $end > $i && $i = $end - 1; // fast-forward
             $i++;
         }
 
