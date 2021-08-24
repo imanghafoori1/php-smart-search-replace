@@ -31,12 +31,25 @@ class Searcher
 
     public static function searchReplaceOnePattern($pattern, $tokens)
     {
-        $result = Finder::getMatches($pattern['search'], $tokens, $pattern['predicate'], $pattern['mutator'], $pattern['named_patterns'], $pattern['filters']);
+        $result = Finder::getMatches(
+            $pattern['search'],
+            $tokens,
+            $pattern['predicate'],
+            $pattern['mutator'],
+            $pattern['named_patterns'],
+            $pattern['filters']
+        );
 
         [
             $tokens,
             $replacementLines,
-        ] = Replacer::applyAllMatches($result, $pattern['replace'], $tokens, $pattern['named_patterns'], $pattern['avoid_syntax_errors']);
+        ] = Replacer::applyAllMatches(
+            $result,
+            $pattern['replace'],
+            $tokens,
+            $pattern['named_patterns'],
+            $pattern['avoid_syntax_errors']
+        );
 
         isset($pattern['post_replace']) && [$tokens] = PostReplace::applyPostReplaces($pattern['post_replace'], $tokens);
 

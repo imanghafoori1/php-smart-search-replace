@@ -12,11 +12,6 @@ class Statement
         return Finder::is($pToken, '<statement>');
     }
 
-    public static function mustStart()
-    {
-        return true;
-    }
-
     public static function getValue($tokens, &$startFrom, &$placeholderValues)
     {
         [$_value, $startFrom] = self::readExpression($startFrom, $tokens);

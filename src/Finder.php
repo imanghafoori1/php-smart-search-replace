@@ -192,7 +192,6 @@ class Finder
         $maxDepth = 200
     ) {
         $pIndex = self::firstNonOptionalPlaceholder($patternTokens);
-        $pToken = $patternTokens[$pIndex];
         $optionalStartingTokens = array_slice($patternTokens, 0, $pIndex);
 
         $matches = [];
@@ -200,19 +199,14 @@ class Finder
         $allCount = count($tokens);
 
         while ($i < $allCount) {
-            if (! IsStarting::check($namedPatterns, $pToken, $tokens, $i)) {
-                $i++;
-                continue;
-            }
-
-            [$optionalPatternMatchCount, $matched_optional_values] = self::optionalStartingTokens($optionalStartingTokens, $tokens, $i);
-
             $restPatternTokens = array_slice($patternTokens, $pIndex);
             $isMatch = self::compareTokens($restPatternTokens, $tokens, $i, $namedPatterns);
             if (! $isMatch) {
                 $i++;
                 continue;
             }
+
+            [$optionalPatternMatchCount, $matched_optional_values] = self::optionalStartingTokens($optionalStartingTokens, $tokens, $i);
 
             [$k, $matchedValues, $repeatings] = $isMatch;
             $matchedValues = array_merge($matched_optional_values, $matchedValues);

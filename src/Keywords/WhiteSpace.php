@@ -11,11 +11,6 @@ class WhiteSpace
         return Finder::is($pToken, '<white_space>');
     }
 
-    public static function mustStart($tokens, $i)
-    {
-        return $tokens[$i][0] === T_WHITESPACE;
-    }
-
     public static function getValue($tokens, &$startFrom, &$placeholderValues, $pToken)
     {
         $tToken = $tokens[$startFrom] ?? '_';

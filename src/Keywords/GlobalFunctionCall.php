@@ -2,8 +2,8 @@
 
 namespace Imanghafoori\SearchReplace\Keywords;
 
-use Imanghafoori\SearchReplace\PatternParser;
 use Imanghafoori\SearchReplace\Finder;
+use Imanghafoori\SearchReplace\PatternParser;
 use Imanghafoori\TokenAnalyzer\Str;
 
 class GlobalFunctionCall
@@ -15,18 +15,14 @@ class GlobalFunctionCall
 
     public static function mustStart($tokens, $i)
     {
-        $token = $tokens[$i];
-
-        if ($token[0] !== T_STRING && $token[0] !== T_NS_SEPARATOR) {
-            return false;
-        }
-        $excluded = [T_NEW, T_OBJECT_OPERATOR, T_DOUBLE_COLON, T_FUNCTION];
-        defined('T_NULLSAFE_OBJECT_OPERATOR') && $excluded[] = T_NULLSAFE_OBJECT_OPERATOR;
-
         [$prev, $prevI] = self::getPrevToken($tokens, $i);
         if ($prev[0] === T_NS_SEPARATOR) {
             [$prev] = self::getPrevToken($tokens, $prevI);
         }
+
+        $excluded = [T_NEW, T_OBJECT_OPERATOR, T_DOUBLE_COLON, T_FUNCTION];
+        defined('T_NULLSAFE_OBJECT_OPERATOR') && $excluded[] = T_NULLSAFE_OBJECT_OPERATOR;
+
         if (in_array($prev[0], $excluded)) {
             return false;
         }
@@ -36,6 +32,10 @@ class GlobalFunctionCall
 
     public static function getValue($tokens, &$startFrom, &$placeholderValues, $pToken)
     {
+        if (! self::mustStart($tokens, $startFrom)) {
+            return false;
+        }
+
         $tToken = $tokens[$startFrom] ?? '_';
         $patternNames = explode(',', self::getParams($pToken));
 

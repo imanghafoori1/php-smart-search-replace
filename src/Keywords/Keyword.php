@@ -11,13 +11,6 @@ class Keyword
         return true;
     }
 
-    public static function mustStart($tokens, $i, $pToken)
-    {
-        $token = $tokens[$i];
-
-        return (bool) Finder::areTheSame($pToken, $token);
-    }
-
     public static function getValue($tokens, &$startFrom, &$placeholderValues, $pToken)
     {
         $tToken = $tokens[$startFrom] ?? '_';
