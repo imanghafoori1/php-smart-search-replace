@@ -20,7 +20,6 @@ class Finder
         Keywords\WhiteSpace::class,
         Keywords\Comment::class,
         Keywords\Boolean::class,
-        Keywords\Keyword::class,
     ];
 
     public static $keywords = [
@@ -34,6 +33,7 @@ class Finder
         Keywords\DocBlock::class,
         Keywords\WhiteSpace::class,
         Keywords\Comment::class,
+        Keywords\MethodVisibility::class,
         Keywords\Boolean::class,
         Keywords\FullClassRef::class,
         Keywords\ClassRef::class,
@@ -42,7 +42,6 @@ class Finder
         Keywords\InBetween::class,
         Keywords\Statement::class,
         Keywords\Until::class,
-        Keywords\Keyword::class,
     ];
 
     private static $ignored = [
@@ -61,13 +60,19 @@ class Finder
         $pToken = $pattern[$j];
 
         while ($startFrom < $tCount && $j < $pCount) {
-            foreach (self::$keywords as $class_token) {
-                if ($class_token::is($pToken, $namedPatterns)) {
-                    if ($class_token::getValue($tokens, $startFrom, $placeholderValues, $pToken, $pattern, $pi, $j, $namedPatterns, $repeating) === false) {
-                        return false;
-                    } else {
-                        break;
+            if ($pToken[0] === T_CONSTANT_ENCAPSED_STRING) {
+                foreach (self::$keywords as $class_token) {
+                    if ($class_token::is($pToken, $namedPatterns)) {
+                        if ($class_token::getValue($tokens, $startFrom, $placeholderValues, $pToken, $pattern, $pi, $j, $namedPatterns, $repeating) === false) {
+                            return false;
+                        } else {
+                            break;
+                        }
                     }
+                }
+            } else {
+                if (! Finder::areTheSame($pToken, $tokens[$startFrom])) {
+                    return false;
                 }
             }
 
@@ -135,7 +140,7 @@ class Finder
 
     public static function is($token, $keyword)
     {
-        return $token[0] === T_CONSTANT_ENCAPSED_STRING && in_array(trim($token[1], '\'\"?'), (array) $keyword, true);
+        return in_array(trim($token[1], '\'\"?'), (array) $keyword, true);
     }
 
     public static function isOptional($token)
@@ -183,7 +188,7 @@ class Finder
         $filters = [],
         $startFrom = 1
     ) {
-        $pIndex = self::firstNonOptionalPlaceholder($patternTokens);
+        $pIndex = PatternParser::firstNonOptionalPlaceholder($patternTokens);
         $optionalStartingTokens = array_slice($patternTokens, 0, $pIndex);
 
         $matches = [];
@@ -232,9 +237,9 @@ class Finder
 
     private static function forwardToNextToken($pToken, $tokens, $startFrom)
     {
-        if (self::is($pToken, '<white_space>')) {
+        if (isset($pToken[1]) && self::is($pToken, '<white_space>')) {
             return self::getNextToken($tokens, $startFrom, T_WHITESPACE);
-        } elseif (self::is($pToken, '<comment>')) {
+        } elseif (isset($pToken[1]) && self::is($pToken, '<comment>')) {
             return self::getNextToken($tokens, $startFrom, T_COMMENT);
         } else {
             return self::getNextToken($tokens, $startFrom);
@@ -260,15 +265,6 @@ class Finder
         }
     }
 
-    public static function isOptionalPlaceholder($token)
-    {
-        if ($token[0] !== T_CONSTANT_ENCAPSED_STRING) {
-            return false;
-        }
-
-        return Finder::endsWith($token[1], '>?"') || Finder::endsWith($token[1], ">?'");
-    }
-
     public static function getPortion($start, $end, $tokens)
     {
         $output = '';
@@ -277,18 +273,6 @@ class Finder
         }
 
         return $output;
-    }
-
-    private static function firstNonOptionalPlaceholder($patternTokens)
-    {
-        $i = 0;
-        foreach ($patternTokens as $i => $pt) {
-            if (! self::isOptionalPlaceholder($pt)) {
-                return $i;
-            }
-        }
-
-        return $i;
     }
 
     private static function optionalStartingTokens($optionalStartingTokens, $tokens, $i)
