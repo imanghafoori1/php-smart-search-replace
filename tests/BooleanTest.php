@@ -11,18 +11,18 @@ class BooleanTest extends BaseTestClass
     {
         $patterns = [
             'name' => [
-                'search' => '"<bool>";',
-                'replace' => ''
+                'search' => '"<boolean>"; "<boolean>"; "<boolean>"; "<boolean>";',
+                'replace' => '"<4>";"<3>";"<2>";"<1>";'
             ],
         ];
 
         $startFile = '<?php true; false; TRUE; FALSE;';
-        $resultFile = '<?php    ';
+        $resultFile = '<?php FALSE;TRUE;false;true;';
         [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
 
         $this->assertEquals($resultFile, $newVersion);
 
-        $this->assertEquals([1, 1, 1,1], $replacedAt);
+        $this->assertEquals([1], $replacedAt);
     }
 
     /** @test */
@@ -30,17 +30,36 @@ class BooleanTest extends BaseTestClass
     {
         $patterns = [
             'name' => [
-                'search' => '"<boolean>";',
-                'replace' => ''
+                'search' => '"<boolean>"',
+                'replace' => 'aa'
             ],
         ];
 
-        $startFile = '<?php true; false; TRUE; FALSE;';
-        $resultFile = '<?php    ';
-        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
+        $start_File = '<?php true();';
+        $resultFile = '<?php true();';
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($start_File));
 
         $this->assertEquals($resultFile, $newVersion);
 
-        $this->assertEquals([1, 1, 1,1], $replacedAt);
+        $this->assertEquals([1], $replacedAt);
+    }
+
+    /** @test */
+    public function boolean_2()
+    {
+        $patterns = [
+            'name' => [
+                'search' => '"<boolean>"',
+                'replace' => 'aa'
+            ],
+        ];
+
+        $start_File = '<?php "------";';
+        $resultFile = '<?php "------";';
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($start_File));
+
+        $this->assertEquals($resultFile, $newVersion);
+
+        $this->assertEquals([], $replacedAt);
     }
 }

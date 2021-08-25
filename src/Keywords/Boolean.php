@@ -15,8 +15,12 @@ class Boolean
     {
         $t = $tokens[$startFrom];
 
-        if ($t[0] === T_STRING && in_array(strtolower($t[1]), ['true', 'false'], true)) {
+        [$next] = Finder::getNextToken($tokens, $startFrom);
+
+        if ($next !== '(' && $t[0] === T_STRING && in_array(strtolower($t[1]), ['true', 'false'], true)) {
             $placeholderValues[] = $t;
+        } else {
+            return false;
         }
     }
 }
