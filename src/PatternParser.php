@@ -31,10 +31,7 @@ class PatternParser
         $map = [
             "<string>" => T_CONSTANT_ENCAPSED_STRING,
             "<str>" => T_CONSTANT_ENCAPSED_STRING,
-            //"<number>" => T_LNUMBER,
             "<name>" => T_STRING,
-            "<boolean>" => T_STRING,
-            "<bool>" => T_STRING,
             "<,>" => ',',
         ];
 

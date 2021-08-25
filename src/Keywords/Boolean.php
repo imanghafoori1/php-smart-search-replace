@@ -11,10 +11,12 @@ class Boolean
         return Finder::is($pToken, ['<bool>', '<boolean>']);
     }
 
-    public static function mustStart($tokens, $i)
+    public static function getValue($tokens, &$startFrom, &$placeholderValues)
     {
-        $t = $tokens[$i];
+        $t = $tokens[$startFrom];
 
-        return $t[0] === T_STRING && in_array(strtolower($t[1]), ['true', 'false'], true);
+        if ($t[0] === T_STRING && in_array(strtolower($t[1]), ['true', 'false'], true)) {
+            $placeholderValues[] = $t;
+        }
     }
 }

@@ -23,6 +23,7 @@ class Finder
         Keywords\DocBlock::class,
         Keywords\WhiteSpace::class,
         Keywords\Comment::class,
+        Keywords\Boolean::class,
         Keywords\Keyword::class,
     ];
 
