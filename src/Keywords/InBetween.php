@@ -53,7 +53,7 @@ class InBetween
         return [$value, $startFrom];
     }
 
-    private static function getAnti(string $startingToken)
+    private static function getAnti($startingToken)
     {
         return [
             '(' => ')',

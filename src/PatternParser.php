@@ -23,32 +23,10 @@ class PatternParser
         return $analyzedPatterns;
     }
 
-    private static function isPlaceHolder($token)
-    {
-        if ($token[0] !== T_CONSTANT_ENCAPSED_STRING) {
-            return false;
-        }
-        $map = [
-            "<string>" => T_CONSTANT_ENCAPSED_STRING,
-            "<str>" => T_CONSTANT_ENCAPSED_STRING,
-            "<name>" => T_STRING,
-            "<,>" => ',',
-        ];
-
-        return $map[trim($token[1], '\'\"')] ?? false;
-    }
-
     public static function tokenize($pattern)
     {
         $tokens = token_get_all('<?php '.self::cleanComments($pattern));
         array_shift($tokens);
-
-        foreach ($tokens as $i => $token) {
-            // transform placeholders
-            if ($placeHolder = self::isPlaceHolder($token)) {
-                $tokens[$i] = [$placeHolder, null];
-            }
-        }
 
         return $tokens;
     }

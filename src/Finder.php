@@ -12,6 +12,8 @@ class Finder
         Keywords\Any::class,
         Keywords\Variable::class,
         Keywords\Number::class,
+        Keywords\Str::class,
+        Keywords\Name::class,
         Keywords\Integer::class,
         Keywords\FloatNum::class,
         Keywords\DocBlock::class,
@@ -27,6 +29,8 @@ class Finder
         Keywords\Number::class,
         Keywords\Integer::class,
         Keywords\FloatNum::class,
+        Keywords\Str::class,
+        Keywords\Name::class,
         Keywords\DocBlock::class,
         Keywords\WhiteSpace::class,
         Keywords\Comment::class,
@@ -39,13 +43,6 @@ class Finder
         Keywords\Statement::class,
         Keywords\Until::class,
         Keywords\Keyword::class,
-    ];
-
-    private static $placeHolders = [
-        T_CONSTANT_ENCAPSED_STRING,
-        T_VARIABLE,
-        T_LNUMBER,
-        T_STRING,
     ];
 
     private static $ignored = [
@@ -160,10 +157,6 @@ class Finder
     {
         if ($pToken[0] !== $token[0]) {
             return false;
-        }
-
-        if (in_array($pToken[0], self::$placeHolders, true) && ! isset($pToken[1])) {
-            return 'placeholder';
         }
 
         if (! isset($pToken[1]) || ! isset($token[1])) {
@@ -317,11 +310,6 @@ class Finder
         }
 
         return [$optionalPatternMatchCount, $matched_optional_values];
-    }
-
-    private static function isBooleanToken($tToken)
-    {
-        return $tToken[0] === T_STRING && in_array(strtolower($tToken[1]), ['true', 'false']);
     }
 
     public static function extractValue($matches, $first = '')
