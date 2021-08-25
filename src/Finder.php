@@ -7,14 +7,8 @@ use Imanghafoori\TokenAnalyzer\Str;
 
 class Finder
 {
-    public static $keywords = [
-        Keywords\FullClassRef::class,
-        Keywords\ClassRef::class,
-        Keywords\Statement::class,
-        Keywords\RepeatingPattern::class,
+    public static $primitiveTokens = [
         Keywords\GlobalFunctionCall::class,
-        Keywords\Until::class,
-        Keywords\InBetween::class,
         Keywords\Any::class,
         Keywords\Variable::class,
         Keywords\Number::class,
@@ -24,6 +18,26 @@ class Finder
         Keywords\WhiteSpace::class,
         Keywords\Comment::class,
         Keywords\Boolean::class,
+        Keywords\Keyword::class,
+    ];
+
+    public static $keywords = [
+        Keywords\Any::class,
+        Keywords\Variable::class,
+        Keywords\Number::class,
+        Keywords\Integer::class,
+        Keywords\FloatNum::class,
+        Keywords\DocBlock::class,
+        Keywords\WhiteSpace::class,
+        Keywords\Comment::class,
+        Keywords\Boolean::class,
+        Keywords\FullClassRef::class,
+        Keywords\ClassRef::class,
+        Keywords\RepeatingPattern::class,
+        Keywords\GlobalFunctionCall::class,
+        Keywords\InBetween::class,
+        Keywords\Statement::class,
+        Keywords\Until::class,
         Keywords\Keyword::class,
     ];
 
@@ -83,35 +97,15 @@ class Finder
         $pToken = $patternTokens[$j];
 
         while ($tToken && $j !== -1) {
-            if (self::is($pToken, '<any>')) {
-                $placeholderValues[] = $tToken;
-                $startFrom--;
-            } elseif (self::is($pToken, ['<bool>', '<boolean>'])) {
-                if (self::isBooleanToken($tToken)) {
-                    $placeholderValues[] = $tToken;
-                    $startFrom--;
-                } else {
-                    $placeholderValues[] = [T_WHITESPACE, ''];
-                }
-            } else {
-                $name = trim($pToken[1], '\'\"?');
-                $map = [
-                    "<white_space>" => T_WHITESPACE,
-                    "<comment>" => T_COMMENT,
-                    "<string>" => T_CONSTANT_ENCAPSED_STRING,
-                    "<str>" => T_CONSTANT_ENCAPSED_STRING,
-                    "<variable>" => T_VARIABLE,
-                    "<var>" => T_VARIABLE,
-                    "<number>" => T_LNUMBER,
-                    "<name>" => T_STRING,
-                    "<,>" => ',',
-                ];
-
-                if ($tToken[0] === $map[$name]) {
-                    $placeholderValues[] = $tToken;
-                    $startFrom--;
-                } else {
-                    $placeholderValues[] = [T_WHITESPACE, ''];
+            foreach (self::$primitiveTokens as $class_token) {
+                if ($class_token::is($pToken)) {
+                    $pToken[1] = trim($pToken[1], '\'\"?');
+                    if ($class_token::getValue($tokens, $startFrom, $placeholderValues, $pToken) === false) {
+                        $placeholderValues[] = [T_WHITESPACE, ''];
+                    } else {
+                        $startFrom--;
+                    }
+                    break;
                 }
             }
             $j--;
@@ -283,25 +277,7 @@ class Finder
             return false;
         }
 
-        $optionals = [
-            "<any>?",
-            "<white_space>?",
-            "<comment>?",
-            "<string>?",
-            "<str>?",
-            "<variable>?",
-            "<var>?",
-            "<number>?",
-            "<num>?",
-            "<name>?",
-            "<boolean>?",
-            "<bool>?",
-            "<,>?",
-        ];
-
-        $name = trim($token[1], '\"\'');
-
-        return in_array($name, $optionals, true);
+        return Finder::endsWith($token[1], '>?"') || Finder::endsWith($token[1], ">?'");
     }
 
     public static function getPortion($start, $end, $tokens)

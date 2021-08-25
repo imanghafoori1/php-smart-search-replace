@@ -79,6 +79,38 @@ class RefactorPatternParsingTest extends BaseTestClass
     }
 
     /** @test */
+    public function match_optional_comment_2()
+    {
+        $patterns = [
+           'name' => [
+               'search' => '"<integer>?""<comment>?"]',
+                'replace' => ']',
+            ]
+        ];
+
+        $startFile = '<?php [1/**/];';
+        $resultFile = '<?php [];';
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
+        $this->assertEquals($resultFile, $newVersion);
+    }
+
+    /** @test */
+    public function match_optional_comment_4()
+    {
+        $patterns = [
+           'name' => [
+               'search' => '"<integer>?""<comment>?""<white_space>?"]',
+                'replace' => ']',
+            ]
+        ];
+
+        $startFile = '<?php [1/**/ ];';
+        $resultFile = '<?php [];';
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
+        $this->assertEquals($resultFile, $newVersion);
+    }
+
+    /** @test */
     public function capturing_place_holders()
     {
         $patterns = [

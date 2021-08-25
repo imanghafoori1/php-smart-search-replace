@@ -41,7 +41,7 @@ class BooleanTest extends BaseTestClass
 
         $this->assertEquals($resultFile, $newVersion);
 
-        $this->assertEquals([1], $replacedAt);
+        $this->assertEquals([], $replacedAt);
     }
 
     /** @test */
