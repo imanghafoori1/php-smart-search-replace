@@ -181,8 +181,7 @@ class Finder
         $mutator = null,
         $namedPatterns = [],
         $filters = [],
-        $startFrom = 1,
-        $maxDepth = 200
+        $startFrom = 1
     ) {
         $pIndex = self::firstNonOptionalPlaceholder($patternTokens);
         $optionalStartingTokens = array_slice($patternTokens, 0, $pIndex);
@@ -208,9 +207,6 @@ class Finder
                 if (! $predicate || call_user_func($predicate, $data, $tokens)) {
                     $mutator && $matchedValues = call_user_func($mutator, $matchedValues);
                     $matches[] = ['start' => $i - $optionalPatternMatchCount, 'end' => $end, 'values' => $matchedValues, 'repeatings' => $repeatings];
-                    if (count($matches) === $maxDepth) {
-                        return $matches;
-                    }
                 }
             }
 
