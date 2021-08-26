@@ -42,6 +42,7 @@ class Finder
         Keywords\GlobalFunctionCall::class,
         Keywords\InBetween::class,
         Keywords\Statement::class,
+        Keywords\Comparison::class,
         Keywords\Until::class,
     ];
 
