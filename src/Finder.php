@@ -35,6 +35,7 @@ class Finder
         Keywords\Comment::class,
         Keywords\MethodVisibility::class,
         Keywords\Boolean::class,
+        Keywords\Cast::class,
         Keywords\FullClassRef::class,
         Keywords\ClassRef::class,
         Keywords\RepeatingPattern::class,
