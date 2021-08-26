@@ -25,11 +25,7 @@ class Replacer
         $code = Stringify::fromTokens($newTokens);
         $hasAny = Finder::matchesAny($avoiding, token_get_all($code));
 
-        if ($hasAny) {
-            return [$tokens, null, $wasPostReplaced];
-        }
-
-        if ($preventSyntaxErrors && ! self::isValidPHP($code)) {
+        if ($hasAny || ($preventSyntaxErrors && ! self::isValidPHP($code))) {
             return [$tokens, null, $wasPostReplaced];
         }
 
@@ -60,13 +56,7 @@ class Replacer
             [$num, $pName] = explode(':', $r);
             $pattern = $namedPatterns[$pName];
 
-            foreach ($repeating as $repeat) {
-                $repeatsValues = [];
-                foreach ($repeat as $r) {
-                    $repeatsValues[] = self::applyOnReplacements($pattern, $r);
-                }
-                $newTokens[$index][1] = implode('', $repeatsValues);
-            }
+            $newTokens = self::applyRepeats($repeating, $pattern, $newTokens, $index);
         }
 
         return Stringify::fromTokens($newTokens);
@@ -110,6 +100,19 @@ class Replacer
         }
 
         return [$tokens, $lineNumber];
+    }
+
+    private static function applyRepeats($repeating, $pattern, $newTokens, $index)
+    {
+        foreach ($repeating as $repeat) {
+            $repeatsValues = [];
+            foreach ($repeat as $r) {
+                $repeatsValues[] = self::applyOnReplacements($pattern, $r);
+            }
+            $newTokens[$index][1] = implode('', $repeatsValues);
+        }
+
+        return $newTokens;
     }
 
 }

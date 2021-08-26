@@ -93,6 +93,7 @@ class Finder
 
     private static function compareOptionalTokens($patternTokens, $tokens, $startFrom)
     {
+        $init = $startFrom;
         $pCount = count($patternTokens);
         $j = $pCount - 1;
         $placeholderValues = [];
@@ -115,7 +116,7 @@ class Finder
             $j--;
 
             if (! isset($patternTokens[$j])) {
-                return array_reverse($placeholderValues);
+                return [array_reverse($placeholderValues), $init - $startFrom];
             }
             $pToken = $patternTokens[$j];
             $tToken = $tokens[$startFrom];
@@ -279,19 +280,13 @@ class Finder
 
     private static function optionalStartingTokens($optionalStartingTokens, $tokens, $i)
     {
-        $optionalPatternMatchCount = 0;
-        if ($optionalStartingTokens) {
-            $matched_optional_values = self::compareOptionalTokens($optionalStartingTokens, $tokens, $i - 1);
-            foreach ($matched_optional_values as $xToken1) {
-                if ($xToken1 !== [T_WHITESPACE, '']) {
-                    $optionalPatternMatchCount++;
-                }
-            }
-        } else {
-            $matched_optional_values = [];
+        if (! $optionalStartingTokens) {
+            return [0, []];
         }
 
-        return [$optionalPatternMatchCount, $matched_optional_values];
+        [$matchedValues, $optionalMatchCount] = self::compareOptionalTokens($optionalStartingTokens, $tokens, $i - 1);
+
+        return [$optionalMatchCount, $matchedValues];
     }
 
     public static function extractValue($matches, $first = '')
