@@ -62,7 +62,7 @@ class Finder
         $pToken = $pattern[$j];
 
         while ($startFrom < $tCount && $j < $pCount) {
-            if ($pToken[0] === T_CONSTANT_ENCAPSED_STRING) {
+            if ($pToken[0] === T_CONSTANT_ENCAPSED_STRING && $pToken[1][1] === '<') {
                 foreach (self::$keywords as $class_token) {
                     if ($class_token::is($pToken, $namedPatterns)) {
                         if ($class_token::getValue($tokens, $startFrom, $placeholderValues, $pToken, $pattern, $pi, $j, $namedPatterns, $repeating) === false) {
