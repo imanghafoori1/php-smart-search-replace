@@ -7,19 +7,10 @@ use Imanghafoori\SearchReplace\Finder;
 
 class RepeatingPattern
 {
-    public static function is($pToken)
-    {
-        return $pToken[0] === T_CONSTANT_ENCAPSED_STRING && Finder::startsWith(trim($pToken[1], '\'\"'), '<repeating:');
-    }
-
     public static function getValue(
         $tokens,
         &$startFrom,
-        &$placeholderValues,
         $pToken,
-        $pattern,
-        $pi,
-        $j,
         $namedPatterns,
         &$repeating
     ) {

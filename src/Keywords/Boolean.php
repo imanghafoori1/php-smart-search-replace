@@ -6,9 +6,9 @@ use Imanghafoori\SearchReplace\Finder;
 
 class Boolean
 {
-    public static function is($pToken)
+    public static function is($string)
     {
-        return Finder::is($pToken, ['<bool>', '<boolean>']);
+        return in_array($string, ['<bool>', '<boolean>'], true);
     }
 
     public static function getValue($tokens, &$startFrom, &$placeholderValues)

@@ -2,14 +2,13 @@
 
 namespace Imanghafoori\SearchReplace\Keywords;
 
-use Imanghafoori\SearchReplace\Finder;
 use Imanghafoori\SearchReplace\Stringify;
 
 class Until
 {
-    public static function is($pToken)
+    public static function is($string)
     {
-        return Finder::is($pToken, '<until>');
+        return $string === '<until>';
     }
 
     public static function getValue(

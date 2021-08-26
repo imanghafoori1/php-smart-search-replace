@@ -6,9 +6,9 @@ use Imanghafoori\SearchReplace\Finder;
 
 class WhiteSpace
 {
-    public static function is($pToken)
+    public static function is($string)
     {
-        return Finder::is($pToken, '<white_space>');
+        return $string === '<white_space>';
     }
 
     public static function getValue($tokens, &$startFrom, &$placeholderValues, $pToken)

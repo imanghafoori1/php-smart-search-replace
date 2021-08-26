@@ -6,9 +6,9 @@ use Imanghafoori\SearchReplace\Finder;
 
 class Number
 {
-    public static function is($pToken)
+    public static function is($string)
     {
-        return Finder::is($pToken, ['<num>', '<number>']);
+        return in_array($string, ['<num>', '<number>'], true);
     }
 
     public static function getValue($tokens, $startFrom, &$placeholderValues)

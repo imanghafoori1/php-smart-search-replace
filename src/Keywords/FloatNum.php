@@ -2,13 +2,11 @@
 
 namespace Imanghafoori\SearchReplace\Keywords;
 
-use Imanghafoori\SearchReplace\Finder;
-
 class FloatNum
 {
-    public static function is($pToken)
+    public static function is($string)
     {
-        return Finder::is($pToken, ['<float>', '<float_num>']);
+        return in_array($string, ['<float>', '<float_num>'], true);
     }
 
     public static function getValue($tokens, $startFrom, &$placeholderValues)

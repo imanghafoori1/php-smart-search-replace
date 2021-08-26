@@ -3,14 +3,13 @@
 namespace Imanghafoori\SearchReplace\Keywords;
 
 use Exception;
-use Imanghafoori\SearchReplace\Finder;
 use Imanghafoori\SearchReplace\Stringify;
 
 class InBetween
 {
-    public static function is($pToken)
+    public static function is($string)
     {
-        return Finder::is($pToken, '<in_between>');
+        return $string === '<in_between>';
     }
 
     public static function getValue(

@@ -3,13 +3,12 @@
 namespace Imanghafoori\SearchReplace\Keywords;
 
 use Imanghafoori\SearchReplace\Stringify;
-use Imanghafoori\SearchReplace\Finder;
 
 class Statement
 {
-    public static function is($pToken)
+    public static function is($string)
     {
-        return Finder::is($pToken, '<statement>');
+        return $string === '<statement>';
     }
 
     public static function getValue($tokens, &$startFrom, &$placeholderValues)

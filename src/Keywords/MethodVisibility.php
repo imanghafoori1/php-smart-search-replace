@@ -2,13 +2,11 @@
 
 namespace Imanghafoori\SearchReplace\Keywords;
 
-use Imanghafoori\SearchReplace\Finder;
-
 class MethodVisibility
 {
-    public static function is($pToken)
+    public static function is($string)
     {
-        return Finder::is($pToken, ['<visibility>', '<vis>']);
+        return in_array($string, ['<visibility>', '<vis>'], true);
     }
 
     public static function getValue($tokens, $startFrom, &$placeholderValues)

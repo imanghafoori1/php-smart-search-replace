@@ -7,9 +7,9 @@ use Imanghafoori\SearchReplace\Finder;
 
 class FullClassRef
 {
-    public static function is($pToken)
+    public static function is($string)
     {
-        return Finder::is($pToken, '<full_class_ref>');
+        return $string === '<full_class_ref>';
     }
 
     public static function getValue($tokens, &$startFrom, &$placeholderValues)

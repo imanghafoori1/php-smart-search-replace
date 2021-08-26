@@ -7,9 +7,9 @@ use Imanghafoori\SearchReplace\PatternParser;
 
 class ClassRef
 {
-    public static function is($pToken)
+    public static function is($string)
     {
-        return Finder::is($pToken, '<class_ref>');
+        return $string === '<class_ref>';
     }
 
     public static function getValue($tokens, &$startFrom, &$placeholderValues)

@@ -8,9 +8,9 @@ use Imanghafoori\TokenAnalyzer\Str;
 
 class GlobalFunctionCall
 {
-    public static function is($pToken)
+    public static function is($string)
     {
-        return $pToken[0] === T_CONSTANT_ENCAPSED_STRING && Finder::startsWith(trim($pToken[1], '\'\"'), '<global_func_call:');
+        return Finder::startsWith($string, '<global_func_call:');
     }
 
     public static function getValue($tokens, &$startFrom, &$placeholderValues, $pToken)

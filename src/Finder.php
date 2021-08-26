@@ -38,7 +38,6 @@ class Finder
         Keywords\Cast::class,
         Keywords\FullClassRef::class,
         Keywords\ClassRef::class,
-        Keywords\RepeatingPattern::class,
         Keywords\GlobalFunctionCall::class,
         Keywords\InBetween::class,
         Keywords\Statement::class,
@@ -63,12 +62,19 @@ class Finder
 
         while ($startFrom < $tCount && $j < $pCount) {
             if ($pToken[0] === T_CONSTANT_ENCAPSED_STRING && $pToken[1][1] === '<') {
-                foreach (self::$keywords as $class_token) {
-                    if ($class_token::is($pToken, $namedPatterns)) {
-                        if ($class_token::getValue($tokens, $startFrom, $placeholderValues, $pToken, $pattern, $pi, $j, $namedPatterns, $repeating) === false) {
-                            return false;
-                        } else {
-                            break;
+                $trimmed = trim($pToken[1], '\'\"?');
+                if (Finder::startsWith($trimmed, '<repeating:')) {
+                    if (false === Keywords\RepeatingPattern::getValue($tokens, $startFrom, $pToken, $namedPatterns, $repeating)) {
+                        return false;
+                    }
+                } else {
+                    foreach (self::$keywords as $class_token) {
+                        if ($class_token::is($trimmed)) {
+                            if ($class_token::getValue($tokens, $startFrom, $placeholderValues, $pToken, $pattern, $pi, $j) === false) {
+                                return false;
+                            } else {
+                                break;
+                            }
                         }
                     }
                 }
@@ -103,8 +109,9 @@ class Finder
 
         while ($tToken && $j !== -1) {
             foreach (self::$primitiveTokens as $class_token) {
-                if ($class_token::is($pToken)) {
-                    $pToken[1] = trim($pToken[1], '\'\"?');
+                $trimmed = trim($pToken[1], '\'\"?');
+                if ($class_token::is($trimmed)) {
+                    $pToken[1] = $trimmed;
                     if ($class_token::getValue($tokens, $startFrom, $placeholderValues, $pToken) === false) {
                         $placeholderValues[] = [T_WHITESPACE, ''];
                     } else {

@@ -6,9 +6,9 @@ use Imanghafoori\SearchReplace\Finder;
 
 class Any
 {
-    public static function is($pToken)
+    public static function is($string)
     {
-        return Finder::is($pToken, '<any>');
+        return $string === '<any>';
     }
 
     public static function getValue($tokens, $startFrom, &$placeholderValues)

@@ -6,9 +6,9 @@ use Imanghafoori\SearchReplace\Finder;
 
 class Comment
 {
-    public static function is($pToken)
+    public static function is($string)
     {
-        return Finder::is($pToken, '<comment>');
+        return $string === '<comment>';
     }
 
     public static function getValue($tokens, &$startFrom, &$placeholderValues, $pToken) {

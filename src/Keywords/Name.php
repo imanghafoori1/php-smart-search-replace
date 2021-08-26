@@ -2,13 +2,11 @@
 
 namespace Imanghafoori\SearchReplace\Keywords;
 
-use Imanghafoori\SearchReplace\Finder;
-
 class Name
 {
-    public static function is($pToken)
+    public static function is($string)
     {
-        return Finder::is($pToken, ['<name>']);
+        return $string === '<name>';
     }
 
     public static function getValue($tokens, $startFrom, &$placeholderValues)
