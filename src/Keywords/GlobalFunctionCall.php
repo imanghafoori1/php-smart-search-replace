@@ -4,7 +4,6 @@ namespace Imanghafoori\SearchReplace\Keywords;
 
 use Imanghafoori\SearchReplace\Finder;
 use Imanghafoori\SearchReplace\PatternParser;
-use Imanghafoori\TokenAnalyzer\Str;
 
 class GlobalFunctionCall
 {
@@ -45,13 +44,6 @@ class GlobalFunctionCall
         }
 
         return [T_STRING, implode('\\', $segments), $match[2]];
-    }
-
-    private static function getParams($pToken)
-    {
-        $pName = trim($pToken[1], '\'\"');
-
-        return rtrim(Str::replaceFirst('<global_func_call:', '', $pName), '>');
     }
 
     private static function getPrevToken($tokens, $i)

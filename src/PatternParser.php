@@ -6,11 +6,11 @@ use Imanghafoori\TokenAnalyzer\Str;
 
 class PatternParser
 {
-    private static function getParams($pToken)
+    private static function getParams($pToken, $id)
     {
         $pName = trim($pToken[1], '\'\"');
 
-        return rtrim(Str::replaceFirst('<global_func_call:', '', $pName), '>');
+        return rtrim(Str::replaceFirst("<$id:", '', $pName), '>');
     }
 
     public static function parsePatterns($patterns)
@@ -24,34 +24,12 @@ class PatternParser
             'post_replace' => [],
         ];
 
-        $addedFilters = [];
         $analyzedPatterns = [];
         foreach ($patterns as $to) {
-            $tokens = self::tokenize($to['search']);
-            $count = 0;
-            foreach ($tokens as $i => $pToken) {
-                if ($pToken[0] !== T_CONSTANT_ENCAPSED_STRING) {
-                    continue;
-                }
-
-                if ($pToken[1][1] === '<' && '>' === $pToken[1][strlen($pToken[1]) - 2]) {
-                    $count++;
-                } else {
-                    continue;
-                }
-                if (Finder::startsWith(trim($pToken[1], '\'\"'), '<global_func_call:')) {
-                    $tokens[$i][1] = "'<global_func_call>'";
-                    $addedFilters[] = [$count, self::getParams($pToken)];
-                }
-            }
+            self::extracted($to['search'], $addedFilters, $tokens);
             $tokens = ['search' => $tokens] + $to + $defaults;
             foreach ($addedFilters as $addedFilter) {
-                $values = $u = explode(',', $addedFilter[1]);
-                foreach ($u as $val) {
-                    $values[] = '\\'.$val;
-                }
-
-                $tokens['filters'][$addedFilter[0]]['in_array'] = $values;
+                $tokens['filters'][$addedFilter[0]]['in_array'] = $addedFilter[1];
             }
             $analyzedPatterns[] = $tokens;
         }
@@ -97,5 +75,54 @@ class PatternParser
         }
 
         return Finder::endsWith($token[1], '>?"') || Finder::endsWith($token[1], ">?'");
+    }
+
+    private static function extracted($search, &$addedFilters, &$tokens): void
+    {
+        $addedFilters = [];
+        $tokens = self::tokenize($search);
+        $count = 0;
+        foreach ($tokens as $i => $pToken) {
+            if ($pToken[0] !== T_CONSTANT_ENCAPSED_STRING) {
+                continue;
+            }
+
+            // If is placeholder "<like_this>"
+            if ($pToken[1][1] === '<' && '>' === $pToken[1][strlen($pToken[1]) - 2]) {
+                $count++;
+            } else {
+                continue;
+            }
+
+            $ids = self::getPlaceholderIds();
+            foreach ($ids as [$id, $mutator]) {
+                if (Finder::startsWith(trim($pToken[1], '\'\"'), "<$id:")) {
+                    $tokens[$i][1] = "'<$id>'";
+                    $readParams = self::getParams($pToken, $id);
+                    $mutator && $readParams = $mutator($readParams);
+                    $addedFilters[] = [$count, $readParams];
+                }
+            }
+        }
+    }
+
+    private static function getPlaceholderIds(): array
+    {
+        $ids = [
+            [
+                'global_func_call',
+                function ($values) {
+                    $values = $u = explode(',', $values);
+                    foreach ($u as $val) {
+                        $values[] = '\\'.$val;
+                    }
+
+                    return $values;
+                },
+            ],
+            ['name', null],
+        ];
+
+        return $ids;
     }
 }

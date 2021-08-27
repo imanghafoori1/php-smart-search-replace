@@ -28,6 +28,7 @@ class FiltersPredicateTest extends BaseTestClass
         [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
 
         $this->assertEquals($resultFile, $newVersion);
+        $this->assertEquals([1, 1], $replacedAt);
 
         ////////////////////////////////////////////
 
@@ -46,6 +47,26 @@ class FiltersPredicateTest extends BaseTestClass
         [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
 
         $this->assertEquals($resultFile, $newVersion);
+        $this->assertEquals([1, 1], $replacedAt);
+    }
+
+    /** @test */
+    public function filters1()
+    {
+        $startFile = '<?php h::h();g::h();k::h();';
+        $resultFile = '<?php k::h();';
+
+        $patterns = [
+            'name' => [
+                'search' => '"<name:h,g>"::h();',
+                'replace' => "",
+            ],
+        ];
+
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
+
+        $this->assertEquals($resultFile, $newVersion);
+        $this->assertEquals([1, 1], $replacedAt);
     }
 
     /** @test */
