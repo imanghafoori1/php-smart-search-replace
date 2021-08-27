@@ -31,6 +31,8 @@ class GlobalFunctionCall
             $placeholderValues[] = $strValue;
         } elseif ($tToken[0] === T_STRING) {
             $placeholderValues[] = $tToken;
+        } elseif (defined('T_NAME_QUALIFIED') && $tToken[0] === T_NAME_FULLY_QUALIFIED) {
+            $placeholderValues[] = [T_STRING, $tToken[1], $tToken[2]];
         } else {
             return false;
         }

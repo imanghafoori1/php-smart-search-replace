@@ -35,10 +35,9 @@ class CommentPlaceholderTest extends BaseTestClass
         $startFile = '<?php [/** h */];
 # s
 // selectRaw';
-        $resultFile = '<?php [/** h */];
-';
+        $resultFile = '<?php [/** h */];';
         [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
-        $this->assertEquals($resultFile, $newVersion);
+        $this->assertEquals($resultFile, trim($newVersion));
     }
 
     /** @test */

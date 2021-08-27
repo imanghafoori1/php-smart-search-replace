@@ -35,6 +35,8 @@ class ClassRef
                 $startFrom = $matches[0];
                 $placeholderValues[] = Finder::extractValue($matches[2][0], $matches[1][0][1]);
             }
+        } elseif (defined('T_NAME_QUALIFIED') && ($tToken[0] === T_NAME_QUALIFIED || $tToken[0] === T_NAME_FULLY_QUALIFIED)) {
+            $placeholderValues[] = [T_STRING, $tToken[1], $tToken[2]];
         } else {
             return false;
         }
