@@ -49,8 +49,7 @@ class Replacer
         array_shift($newTokens);
 
         foreach ($newTokens as $index => $t) {
-            $r = Finder::isRepeatingPattern($t);
-            if (! $r) {
+            if (! ($r = Finder::isRepeatingPattern($t))) {
                 continue;
             }
             [$num, $pName] = explode(':', $r);

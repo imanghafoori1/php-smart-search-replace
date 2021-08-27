@@ -30,14 +30,10 @@ class PatternParser
             $tokens = self::tokenize($to['search']);
             $count = 0;
             foreach ($tokens as $i => $pToken) {
-                if ($pToken[0] !== T_CONSTANT_ENCAPSED_STRING) {
+                if ($pToken[0] !== T_CONSTANT_ENCAPSED_STRING || $pToken[1][1] !== '<' || '>' !== $pToken[1][strlen($pToken[1]) - 2]) {
                     continue;
-                }
-
-                if ($pToken[1][1] === '<' && '>' === $pToken[1][strlen($pToken[1]) - 2]) {
-                    $count++;
                 } else {
-                    continue;
+                    $count++;
                 }
                 if (Finder::startsWith(trim($pToken[1], '\'\"'), '<global_func_call:')) {
                     $tokens[$i][1] = "'<global_func_call>'";

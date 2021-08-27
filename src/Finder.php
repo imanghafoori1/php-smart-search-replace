@@ -218,11 +218,9 @@ class Finder
             [$end, $matchedValues, $repeatings] = $isMatch;
             $matchedValues = array_merge($matched_optional_values, $matchedValues);
             $data = ['start' => $i - $pIndex, 'end' => $end, 'values' => $matchedValues, 'repeatings' => $repeatings];
-            if (Filters::apply($filters, $data, $tokens)) {
-                if (! $predicate || call_user_func($predicate, $data, $tokens)) {
-                    $mutator && $matchedValues = call_user_func($mutator, $matchedValues);
-                    $matches[] = ['start' => $i - $optionalPatternMatchCount, 'end' => $end, 'values' => $matchedValues, 'repeatings' => $repeatings];
-                }
+            if (Filters::apply($filters, $data, $tokens) && (! $predicate || call_user_func($predicate, $data, $tokens))) {
+                $mutator && $matchedValues = call_user_func($mutator, $matchedValues);
+                $matches[] = ['start' => $i - $optionalPatternMatchCount, 'end' => $end, 'values' => $matchedValues, 'repeatings' => $repeatings];
             }
 
             $end > $i && $i = $end - 1; // fast-forward
@@ -238,22 +236,26 @@ class Finder
             return $tToken;
         }
 
-        if (self::isOptional($token)) {
-            $i--;
-
-            return [T_WHITESPACE, ''];
+        if (! self::isOptional($token)) {
+            return;
         }
+
+        $i--;
+
+        return [T_WHITESPACE, '',];
     }
 
     private static function forwardToNextToken($pToken, $tokens, $startFrom)
     {
         if (isset($pToken[1]) && self::is($pToken, '<white_space>')) {
             return self::getNextToken($tokens, $startFrom, T_WHITESPACE);
-        } elseif (isset($pToken[1]) && self::is($pToken, '<comment>')) {
-            return self::getNextToken($tokens, $startFrom, T_COMMENT);
-        } else {
-            return self::getNextToken($tokens, $startFrom);
         }
+
+        if (isset($pToken[1]) && self::is($pToken, '<comment>')) {
+            return self::getNextToken($tokens, $startFrom, T_COMMENT);
+        }
+
+        return self::getNextToken($tokens, $startFrom);
     }
 
     public static function matchesAny($avoidResultIn, $newTokens)

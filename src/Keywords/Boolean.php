@@ -13,11 +13,10 @@ class Boolean
 
     public static function getValue($tokens, &$startFrom, &$placeholderValues)
     {
-        if (self::isBoolean($tokens, $startFrom)) {
-            $placeholderValues[] = $tokens[$startFrom];
-        } else {
+        if (! self::isBoolean($tokens, $startFrom)) {
             return false;
         }
+        $placeholderValues[] = $tokens[$startFrom];
     }
 
     public static function isBoolean($tokens, $startFrom)
