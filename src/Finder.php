@@ -64,24 +64,14 @@ class Finder
             if ($pToken[0] === T_CONSTANT_ENCAPSED_STRING && $pToken[1][1] === '<') {
                 $trimmed = trim($pToken[1], '\'\"?');
                 if (Finder::startsWith($trimmed, '<repeating:')) {
-                    if (false === Keywords\RepeatingPattern::getValue($tokens, $startFrom, $pToken, $namedPatterns, $repeating)) {
+                    if (false === Keywords\RepeatingPattern::getValue($startFrom, $repeating, $tokens, $pToken, $namedPatterns)) {
                         return false;
                     }
-                } else {
-                    foreach (self::$keywords as $class_token) {
-                        if ($class_token::is($trimmed)) {
-                            if ($class_token::getValue($tokens, $startFrom, $placeholderValues, $pToken, $pattern, $pi, $j) === false) {
-                                return false;
-                            } else {
-                                break;
-                            }
-                        }
-                    }
-                }
-            } else {
-                if (! Finder::areTheSame($pToken, $tokens[$startFrom])) {
+                } elseif (false === self::checkKeywords($startFrom, $placeholderValues, $trimmed, $tokens, $pToken, $pattern, $pi, $j)) {
                     return false;
                 }
+            } elseif (! Finder::areTheSame($pToken, $tokens[$startFrom])) {
+                return false;
             }
 
             [$pToken, $j] = self::getNextToken($pattern, $j);
@@ -305,5 +295,18 @@ class Finder
         }
 
         return [T_STRING, implode('\\', $segments), $match[0][2]];
+    }
+
+    private static function checkKeywords(&$startFrom, &$placeholderValues, $trimmed, $tokens, $pToken, $pattern, $pi, $j)
+    {
+        foreach (self::$keywords as $class_token) {
+            if ($class_token::is($trimmed)) {
+                if ($class_token::getValue($tokens, $startFrom, $placeholderValues, $pToken, $pattern, $pi, $j) === false) {
+                    return false;
+                } else {
+                    break;
+                }
+            }
+        }
     }
 }

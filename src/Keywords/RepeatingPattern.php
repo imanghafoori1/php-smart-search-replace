@@ -8,11 +8,11 @@ use Imanghafoori\SearchReplace\Finder;
 class RepeatingPattern
 {
     public static function getValue(
-        $tokens,
         &$startFrom,
+        &$repeating,
+        $tokens,
         $pToken,
-        $namedPatterns,
-        &$repeating
+        $namedPatterns
     ) {
         $analyzedPattern = PatternParser::tokenize($namedPatterns[Finder::isRepeatingPattern($pToken)]);
         if (! Finder::compareTokens($analyzedPattern, $tokens, $startFrom)) {
