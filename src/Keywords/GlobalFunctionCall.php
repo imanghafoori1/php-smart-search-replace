@@ -10,17 +10,16 @@ class GlobalFunctionCall
 {
     public static function is($string)
     {
-        return Finder::startsWith($string, '<global_func_call:');
+        return $string === '<global_func_call>';
     }
 
-    public static function getValue($tokens, &$startFrom, &$placeholderValues, $pToken)
+    public static function getValue($tokens, &$startFrom, &$placeholderValues)
     {
         if (! self::mustStart($tokens, $startFrom)) {
             return false;
         }
 
         $tToken = $tokens[$startFrom] ?? '_';
-        $patternNames = explode(',', self::getParams($pToken));
 
         if ($tToken[0] === T_NS_SEPARATOR) {
             $matches = Finder::compareTokens(PatternParser::tokenize('\\"<name>"'), $tokens, $startFrom);
@@ -29,19 +28,9 @@ class GlobalFunctionCall
             }
 
             $strValue = self::concatinate($matches[1]);
-
-            foreach ($patternNames as $patternName23) {
-                if ($strValue[1] === $patternName23 || $strValue[1] === '\\'.$patternName23) {
-                    $startFrom = $matches[0];
-                    $placeholderValues[] = $strValue;
-                    break;
-                }
-            }
+            $startFrom = $matches[0];
+            $placeholderValues[] = $strValue;
         } elseif ($tToken[0] === T_STRING) {
-            if (! in_array($tToken[1], $patternNames)) {
-                return false;
-            }
-
             $placeholderValues[] = $tToken;
         } else {
             return false;
