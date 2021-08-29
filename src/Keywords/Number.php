@@ -2,8 +2,6 @@
 
 namespace Imanghafoori\SearchReplace\Keywords;
 
-use Imanghafoori\SearchReplace\Finder;
-
 class Number
 {
     public static function is($string)

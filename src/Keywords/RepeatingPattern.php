@@ -2,8 +2,8 @@
 
 namespace Imanghafoori\SearchReplace\Keywords;
 
-use Imanghafoori\SearchReplace\PatternParser;
 use Imanghafoori\SearchReplace\Finder;
+use Imanghafoori\SearchReplace\PatternParser;
 
 class RepeatingPattern
 {

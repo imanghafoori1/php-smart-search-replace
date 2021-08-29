@@ -2,8 +2,6 @@
 
 namespace Imanghafoori\SearchReplace\Keywords;
 
-use Imanghafoori\SearchReplace\Finder;
-
 class Any
 {
     public static function is($string)
