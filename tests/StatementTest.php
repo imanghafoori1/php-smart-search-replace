@@ -15,39 +15,9 @@ class StatementTest extends BaseTestClass
                 'replace' => '"<1>"'
             ],
         ];
-        ////////////////////////////////////
 
         $startCode = '<?php $user = function () { $a = 1; $b = "end"; };';
         $resultCode = '<?php function () { $a = 1; $b = "end"; };';
-
-        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startCode));
-
-        $this->assertEquals($resultCode, $newVersion);
-        $this->assertEquals([1], $replacedAt);
-
-        ////////////////////////////////////
-        $patterns = [
-            'name' => [
-                'search' => '"<statement>"' ,
-                'replace' => ''
-            ],
-        ];
-
-        $startCode = '<?php $user = where(function () { $a = 1; $a; });';
-        $resultCode = '<?php ';
-
-        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startCode));
-
-        $this->assertEquals($resultCode, $newVersion);
-        ////////////////////////////////////
-        $patterns = [
-            'name' => [
-                'search' => '"<statement>""<statement>"' ,
-                'replace' => ''
-            ],
-        ];
-        $startCode = '<?php $user = where(function () { $a = 1; $a; }); $a = 1;';
-        $resultCode = '<?php ';
 
         [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startCode));
 
@@ -60,12 +30,66 @@ class StatementTest extends BaseTestClass
     {
         $patterns = [
             'name' => [
-                'search' => '"<statement>"$a = 1;' ,
+                'search' => '"<statement>";$a = 1;' ,
                 'replace' => '"<1>"'
             ],
         ];
         $startCode = '<?php $user = where(function () { $a = 1; $a; }); $a = 1;';
-        $resultCode = '<?php $user = where(function () { $a = 1; $a; });';
+        $resultCode = '<?php $user = where(function () { $a = 1; $a; })';
+
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startCode));
+
+        $this->assertEquals($resultCode, $newVersion);
+        $this->assertEquals([1], $replacedAt);
+    }
+
+    /** @test */
+    public function statement_3()
+    {
+        $patterns = [
+            'name' => [
+                'search' => '["a" => "a", "b" => "<statement>" ];' ,
+                'replace' => '"<1>"'
+            ],
+        ];
+        $startCode = '<?php ["a" => "a", "b" => User::where(function() { "a"; })->get() ];';
+        $resultCode = '<?php User::where(function() { "a"; })->get() ';
+
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startCode));
+
+        $this->assertEquals($resultCode, $newVersion);
+        $this->assertEquals([1], $replacedAt);
+    }
+
+    /** @test */
+    public function statement_4()
+    {
+        $patterns = [
+            'name' => [
+                'search' => '"<statement>";' ,
+                'replace' => ''
+            ],
+        ];
+
+        $startCode = '<?php $user = where(function () { $a = 1; $a; });';
+        $resultCode = '<?php ';
+
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startCode));
+
+        $this->assertEquals($resultCode, $newVersion);
+    }
+
+    /** @test */
+    public function statement_5()
+    {
+        $patterns = [
+            'name' => [
+                'search' => '$user = "<statement>";"<statement>";' ,
+                'replace' => '"<1>""<2>"'
+            ],
+        ];
+        $startCode = '<?php $user = where(function () { $a = 1; $a; }); $a = 1;';
+        $resultCode = '<?php where(function () { $a = 1; $a; })$a = 1';
 
         [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startCode));
 

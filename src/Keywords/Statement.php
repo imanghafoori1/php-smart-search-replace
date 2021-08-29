@@ -24,14 +24,17 @@ class Statement
         $line = 1;
 
         for ($k = $i; true; $k++) {
-            $nextToken = $tokens[$k] ?? '_';
-            $collected[] = $nextToken;
+            if (! isset($tokens[$k])){
+                return ['', $k];
+            }
+            $nextToken = $tokens[$k];
 
-            if ($nextToken === ';' && $level === 0) {
+            if (in_array($nextToken, [';', ',', ']'], true) && $level === 0) {
                 $value = [T_STRING, Stringify::fromTokens($collected), $line];
 
-                return [$value, $k];
+                return [$value, $k - 1];
             }
+            $collected[] = $nextToken;
 
             if (in_array($nextToken[0], ['[', '(', '{', T_CURLY_OPEN], true)) {
                 $level++;
