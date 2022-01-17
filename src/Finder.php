@@ -145,7 +145,8 @@ class Finder
 
     public static function isOptional($token)
     {
-        return self::endsWith(trim($token, '\'\"'), '?');
+
+        return self::endsWith(trim(is_string($token) ? $token : $token[1], '\'\"'), '?');
     }
 
     public static function endsWith($haystack, $needle)
