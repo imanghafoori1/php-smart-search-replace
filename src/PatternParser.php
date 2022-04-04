@@ -25,8 +25,48 @@ class PatternParser
         ];
 
         $analyzedPatterns = [];
+        $names = implode(',', [
+            'white_space',
+            'string',
+            'str',
+            'variable',
+            'var',
+            'statement',
+            'in_between',
+            'any',
+            'cast',
+            'number',
+            'int',
+            'integer',
+            'doc_block',
+            'name',
+            'visibility',
+            'float',
+            'comment',
+            'until',
+            'full_class_ref',
+            'class_ref',
+            'bool',
+            'boolean',
+        ]);
+        $prePattern = '<"<name:'.$names.'>">';
+        $prePattern2 = '<"<name:'.$names.'>"?>';
+
         foreach ($patterns as $to) {
-            self::extracted($to['search'], $addedFilters, $tokens);
+            $search = $to['search'];
+            if ($search !== $prePattern && $search !== $prePattern2) {
+                [$tokens,] = Searcher::search(
+                      [
+                          ['search' => $prePattern, 'replace' => '"<"<1>">"',],
+                          ['search' => $prePattern2, 'replace' => '"<"<1>"?>"',],
+
+                      ]
+                    , token_get_all('<?php '.$search));
+                unset($tokens[0]);
+                $search = Stringify::fromTokens($tokens);
+            }
+            #---# Searcher::search($patterns, $tokens); #---#
+            self::extracted($search, $addedFilters, $tokens);
             $tokens = ['search' => $tokens] + $to + $defaults;
             foreach ($addedFilters as $addedFilter) {
                 $tokens['filters'][$addedFilter[0]]['in_array'] = $addedFilter[1];
