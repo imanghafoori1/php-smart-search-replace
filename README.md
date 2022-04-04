@@ -1,5 +1,5 @@
 # Php Smart Search/replace Functionality
-[![tests](https://github.com/imanghafoori1/php-smart-search-replace/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/imanghafoori1/php-smart-search-replace/actions/workflows/tests.yml)
+[![tests](https://github.com/imanghafoori1/php-smart-search-replace/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/imanghafoori1/php-smart-search-replace/actions/workflows/tests.yml)
 ## It is much easier than using regex.
 
 ### Installation:
