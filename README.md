@@ -1,7 +1,7 @@
 ![example workflow](https://github.com/imanghafoori1A/php-smart-search-replace/actions/workflows/<WORKFLOW_FILE>/badge.svg)
 
 # Php Smart Search/replace Functionality
-[![GitHub Tests Action Status](https://img.shields.io/github/workflow/status/imanghafoori1/php-smart-search-replace/run-tests?label=tests)](https://github.com/imanghafoori1/php-smart-search-replace/actions?query=workflow%3Arun-tests+branch%3Amain)
+[![tests](https://github.com/imanghafoori1/php-smart-search-replace/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/imanghafoori1/php-smart-search-replace/actions/workflows/tests.yml)
 ## It is much easier than using regex.
 
 ### Installation:
