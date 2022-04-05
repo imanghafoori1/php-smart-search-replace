@@ -53,20 +53,8 @@ class PatternParser
         $prePattern2 = '<"<name:'.$names.'>"?>';
 
         foreach ($patterns as $to) {
-            $search = $to['search'];
-            if ($search !== $prePattern && $search !== $prePattern2) {
-                [$tokens,] = Searcher::search(
-                      [
-                          ['search' => $prePattern, 'replace' => '"<"<1>">"',],
-                          ['search' => $prePattern2, 'replace' => '"<"<1>"?>"',],
-
-                      ]
-                    , token_get_all('<?php '.$search));
-                unset($tokens[0]);
-                $search = Stringify::fromTokens($tokens);
-            }
-            #---# Searcher::search($patterns, $tokens); #---#
-            self::extracted($search, $addedFilters, $tokens);
+            $search = self::stringifyKeywords($to['search'], $prePattern, $prePattern2);
+            [$tokens, $addedFilters] = self::extracted($search);
             $tokens = ['search' => $tokens] + $to + $defaults;
             foreach ($addedFilters as $addedFilter) {
                 $tokens['filters'][$addedFilter[0]]['in_array'] = $addedFilter[1];
@@ -117,7 +105,7 @@ class PatternParser
         return Finder::endsWith($token[1], '>?"') || Finder::endsWith($token[1], ">?'");
     }
 
-    private static function extracted($search, &$addedFilters, &$tokens): void
+    private static function extracted($search)
     {
         $addedFilters = [];
         $tokens = self::tokenize($search);
@@ -144,6 +132,8 @@ class PatternParser
                 }
             }
         }
+
+        return [$tokens, $addedFilters];
     }
 
     private static function getPlaceholderIds(): array
@@ -164,5 +154,22 @@ class PatternParser
         ];
 
         return $ids;
+    }
+
+    private static function stringifyKeywords($search, $prePattern, $prePattern2)
+    {
+        if ($search !== $prePattern && $search !== $prePattern2) {
+            [$tokens,] = Searcher::search(
+                  [
+                      ['search' => $prePattern, 'replace' => '"<"<1>">"',],
+                      ['search' => $prePattern2, 'replace' => '"<"<1>"?>"',],
+
+                  ]
+                , token_get_all('<?php '.$search));
+            unset($tokens[0]);
+            $search = Stringify::fromTokens($tokens);
+        }
+
+        return $search;
     }
 }
