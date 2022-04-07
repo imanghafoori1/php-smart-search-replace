@@ -67,4 +67,9 @@ class Searcher
 
         return [$tokens, $replacementLines];
     }*/
+
+    public static function searchParsed($patterns, $tokens)
+    {
+        return self::searchReplaceMultiplePatterns(PatternParser::parsePatterns($patterns,false), $tokens);
+    }
 }

@@ -31,7 +31,7 @@ class StatementTest extends BaseTestClass
         $patterns = [
             'name' => [
                 'search' => '"<statement>";$a = 1;' ,
-                'replace' => '"<1>"'
+                'replace' => '<1>'
             ],
         ];
         $startCode = '<?php $user = where(function () { $a = 1; $a; }); $a = 1;';
@@ -86,6 +86,24 @@ class StatementTest extends BaseTestClass
             'name' => [
                 'search' => '$user = "<statement>";"<statement>";' ,
                 'replace' => '"<1>""<2>"'
+            ],
+        ];
+        $startCode = '<?php $user = where(function () { $a = 1; $a; }); $a = 1;';
+        $resultCode = '<?php where(function () { $a = 1; $a; })$a = 1';
+
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startCode));
+
+        $this->assertEquals($resultCode, $newVersion);
+        $this->assertEquals([1], $replacedAt);
+    }
+
+    /** @test */
+    public function statement_6()
+    {
+        $patterns = [
+            'name' => [
+                'search' => '$user = <statement>;<statement>;' ,
+                'replace' => '<1><2>'
             ],
         ];
         $startCode = '<?php $user = where(function () { $a = 1; $a; }); $a = 1;';

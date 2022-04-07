@@ -4,8 +4,24 @@ namespace Imanghafoori\SearchReplace\Tests;
 
 use Imanghafoori\SearchReplace\Searcher;
 
-class BeginWithOptionalPlaceHolder extends BaseTestClass
+class BeginWithOptionalPlaceHolderTest extends BaseTestClass
 {
+    /** @test */
+    public function match_optional_comment_4()
+    {
+        $patterns = [
+            'name' => [
+                'search' => '<integer>?"<comment>?""<white_space>?"]',
+                'replace' => ']',
+            ]
+        ];
+
+        $startFile = '<?php [1/**/ ];';
+        $resultFile = '<?php [];';
+        [$newVersion, $replacedAt] = Searcher::searchReplace($patterns, token_get_all($startFile));
+        $this->assertEquals($resultFile, $newVersion);
+    }
+
     /** @test */
     public function begins_with_optional_white_space()
     {
