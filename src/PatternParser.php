@@ -25,24 +25,13 @@ class PatternParser
         ];
 
         $analyzedPatterns = [];
-        [$prePattern, $prePattern2] = self::getSearchPatterns();
-        $all = [
-            // the order of the patterns matter.
-            ['search' => $prePattern2, 'replace' => '"<"<1>">?"',],
-            ['search' => $prePattern, 'replace' => '"<"<1>">"',],
-        ];
+
+        $all = self::getSearchPatterns();
 
         foreach ($patterns as $to) {
-            if ($normalize) {
-                $search = self::addQuotes($to['search'], $all);
+            $normalize && $to = self::normalize($to, $all);
 
-                is_string($to['replace']) && ($to['replace'] = self::addQuotes(
-                    $to['replace'],
-                    [['search' => '<"<int>">', 'replace' => '"<"<1>">"',]]
-                ));
-            }
-
-            [$tokens, $addedFilters] = self::extracted($search ?? $to['search']);
+            [$tokens, $addedFilters] = self::extractFilter($to['search']);
             $tokens = ['search' => $tokens] + $to + $defaults;
             foreach ($addedFilters as $addedFilter) {
                 $tokens['filters'][$addedFilter[0]]['in_array'] = $addedFilter[1];
@@ -93,7 +82,7 @@ class PatternParser
         return Finder::endsWith($token[1], '>?"') || Finder::endsWith($token[1], ">?'");
     }
 
-    private static function extracted($search)
+    private static function extractFilter($search)
     {
         $addedFilters = [];
         $tokens = self::tokenize($search);
@@ -126,7 +115,7 @@ class PatternParser
 
     private static function getPlaceholderIds(): array
     {
-        $ids = [
+        return [
             [
                 'global_func_call',
                 function ($values) {
@@ -140,13 +129,6 @@ class PatternParser
             ],
             ['name', null],
         ];
-
-        return $ids;
-    }
-
-    private static function stringifyKeywords(string $search, string $prePattern, string $prePattern2)
-    {
-
     }
 
     private static function getSearchPatterns()
@@ -175,29 +157,12 @@ class PatternParser
             'bool',
             'boolean',
         ]);
-        $prePattern = '<"<name:'.$names.'>">';
-        $prePattern2 = '<"<name:'.$names.'>">?';
 
-        return [$prePattern, $prePattern2];
-    }
-
-    private static function getReplacePatterns()
-    {
-        $names = implode(',', [
-            '1',
-            '2',
-            '3',
-            '4',
-            '5',
-            '6',
-            '7',
-            '8',
-            '9',
-        ]);
-        $prePattern = '<"<int>">';
-        $prePattern2 = '<"<int>"?>';
-
-        return [$prePattern, $prePattern2];
+        return [
+            // the order of the patterns matter.
+            ['search' => '<"<name:'.$names.'>">?', 'replace' => '"<"<1>">?"',],
+            ['search' => '<"<name:'.$names.'>">', 'replace' => '"<"<1>">"',],
+        ];
     }
 
     private static function addQuotes(string $search, array $all)
@@ -206,5 +171,17 @@ class PatternParser
         unset($tokens[0]);
 
         return Stringify::fromTokens($tokens);
+    }
+
+    private static function normalize($to, $all)
+    {
+        $to['search'] = self::addQuotes($to['search'], $all);
+
+        is_string($to['replace']) && ($to['replace'] = self::addQuotes(
+            $to['replace'],
+            [['search' => '<"<int>">', 'replace' => '"<"<1>">"',]]
+        ));
+
+        return $to;
     }
 }
