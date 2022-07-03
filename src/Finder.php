@@ -3,7 +3,6 @@
 namespace Imanghafoori\SearchReplace;
 
 use Imanghafoori\SearchReplace\Keywords;
-use Imanghafoori\TokenAnalyzer\Str;
 
 class Finder
 {
