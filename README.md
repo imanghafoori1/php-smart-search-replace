@@ -1,5 +1,10 @@
 # Php Smart Search/replace Functionality
 [![tests](https://github.com/imanghafoori1/php-smart-search-replace/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/imanghafoori1/php-smart-search-replace/actions/workflows/tests.yml)
+[![Total Downloads](https://img.shields.io/packagist/dt/imanghafoori/php-search-replace.svg?style=flat-square)](https://packagist.org/packages/imanghafoori/php-search-replace)
+[![Latest Stable Version](https://poser.pugx.org/imanghafoori/php-search-replace/v/stable?format=flat-square)](https://packagist.org/packages/imanghafoori/php-search-replace)
+[![MIT Licensed](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
+
+
 ## It is much easier than using regex.
 
 ### Installation:
