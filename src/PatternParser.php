@@ -175,7 +175,7 @@ class PatternParser
     {
         $to['search'] = self::addQuotes($to['search'], $all);
 
-        is_string($to['replace']) && ($to['replace'] = self::addQuotes(
+        is_string($to['replace'] ?? 0) && ($to['replace'] = self::addQuotes(
             $to['replace'],
             [['search' => '<"<int>">', 'replace' => '"<"<1>">"',]]
         ));
