@@ -3,9 +3,9 @@ name: Code Coverage
 # Controls when the workflow will run
 on:
   push:
-    branches: [master]
+    branches: [ "main" ]
   pull_request:
-    branches: [master]
+    branches: [ "main" ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -40,7 +40,7 @@ jobs:
 
         - name: PHPUnit
           run: |
-            ./vendor/bin/phpunit --stop-on-failure --coverage-clover ./clover.xml -c ./phpunit_conf/coverage.xml.dist
+            ./vendor/bin/phpunit --stop-on-failure --coverage-clover ./clover.xml
           env:
             XDEBUG_MODE: coverage
 
