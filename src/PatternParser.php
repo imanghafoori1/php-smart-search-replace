@@ -50,7 +50,7 @@ class PatternParser
 
     private static function cleanComments($pattern)
     {
-        foreach (['"', "'"] as $c) {
+        foreach (['"', "'", ''] as $c) {
             for ($i = 1; $i !== 11; $i++) {
                 $pattern = str_replace("$c<$i:", "$c<", $pattern, $count);
             }
@@ -156,10 +156,10 @@ class PatternParser
             'boolean',
         ]);
 
+        // the order of the patterns matter.
         return [
-            // the order of the patterns matter.
-            ['search' => '<"<name:'.$names.'>">?', 'replace' => '"<"<1>">?"',],
-            ['search' => '<"<name:'.$names.'>">', 'replace' => '"<"<1>">"',],
+            ['search' => '<"<name:'.$names.'>">?', 'replace' => '"<"<1>">?"'],
+            ['search' => '<"<name:'.$names.'>">', 'replace' => '"<"<1>">"'],
         ];
     }
 
@@ -173,7 +173,7 @@ class PatternParser
 
     private static function normalize($to, $all)
     {
-        $to['search'] = self::addQuotes($to['search'], $all);
+        $to['search'] = self::addQuotes(self::cleanComments($to['search']), $all);
 
         is_string($to['replace'] ?? 0) && ($to['replace'] = self::addQuotes(
             $to['replace'],
