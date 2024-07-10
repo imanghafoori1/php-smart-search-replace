@@ -4,7 +4,7 @@ namespace Imanghafoori\SearchReplace\Tests;
 
 use Imanghafoori\SearchReplace\Searcher;
 
-class Cast extends BaseTestClass
+class CastTest extends BaseTestClass
 {
     /** @test */
     public function number_matching()
