@@ -1,10 +1,9 @@
 # Php Smart Search/replace Functionality
 [![tests](https://github.com/imanghafoori1/php-smart-search-replace/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/imanghafoori1/php-smart-search-replace/actions/workflows/tests.yml)
-[![Coverage Status](https://coveralls.io/repos/github/imanghafoori1/php-smart-search-replace/badge.svg?branch=main)](https://coveralls.io/github/imanghafoori1/php-smart-search-replace?branch=main)
 [![Total Downloads](https://img.shields.io/packagist/dt/imanghafoori/php-search-replace.svg?style=flat-square)](https://packagist.org/packages/imanghafoori/php-search-replace)
 [![Latest Stable Version](https://poser.pugx.org/imanghafoori/php-search-replace/v/stable?format=flat-square)](https://packagist.org/packages/imanghafoori/php-search-replace)
-[![Check Imports](https://github.com/imanghafoori1/php-smart-search-replace/actions/workflows/imports.yml/badge.svg?branch=main)](https://github.com/imanghafoori1/php-smart-search-replace/actions/workflows/imports.yml)
 [![MIT Licensed](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
+[![Check Imports](https://github.com/imanghafoori1/php-smart-search-replace/actions/workflows/imports.yml/badge.svg?branch=main)](https://github.com/imanghafoori1/php-smart-search-replace/actions/workflows/imports.yml)
 
 
 ## It is much easier than using regex.
@@ -49,6 +48,7 @@ Here is a copmerehensive list of placeholders you can use:
 - `<statement>`: to capture a whole php statement.
 - `"<name:nam1,nam2>"` or `<name>`: for method or function names. `->where` or `::where`
 - `<white_space>`: for whitespace blocks
+- `<not_whitespace>`: for non-whitespace  
 - `<bool>` or `'<boolean>'`: for true or false (acts case-insensetive)
 - `<number>`: for numeric values
 - `<cast>`: for type-casts like: `(array) $a;`

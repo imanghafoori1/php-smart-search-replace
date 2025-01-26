@@ -2,8 +2,6 @@
 
 namespace Imanghafoori\SearchReplace;
 
-use Imanghafoori\SearchReplace\Keywords;
-
 class Finder
 {
     public static $primitiveTokens = [
@@ -31,6 +29,7 @@ class Finder
         Keywords\Name::class,
         Keywords\DocBlock::class,
         Keywords\WhiteSpace::class,
+        Keywords\BlackSpace::class,
         Keywords\Comment::class,
         Keywords\MethodVisibility::class,
         Keywords\Boolean::class,
@@ -50,7 +49,7 @@ class Finder
         //',' => ',',
     ];
 
-    public static function compareTokens($pattern, $tokens, $startFrom, $namedPatterns = [])
+    public static function compareTokens($pattern, $tokens, $startFrom, $namedPatterns = [], $ignoreWhitespace = true)
     {
         $pi = $j = 0;
         $tCount = count($tokens);
@@ -73,10 +72,15 @@ class Finder
                 return false;
             }
 
-            [$pToken, $j] = self::getNextToken($pattern, $j);
+            [$pToken, $j] = self::getNextToken($pattern, $j, $ignoreWhitespace ? null : T_WHITESPACE);
 
             $pi = $startFrom;
-            [, $startFrom] = self::forwardToNextToken($pToken, $tokens, $startFrom);
+            
+            if ($ignoreWhitespace) {
+                [, $startFrom] = self::forwardToNextToken($pToken, $tokens, $startFrom);
+            } else {
+                [, $startFrom] = self::getNextToken($tokens, $startFrom, T_WHITESPACE);
+            }
         }
 
         if ($pCount === $j) {
@@ -187,7 +191,8 @@ class Finder
         $namedPatterns = [],
         $filters = [],
         $startFrom = 1,
-        $maxMatch = null
+        $maxMatch = null,
+        $ignoreWhitespace = true
     ) {
         $pIndex = PatternParser::firstNonOptionalPlaceholder($patternTokens);
         $optionalStartingTokens = array_slice($patternTokens, 0, $pIndex);
@@ -199,7 +204,7 @@ class Finder
 
         while ($i < $allCount) {
             $restPatternTokens = array_slice($patternTokens, $pIndex);
-            $isMatch = self::compareTokens($restPatternTokens, $tokens, $i, $namedPatterns);
+            $isMatch = self::compareTokens($restPatternTokens, $tokens, $i, $namedPatterns, $ignoreWhitespace);
             if (! $isMatch) {
                 $i++;
                 continue;
@@ -243,7 +248,7 @@ class Finder
 
     private static function forwardToNextToken($pToken, $tokens, $startFrom)
     {
-        if (isset($pToken[1]) && self::is($pToken, '<white_space>')) {
+        if (isset($pToken[1]) && (self::is($pToken, ['<white_space>', '<not_whitespace>']))) {
             return self::getNextToken($tokens, $startFrom, T_WHITESPACE);
         } elseif (isset($pToken[1]) && self::is($pToken, '<comment>')) {
             return self::getNextToken($tokens, $startFrom, T_COMMENT);
@@ -295,7 +300,7 @@ class Finder
     public static function extractValue($matches, $first = '')
     {
         $segments = [$first];
-        
+
         foreach ($matches as $match) {
             $segments[] = $match[0][1];
         }

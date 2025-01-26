@@ -14,6 +14,7 @@ class PatternParser
     public static function parsePatterns($patterns, $normalize = true)
     {
         $defaults = [
+            'ignore_whitespaces' => true,
             'predicate' => null,
             'mutator' => null,
             'named_patterns' => [],
@@ -50,7 +51,7 @@ class PatternParser
 
     private static function cleanComments($pattern)
     {
-        foreach (['"', "'", ''] as $c) {
+        foreach (['"', "'"] as $c) {
             for ($i = 1; $i !== 11; $i++) {
                 $pattern = str_replace("$c<$i:", "$c<", $pattern, $count);
             }
@@ -133,6 +134,7 @@ class PatternParser
     {
         $names = implode(',', [
             'white_space',
+            'not_whitespace',
             'string',
             'str',
             'variable',
@@ -156,10 +158,10 @@ class PatternParser
             'boolean',
         ]);
 
-        // the order of the patterns matter.
         return [
-            ['search' => '<"<name:'.$names.'>">?', 'replace' => '"<"<1>">?"'],
-            ['search' => '<"<name:'.$names.'>">', 'replace' => '"<"<1>">"'],
+            // the order of the patterns matter.
+            ['search' => '<"<name:'.$names.'>">?', 'replace' => '"<"<1>">?"',],
+            ['search' => '<"<name:'.$names.'>">', 'replace' => '"<"<1>">"',],
         ];
     }
 
@@ -173,7 +175,7 @@ class PatternParser
 
     private static function normalize($to, $all)
     {
-        $to['search'] = self::addQuotes(self::cleanComments($to['search']), $all);
+        $to['search'] = self::addQuotes($to['search'], $all);
 
         is_string($to['replace'] ?? 0) && ($to['replace'] = self::addQuotes(
             $to['replace'],

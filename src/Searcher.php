@@ -50,7 +50,8 @@ class Searcher
             $pattern['named_patterns'],
             $pattern['filters'],
             1,
-            $maxMatches
+            $maxMatches,
+            $pattern['ignore_whitespaces']
         );
 
         [
