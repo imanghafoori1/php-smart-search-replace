@@ -4,6 +4,7 @@ namespace Imanghafoori\SearchReplace\Keywords;
 
 use Imanghafoori\SearchReplace\Finder;
 use Imanghafoori\SearchReplace\PatternParser;
+use Imanghafoori\SearchReplace\Tokens;
 
 class RepeatingPattern
 {
@@ -15,7 +16,7 @@ class RepeatingPattern
         $namedPatterns
     ) {
         $analyzedPattern = PatternParser::tokenize($namedPatterns[Finder::isRepeatingPattern($pToken)]);
-        if (! Finder::compareTokens($analyzedPattern, $tokens, $startFrom)) {
+        if (! Tokens::compareTokens($analyzedPattern, $tokens, $startFrom)) {
             return false;
         }
 
@@ -29,14 +30,14 @@ class RepeatingPattern
         $repeatingMatches = [];
         $end = $startFrom;
         while (true) {
-            $isMatch = Finder::compareTokens($analyzedPattern, $tokens, $startFrom, []);
+            $isMatch = Tokens::compareTokens($analyzedPattern, $tokens, $startFrom, []);
 
             if (! $isMatch) {
                 break;
             }
 
             $end = $isMatch[0];
-            [, $startFrom] = Finder::getNextToken($tokens, $end);
+            [, $startFrom] = Tokens::getNextToken($tokens, $end);
             $repeatingMatches[] = $isMatch[1];
         }
 

@@ -2,7 +2,7 @@
 
 namespace Imanghafoori\SearchReplace\Keywords;
 
-use Imanghafoori\SearchReplace\Finder;
+use Imanghafoori\SearchReplace\Tokens;
 
 class Boolean
 {
@@ -23,7 +23,7 @@ class Boolean
     public static function isBoolean($tokens, $startFrom)
     {
         $t = $tokens[$startFrom];
-        [$next] = Finder::getNextToken($tokens, $startFrom);
+        [$next] = Tokens::getNextToken($tokens, $startFrom);
 
         return $next !== '(' && $t[0] === T_STRING && in_array(strtolower($t[1]), ['true', 'false'], true);
     }

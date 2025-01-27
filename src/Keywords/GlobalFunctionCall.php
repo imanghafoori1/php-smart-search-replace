@@ -2,8 +2,8 @@
 
 namespace Imanghafoori\SearchReplace\Keywords;
 
-use Imanghafoori\SearchReplace\Finder;
 use Imanghafoori\SearchReplace\PatternParser;
+use Imanghafoori\SearchReplace\Tokens;
 
 class GlobalFunctionCall
 {
@@ -21,7 +21,7 @@ class GlobalFunctionCall
         $tToken = $tokens[$startFrom] ?? '_';
 
         if ($tToken[0] === T_NS_SEPARATOR) {
-            $matches = Finder::compareTokens(PatternParser::tokenize('\\"<name>"'), $tokens, $startFrom);
+            $matches = Tokens::compareTokens(PatternParser::tokenize('\\"<name>"'), $tokens, $startFrom);
             if (! $matches) {
                 return false;
             }
