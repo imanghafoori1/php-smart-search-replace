@@ -38,6 +38,8 @@ class PatternParser
     {
         $names = implode(',', [
             'white_space',
+            'compare',
+            'comparison',
             'not_whitespace',
             'string',
             'str',
