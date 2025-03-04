@@ -31,8 +31,9 @@ jobs:
           uses: shivammathur/setup-php@v2
           with:
               php-version: ${{ matrix.php }}
-              extensions: mbstring, exif, iconv, tokenizer, fileinfo, xdebug
-              coverage: xdebug
+              extensions: mbstring, exif, iconv, tokenizer, fileinfo, pcov
+              ini-values: pcov.directory=.
+              coverage: PCOV
 
         - name: Install dependencies
           run: |
@@ -41,8 +42,6 @@ jobs:
         - name: PHPUnit
           run: |
             ./vendor/bin/phpunit --stop-on-failure --coverage-clover ./clover.xml
-          env:
-            XDEBUG_MODE: coverage
 
         #- name: Make code coverage badge
         #  uses: timkrase/phpunit-coverage-badge@v1.2.1
