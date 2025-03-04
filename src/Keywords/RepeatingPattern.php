@@ -3,7 +3,7 @@
 namespace Imanghafoori\SearchReplace\Keywords;
 
 use Imanghafoori\SearchReplace\Finder;
-use Imanghafoori\SearchReplace\PatternParser;
+use Imanghafoori\SearchReplace\Tokenizer;
 use Imanghafoori\SearchReplace\Tokens;
 
 class RepeatingPattern
@@ -15,7 +15,7 @@ class RepeatingPattern
         $pToken,
         $namedPatterns
     ) {
-        $analyzedPattern = PatternParser::tokenize($namedPatterns[Finder::isRepeatingPattern($pToken)]);
+        $analyzedPattern = Tokenizer::tokenize($namedPatterns[Finder::isRepeatingPattern($pToken)]);
         if (! Tokens::compareTokens($analyzedPattern, $tokens, $startFrom)) {
             return false;
         }

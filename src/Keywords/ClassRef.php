@@ -4,6 +4,7 @@ namespace Imanghafoori\SearchReplace\Keywords;
 
 use Imanghafoori\SearchReplace\Finder;
 use Imanghafoori\SearchReplace\PatternParser;
+use Imanghafoori\SearchReplace\Tokenizer;
 use Imanghafoori\SearchReplace\Tokens;
 
 class ClassRef
@@ -28,7 +29,7 @@ class ClassRef
             $startFrom = $matches[0];
             $placeholderValues[] = Finder::extractValue($matches[2][0]);
         } elseif ($tToken[0] === T_STRING) {
-            $repeatingPattern = PatternParser::tokenize('"<name>""<repeating:classRef>"');
+            $repeatingPattern = Tokenizer::tokenize('"<name>""<repeating:classRef>"');
             $matches = Tokens::compareTokens($repeatingPattern, $tokens, $startFrom, $classRef);
             if (! $matches) {
                 $placeholderValues[] = $tToken;

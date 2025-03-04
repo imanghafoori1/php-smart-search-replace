@@ -99,7 +99,7 @@ class Finder
         $maxMatch = null,
         $ignoreWhitespace = true
     ) {
-        $pIndex = PatternParser::firstNonOptionalPlaceholder($patternTokens);
+        $pIndex = Placeholders::firstNonOptionalPlaceholder($patternTokens);
         $optionalStartingTokens = array_slice($patternTokens, 0, $pIndex);
 
         $matches = [];
@@ -154,7 +154,7 @@ class Finder
     public static function matchesAny($avoidResultIn, $newTokens)
     {
         foreach ($avoidResultIn as $pattern) {
-            $_matchedValues = Finder::getMatches(PatternParser::tokenize($pattern), $newTokens);
+            $_matchedValues = Finder::getMatches(Tokenizer::tokenize($pattern), $newTokens);
             if ($_matchedValues) {
                 return true;
             }
